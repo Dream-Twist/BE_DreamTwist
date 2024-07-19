@@ -17,7 +17,7 @@ async function bootstrap() {
   await app.listen(3000);
 }
 //CORS 멀티 리포지토리 통신
-async function repoCORS(){
+async function repoCORS() {
   const app = await NestFactory.create(AppModule);
   app.enableCors();
   await app.listen(4000);
