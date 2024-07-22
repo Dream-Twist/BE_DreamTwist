@@ -1,17 +1,17 @@
 /**
-File Name : fairytale-create.dto
-Description : 동화 스토리 생성 DTO
-Author : 박수정
+File Name : fairytale-board.dto
+Description : 동화 스토리 보드 DTO
+Author : 강민규
 
 History
 Date        Author      Status      Description
-2024.07.19  박수정      Created     
-2024.07.20  박수정      Modified    동화 스토리 생성 기능 추가
+2024.07.22  강민규      Created     
+2024.07.22  강민규      Modified    based on create dto
 */
 
 import { IsString, IsNotEmpty, IsBoolean } from 'class-validator';
 
-export class CreateFairytaleDto {
+export class BoardFairytaleDto {
     @IsString()
     @IsNotEmpty()
     title: string;

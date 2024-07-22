@@ -1,12 +1,12 @@
 /**
-File Name : fairytale-create.repository
+File Name : fairytale-board.repository
 Description : 동화 스토리 생성 Repository
-Author : 박수정
+Author : 강민규
 
 History
 Date        Author      Status      Description
-2024.07.19  박수정      Created
-2024.07.20  박수정      Modified    동화 스토리 생성 기능 추가
+2024.07.22  강민규      Created
+2024.07.22  강민규      Modified    based on create repository
 */
 
 import { Injectable } from '@nestjs/common';
@@ -14,7 +14,7 @@ import { Repository, DataSource } from 'typeorm';
 import { Fairytale } from '../entity/fairytale.entity';
 
 @Injectable()
-export class FairytaleRepository extends Repository<Fairytale> {
+export class BoardFairytaleRepository extends Repository<Fairytale> {
     constructor(private dataSource: DataSource) {
         super(Fairytale, dataSource.createEntityManager());
     }

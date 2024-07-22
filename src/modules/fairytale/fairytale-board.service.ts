@@ -1,7 +1,7 @@
 /**
-File Name : fairytale-create.service
-Description : 동화 스토리 생성 Service
-Author : 박수정
+File Name : fairytale-board.service
+Description : 동화 스토리 보드 Service
+Author : 강민규
 
 History
 Date        Author      Status      Description
@@ -10,22 +10,22 @@ Date        Author      Status      Description
 */
 
 import { Injectable } from '@nestjs/common';
-import { CreateFairytaleDto } from './dto/fairytale-board.dto';
+import { BoardFairytaleDto } from './dto/fairytale-board.dto';
 // import { User } from '../user/user.entity';
-import { FairytaleRepository } from './repository/fairytale-board.repository';
+import { BoardFairytaleRepository } from './repository/fairytale-board.repository';
 import { FairytaleContentRepository } from './repository/fairytale-content.repository';
 import { UserRepository } from '../user/user.repository';
 
 @Injectable()
-export class FairytaleService {
+export class BoardFairytaleService {
     constructor(
-        private readonly fairytaleRepository: FairytaleRepository,
+        private readonly fairytaleRepository: BoardFairytaleRepository,
         private readonly fairytaleContentRepository: FairytaleContentRepository,
         private readonly userRepository: UserRepository,
     ) {}
 
     // async createFairytale(createFairytaleDto: CreateFairytaleDto, user: User) {
-    async createFairytale(createFairytaleDto: CreateFairytaleDto) {
+    async createFairytale(createFairytaleDto: BoardFairytaleDto) {
         // 임시 사용자
         const userId = 1;
         const user = await this.userRepository.findOne({ where: { id: userId } });
