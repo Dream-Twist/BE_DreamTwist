@@ -1,6 +1,6 @@
 /**
-File Name : users.repository
-Description : Users Repository
+File Name : dto
+Description : DTO
 Author : 박수정
 
 History

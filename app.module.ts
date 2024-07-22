@@ -1,33 +1,35 @@
+/**
+File Name : app.module
+Description : app.module.ts
+Author : 강민규
+
+History
+Date        Author      Status      Description
+2024.07.19  강민규      Created     
+2024.07.22  박수정      Modified    app.module 설정
+*/
+
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-//Controller
-import { AppController } from './app.controller';
-import { UsersController } from './src/modules/users/users.controller';
-import { PostsController } from 'src/modules/posts/posts.controller';
-//Provider
-import { AppService } from './app.service';
-import { UsersService } from 'src/modules/users/users.service';
-import { PostsService } from 'src/modules/posts/posts.service';
-//Module
-import { StoriesModule } from './src/modules/stories/stories.module';
+import { FairytaleModule } from './src/modules/fairytale/fairytale.module';
 import { ImagesModule } from './src/modules/images/images.module';
 import { AudioModule } from './src/modules/audio/audio.module';
 import { CharactersModule } from './src/modules/characters/characters.module';
-import { PostsModule } from './src/modules/posts/posts.module';
-import { UsersModule } from './src/modules/users/users.module'
-
-//데이터베이스
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Users } from './src/modules/users/users.entity';
-import { Posts } from './src/modules/posts/posts.entity';
-import *as ormconfig from './ormconfig';
-
-
+import ormconfig from 'config/ormconfig';
 
 @Module({
-  imports: [StoriesModule, ImagesModule, AudioModule,CharactersModule,ConfigModule, PostsModule,Users,
-    Posts,TypeOrmModule.forRoot(ormconfig), UsersModule,],
-  controllers: [AppController, UsersController, PostsController],
-  providers: [AppService,UsersService,PostsService],
+    imports: [
+        ConfigModule.forRoot({
+            isGlobal: true,
+        }),
+        TypeOrmModule.forRoot(ormconfig),
+        FairytaleModule,
+        ImagesModule,
+        AudioModule,
+        CharactersModule,
+    ],
+    controllers: [],
+    providers: [],
 })
 export class AppModule {}
