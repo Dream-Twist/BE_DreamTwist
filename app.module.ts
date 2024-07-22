@@ -14,6 +14,7 @@ import { ImagesModule } from './src/modules/images/images.module';
 import { AudioModule } from './src/modules/audio/audio.module';
 import { CharactersModule } from './src/modules/characters/characters.module';
 import { PostsModule } from './src/modules/posts/posts.module';
+import { UsersModule } from './src/modules/users/users.module'
 
 //데이터베이스
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -25,7 +26,7 @@ import *as ormconfig from './ormconfig';
 
 @Module({
   imports: [StoriesModule, ImagesModule, AudioModule,CharactersModule,ConfigModule, PostsModule,Users,
-    Posts,TypeOrmModule.forRoot(ormconfig),],
+    Posts,TypeOrmModule.forRoot(ormconfig), UsersModule,],
   controllers: [AppController, UsersController, PostsController],
   providers: [AppService,UsersService,PostsService],
 })
