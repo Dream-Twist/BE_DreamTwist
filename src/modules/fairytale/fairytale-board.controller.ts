@@ -10,33 +10,82 @@ Date        Author      Status      Description
 */
 
 // import { Controller, Post, Body, Request } from '@nestjs/common';
-import { Controller, Body, Post, Get, Patch, Delete } from '@nestjs/common';
+import { Controller, Body, Get, Patch, Delete, Param, NotFoundException, ParseIntPipe} from '@nestjs/common';
 import { BoardFairytaleService } from './fairytale-board.service';
 import { BoardFairytaleDto } from './dto/fairytale-board.dto';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-// 동화 스토리 생성
+@ApiTags('Fairytale')
 @Controller('fairytale')
-export class BoardFairytaleController {
+export class FairytaleController {
     constructor(private readonly fairytaleService: BoardFairytaleService) {}
 
-    @Get()
-    // async createFairytale(@Body() createFairytaleDto: CreateFairytaleDto, @Request() req) {
-    async read(@Body() boardFairytaleDto: BoardFairytaleDto) {
-        // return this.fairytaleService.createFairytale(createFairytaleDto, req.user);
-        return this.fairytaleService.createFairytale(boardFairytaleDto);
+    @ApiOperation({ summary: '동화 스토리 직접 생성' })
+    @ApiResponse({
+        status: 201,
+        description: '동화 스토리 생성 성공',
+        schema: {
+            type: 'object',
+            properties: {
+                message: { type: 'string', example: '동화 스토리가 성공적으로 생성되었습니다.' },
+            },
+        },
+    })
+    @ApiResponse({
+        status: 400,
+        description: '잘못된 요청',
+        schema: {
+            type: 'object',
+            properties: { error: { type: 'string', example: '잘못된 요청입니다.' } },
+        },
+    })
+    @ApiResponse({
+        status: 401,
+        description: '인증 실패',
+        schema: {
+            type: 'object',
+            properties: { error: { type: 'string', example: '인증에 실패했습니다.' } },
+        },
+    })
+    @ApiResponse({
+        status: 404,
+        description: '요청한 리소스를 찾을 수 없음',
+        schema: {
+            type: 'object',
+            properties: { error: { type: 'string', example: '요청한 리소스를 찾을 수 없습니다.' } },
+        },
+    })
+    @ApiResponse({
+        status: 500,
+        description: '서버 내부 오류',
+        schema: {
+            type: 'object',
+            properties: { error: { type: 'string', example: '서버 내부 에러가 발생했습니다.' } },
+        },
+    })
+    // 동화 스토리 조회
+    @Get(':id')
+    async getFairytale(@Param('id', ParseIntPipe) id: number) {
+        try {
+            return await this.fairytaleService.readFairytale(id);
+        } catch (error) {
+            throw new NotFoundException(error.message);
+        }
     }
 
-    @Patch()
-    // async createFairytale(@Body() createFairytaleDto: CreateFairytaleDto, @Request() req) {
-    async update(@Body() boardFairytaleDto: BoardFairytaleDto) {
-        // return this.fairytaleService.createFairytale(createFairytaleDto, req.user);
-        return this.fairytaleService.createFairytale(boardFairytaleDto);
-    }
+    // //동화 스토리 수정
+    // @Patch()
+    // // async createFairytale(@Body() createFairytaleDto: CreateFairytaleDto, @Request() req) {
+    // async update(@Body() boardFairytaleDto: BoardFairytaleDto) {
+    //     // return this.fairytaleService.createFairytale(createFairytaleDto, req.user);
+    //     return this.fairytaleService.createFairytale(boardFairytaleDto);
+    // }
 
-    @Delete()
-    // async createFairytale(@Body() createFairytaleDto: CreateFairytaleDto, @Request() req) {
-    async delete(@Body() boardFairytaleDto: BoardFairytaleDto) {
-        // return this.fairytaleService.createFairytale(createFairytaleDto, req.user);
-        return this.fairytaleService.createFairytale(boardFairytaleDto);
-    }
+    // //동화 스토리 지우기
+    // @Delete()
+    // // async createFairytale(@Body() createFairytaleDto: CreateFairytaleDto, @Request() req) {
+    // async delete(@Body() boardFairytaleDto: BoardFairytaleDto) {
+    //     // return this.fairytaleService.createFairytale(createFairytaleDto, req.user);
+    //     return this.fairytaleService.createFairytale(boardFairytaleDto);
+    // }
 }
