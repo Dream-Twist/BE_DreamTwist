@@ -49,6 +49,7 @@ export class FairytaleService {
             isPublic: createFairytaleDto.isPublic,
         });
 
-        return this.fairytaleRepository.findFairytale(fairytale.id);
+        // return this.fairytaleRepository.findFairytale(fairytale.id);
+        return fairytale;
     }
 }
