@@ -25,7 +25,6 @@ const ormconfig: TypeOrmModuleOptions = {
     synchronize: false, // 초기 스키마 생성 시에만 true
     autoLoadEntities: true,
     charset: 'utf8mb4',
-    // logging: true,
     keepConnectionAlive: true,
 };
 

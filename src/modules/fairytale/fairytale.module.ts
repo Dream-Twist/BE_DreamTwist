@@ -1,6 +1,6 @@
 /**
-File Name : fairytale.entity
-Description : 동화 스토리 Entity
+File Name : fairytale.module
+Description : 동화 스토리 Module
 Author : 박수정
 
 History

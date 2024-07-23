@@ -6,7 +6,7 @@ Author : 강민규
 History
 Date        Author      Status      Description
 2024.07.19  강민규      Created     
-2024.07.22  박수정      Modified    app.module 설정
+2024.07.20  박수정      Modified    app.module 설정
 */
 
 import { Module } from '@nestjs/common';
