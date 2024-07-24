@@ -6,8 +6,8 @@ Author : 강민규
 History
 Date        Author      Status      Description
 2024.07.22  강민규      Created
-2024.07.22  강민규      Modified    based on create repository
-2024.07.24  강민규      Modified    GET method
+2024.07.22  강민규      Modified    create 리포지토리 기반
+2024.07.24  강민규      Modified    GET: 동화 스토리 조회
 */
 
 import { Injectable } from '@nestjs/common';

@@ -6,8 +6,8 @@ Author : 강민규
 History
 Date        Author      Status      Description
 2024.07.22  강민규      Created     
-2024.07.22  강민규      Modified    based on create controller
-2024.07.24  강민규      Modified    GET method
+2024.07.22  강민규      Modified    create 리포지토리 기반
+2024.07.24  강민규      Modified    GET: 동화 스토리 조회
 */
 
 // import { Controller, Post, Body, Request } from '@nestjs/common';
@@ -24,12 +24,12 @@ export class BoardFairytaleController {
 
     @ApiOperation({ summary: '동화 스토리 조회' })
     @ApiResponse({
-        status: 201,
+        status: 200,
         description: '동화 스토리 조회 성공',
         schema: {
             type: 'object',
             properties: {
-                message: { type: 'string', example: '동화 스토리가 성공적으로 생성되었습니다.' },
+                message: { type: 'string', example: '동화 스토리가 성공적으로 조회되었습니다.' },
             },
         },
     })
