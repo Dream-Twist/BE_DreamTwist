@@ -7,6 +7,7 @@ History
 Date        Author      Status      Description
 2024.07.22  강민규      Created
 2024.07.22  강민규      Modified    based on create repository
+2024.07.24  강민규      Modified    GET method
 */
 
 import { Injectable } from '@nestjs/common';
@@ -29,5 +30,10 @@ export class BoardFairytaleRepository extends Repository<Fairytale> {
             where: { id },
             relations: ['user', 'content'],
         });
+    }
+
+    async editFairytale(fairytaleData: Partial<Fairytale>): Promise<Fairytale> {
+        const fairytale = this.create(fairytaleData);
+        return this.save(fairytale);
     }
 }

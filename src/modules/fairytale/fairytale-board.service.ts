@@ -7,7 +7,7 @@ History
 Date        Author      Status      Description
 2024.07.22  강민규      Created     
 2024.07.22  강민규      Modified    based on create service
-2024.07.23  강민규      Modified    저장된 스토리 조회
+2024.07.24  강민규      Modified    GET method
 */
 
 import { Injectable, NotFoundException } from '@nestjs/common';
@@ -16,6 +16,7 @@ import { BoardFairytaleDto } from './dto/fairytale-board.dto';
 import { BoardFairytaleRepository } from './repository/fairytale-board.repository';
 import { FairytaleContentRepository } from './repository/fairytale-content.repository';
 import { UserRepository } from '../user/user.repository';
+import { Fairytale } from './entity/fairytale.entity';
 
 @Injectable()
 export class BoardFairytaleService {
@@ -26,37 +27,10 @@ export class BoardFairytaleService {
     ) {}
 
     //스토리 조회 
-    async readFairytale(fairytaleId: number) {
-        // 임시 사용자
-        const userId = 1;
-        const user = await this.userRepository.findOne({ where: { id: userId } });
-        if (!user) {
-            throw new Error('회원을 찾을 수 없습니다.');
-        }
-        // 동화 스토리
-        const fairytale = await this.fairytaleRepository.findOne({
-            where: { id: fairytaleId, user: { id: userId } },
-            relations: ['content'], // Ensure related content is fetched
-        });
-        if (!fairytale) {
-            throw new NotFoundException('동화를 찾을 수 없습니다.');
-        }
-
-        // 동화 스토리 내용
-        const content = await this.fairytaleContentRepository.findOne({
-            where: { id: fairytaleId },
-        });
-        if (!content) {
-            throw new NotFoundException('해당되는 동화 내용이 없습니다.');
-        }
-
-        return {
-            user: fairytale.user.id,
-            title: fairytale.title,
-            labeling: fairytale.labeling,
-            content: content.content, // Assuming 'content' is a string field in your content entity
-            isPublic: fairytale.isPublic,
-        };
-        
+    async getFairytaleById(id: number): Promise<Fairytale> {
+        return this.fairytaleRepository.findFairytale(id);
     }
+
+    //스토리 수정
+    // async editFairytale(fairytaleId: number, boardFairytaleDto: BoardFairytaleDto): Promise<Fairytale> {
 }

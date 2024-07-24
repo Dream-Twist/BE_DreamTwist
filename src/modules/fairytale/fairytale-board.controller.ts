@@ -7,6 +7,7 @@ History
 Date        Author      Status      Description
 2024.07.22  강민규      Created     
 2024.07.22  강민규      Modified    based on create controller
+2024.07.24  강민규      Modified    GET method
 */
 
 // import { Controller, Post, Body, Request } from '@nestjs/common';
@@ -14,16 +15,17 @@ import { Controller, Body, Get, Patch, Delete, Param, NotFoundException, ParseIn
 import { BoardFairytaleService } from './fairytale-board.service';
 import { BoardFairytaleDto } from './dto/fairytale-board.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Fairytale } from './entity/fairytale.entity';
 
 @ApiTags('Fairytale')
 @Controller('fairytale')
-export class FairytaleController {
+export class BoardFairytaleController {
     constructor(private readonly fairytaleService: BoardFairytaleService) {}
 
-    @ApiOperation({ summary: '동화 스토리 직접 생성' })
+    @ApiOperation({ summary: '동화 스토리 조회' })
     @ApiResponse({
         status: 201,
-        description: '동화 스토리 생성 성공',
+        description: '동화 스토리 조회 성공',
         schema: {
             type: 'object',
             properties: {
@@ -65,20 +67,13 @@ export class FairytaleController {
     })
     // 동화 스토리 조회
     @Get(':id')
-    async getFairytale(@Param('id', ParseIntPipe) id: number) {
-        try {
-            return await this.fairytaleService.readFairytale(id);
-        } catch (error) {
-            throw new NotFoundException(error.message);
-        }
+    async getFairytale(@Param('id') id: number): Promise<Fairytale> {
+        return this.fairytaleService.getFairytaleById(id);
     }
 
-    // //동화 스토리 수정
-    // @Patch()
-    // // async createFairytale(@Body() createFairytaleDto: CreateFairytaleDto, @Request() req) {
-    // async update(@Body() boardFairytaleDto: BoardFairytaleDto) {
-    //     // return this.fairytaleService.createFairytale(createFairytaleDto, req.user);
-    //     return this.fairytaleService.createFairytale(boardFairytaleDto);
+    //동화 스토리 수정
+    // @Patch(':id')
+    // async update(@Param('id') fairytaleId: number, @Body() boardFairytaleDto: BoardFairytaleDto) {
     // }
 
     // //동화 스토리 지우기
