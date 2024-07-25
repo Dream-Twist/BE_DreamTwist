@@ -43,11 +43,11 @@ async function bootstrap() {
 }
 
 //CORS 멀티 리포지토리 통신
-async function repoCORS() {
-    const app = await NestFactory.create(AppModule);
-    app.enableCors();
-    await app.listen(4000);
-}
+// async function repoCORS() {
+//     const app = await NestFactory.create(AppModule);
+//     app.enableCors();
+//     await app.listen(4000);
+// }
 
 bootstrap();
-repoCORS();
+// repoCORS();
