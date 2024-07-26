@@ -81,15 +81,21 @@ export class BoardFairytaleService {
 
     //스토리 삭제
     async deleteFairytale(id: number): Promise<string> {
-      const result = await this.fairytaleRepository.delete(id);
-      if (result.affected === 0) {
+      const fairytale = await this.fairytaleRepository.findOne({ where: { id, deletedAt: null } });
+      if (!fairytale) {
         throw new NotFoundException(`Fairytale with ID ${id} not found`);
       }
-      const resultContent = await this.contentRepository.delete(id);
-      if (resultContent.affected === 0) {
+  
+      await this.fairytaleRepository.softDelete(id);
+  
+      const content = await this.contentRepository.findOne({ where: { id, deletedAt: null } });
+      if (!content) {
         throw new NotFoundException(`Fairytale summary not found`);
       }
-        return `${id} 번째 동화책을 삭제했습니다`
+  
+      await this.contentRepository.softDelete(id);
+      
+      return `${id} 번째 동화책을 삭제했습니다`;
     }
 
 }

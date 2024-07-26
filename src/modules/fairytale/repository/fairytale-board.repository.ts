@@ -46,7 +46,7 @@ export class BoardFairytaleRepository extends Repository<Fairytale> {
     // }
 
     // 동화 삭제
-    async deleteFairytale(id: number): Promise<void> {
-        await this.delete(id);
-      }
+    async softDeleteFairytale(id: number): Promise<void> {
+        await this.update(id, { deletedAt: new Date() });
+    }
 }
