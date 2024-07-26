@@ -17,13 +17,19 @@ import { FairytaleRepository } from './repository/fairytale-create.repository';
 import { FairytaleContentRepository } from './repository/fairytale-content.repository';
 import { UserRepository } from '../user/user.repository';
 import { Fairytale } from './entity/fairytale.entity';
+import { ForbiddenWordRepository } from './repository/fairytale-forbidden-word.repository';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class FairytaleService {
     constructor(
+        @InjectRepository(FairytaleRepository)
         private readonly fairytaleRepository: FairytaleRepository,
+        @InjectRepository(FairytaleContentRepository)
         private readonly fairytaleContentRepository: FairytaleContentRepository,
+        @InjectRepository(UserRepository)
         private readonly userRepository: UserRepository,
+        private readonly forbiddenWordRepository: ForbiddenWordRepository,
     ) {}
 
     // 동화 스토리 생성
@@ -37,8 +43,7 @@ export class FairytaleService {
         }
 
         // 금지어 확인
-        this.checkForbiddenWodrds(createFairytaleDto.title);
-        this.checkForbiddenWodrds(createFairytaleDto.content);
+        await this.checkForbiddenWodrds([createFairytaleDto.title, createFairytaleDto.content]);
 
         // 동화 스토리 내용
         const content = await this.fairytaleContentRepository.createContent({
@@ -61,14 +66,20 @@ export class FairytaleService {
     }
 
     // 금지어 설정
-    private checkForbiddenWodrds(text: string): void {
-        // 임시 금지어
-        const forbiddenWords = ['가', '나', '다'];
+    private async checkForbiddenWodrds(texts: string[]): Promise<void> {
+        const forbiddenWords = await this.forbiddenWordRepository.getAllForbiddenWords();
+        const foundForbiddenWords: string[] = [];
 
-        for (const word of forbiddenWords) {
-            if (text.includes(word)) {
-                throw new BadRequestException(`잘못된 단어 사용: ${word}`);
+        for (const text of texts) {
+            for (const word of forbiddenWords) {
+                if (text.includes(word.forbidden_word)) {
+                    foundForbiddenWords.push(word.forbidden_word);
+                }
             }
+        }
+
+        if (foundForbiddenWords.length > 0) {
+            throw new BadRequestException(`입력 불가한 금지어가 포함되어 있습니다: ${foundForbiddenWords.join(', ')}`);
         }
     }
 }
