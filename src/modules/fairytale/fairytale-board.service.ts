@@ -8,6 +8,7 @@ Date        Author      Status      Description
 2024.07.22  강민규      Created     
 2024.07.22  강민규      Modified    create 리포지토리 기반
 2024.07.25  강민규      Modified    GET: 동화 스토리 조회
+2024.07.26  강민규      Modified    DELETE: 동화 스토리 및 줄거리 제거
 */
 
 import { Injectable, NotFoundException, } from '@nestjs/common';
@@ -17,7 +18,7 @@ import { Repository } from 'typeorm';
 import { User } from '../user/user.entity';
 import { Fairytale } from './entity/fairytale.entity';
 import { FairytaleContent } from './entity/fairytale-content.entity';
-
+import { BoardFairytaleDto } from './dto/fairytale-board.dto';
 
 
 @Injectable()
@@ -50,26 +51,51 @@ export class BoardFairytaleService {
         }
       }
 
+    //스토리 수정
+  //   async editUserFairytale(boardFairytaleDto: BoardFairytaleDto) {
+  //     try {
+  //         const content = await this.contentRepository.findOne({
+  //             where: { id: boardFairytaleDto.id },
+  //             relations: ['user'],
+  //         });
+  
+  //         if (!content) {
+  //             throw new Error('Content not found');
+  //         }
+  
+  //         const fairytale = await this.fairytaleRepository.save({
+  //             user: content.user,
+  //             content: content,
+  //             title: boardFairytaleDto.title,
+  //             labeling: boardFairytaleDto.labeling,
+  //             isPublic: boardFairytaleDto.isPublic,
+  //         });
+  
+  //         return { message: '동화 스토리가 성공적으로 수정되었습니다.', fairytale: fairytale };
+  //     } catch (error) {
+  //         return { message: error.message }; // Handle and return meaningful error messages
+  //     }
+  // }
+  
+
+
     //스토리 삭제
-    // async deleteFairytaleById(id: number): Promise<void> {
-    //     const result = await this.fairytaleRepository.delete(id);
-    //     if (result.affected === 0) {
-    //         throw new NotFoundException(`Fairytale with ID ${id} not found`);
-    //     }
-    // }
-    // const fairytale = await this.fairytaleRepository.findFairytale(id);
+    async deleteFairytale(id: number): Promise<string> {
+      const fairytale = await this.fairytaleRepository.findOne({ where: { id, deletedAt: null } });
+      if (!fairytale) {
+        throw new NotFoundException(`Fairytale with ID ${id} not found`);
+      }
+  
+      await this.fairytaleRepository.softDelete(id);
+  
+      const content = await this.contentRepository.findOne({ where: { id, deletedAt: null } });
+      if (!content) {
+        throw new NotFoundException(`Fairytale summary not found`);
+      }
+  
+      await this.contentRepository.softDelete(id);
+      
+      return `${id} 번째 동화책을 삭제했습니다`;
+    }
 
-    //     if (!fairytale) {
-    //         return '동화책을 찾을 수 없습니다'; // Fairytale not found
-    //     }
-
-    //     if (fairytale.id !== userId) {
-    //         throw new UnauthorizedException('해당 동화에 대한 삭제 권한이 없습니다.'); // Unauthorized
-    //     }
-
-    //     fairytale.deletedAt = new Date(); // Soft delete
-    //     await this.fairytaleRepository.save(fairytale);
-
-    //     return `${id} 번째 동화책을 삭제했습니다`; // Successful deletion message
-    // }
 }
