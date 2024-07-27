@@ -9,7 +9,7 @@ Date        Author      Status      Description
 2024.07.22  강민규      Modified    create 리포지토리 기반
 2024.07.25  강민규      Modified    GET: 유저의 동화 목록 조회
 2024.07.26  강민규      Modified    DELETE: 동화 스토리 및 줄거리 제거
-
+2024.07.27  강민규      Modified    GET: 동화 목록 및 특정 동화 세부 조회
 */
 
 import { Injectable } from '@nestjs/common';
@@ -22,28 +22,33 @@ export class BoardFairytaleRepository extends Repository<Fairytale> {
         super(Fairytale, dataSource.createEntityManager());
     }
     // 동화 조회
-    async findFairytale(id: number): Promise<Fairytale | null> {
-        const queryBuilder = this.createQueryBuilder('fairytale')
-            .leftJoinAndSelect('fairytale.user', 'user')
+    //동화 목록
+    async findAllByUserId(userId: number): Promise<Fairytale[]> {
+        return this.createQueryBuilder('fairytale')
             .leftJoinAndSelect('fairytale.content', 'content')
-            .where('fairytale.id = :id', { id });
-
-        const fairytale = await queryBuilder.getOne();
-        return fairytale;
+            .where('fairytale.userId = :userId', { userId })
+            // .withDeleted() 필요하면 사용
+            .getMany();
+    }
+    //찾는 동화 세부
+    async findByIdWithContent(fairytaleId: number): Promise<Fairytale> {
+        return this.createQueryBuilder('fairytale')
+            .leftJoinAndSelect('fairytale.content', 'content')
+            .where('fairytale.id = :fairytaleId', { fairytaleId })
+            .getOne();
+    }
+    //조회수 추가, fairytale 엔티티 작업이라 아직 작동 안 함
+    async incrementViews(fairytaleId: number) {
+        return this.createQueryBuilder()
+            .update('fairytale')
+            .set({ views: () => 'views + 1' })
+            .where('id = :fairytaleId', { fairytaleId })
+            .execute();
     }
     
     // 동화 수정
-    // async updateFairytale(id: number): Promise<Fairytale> {
-    //     const fairytale = await this.findOne({
-    //         where: { id },
-    //         relations: ['user', 'content'],
-    //     }); // Assuming id is provided in fairytaleData
-    //     if (!fairytale) {
-    //         throw new Error('Fairytale not found');
-    //     }
-    //     Object.assign(fairytale, id); // Update the fairytale with new data
-    //     return this.save(fairytale);
-    // }
+    async updateFairytale() {
+    }
 
     // 동화 삭제
     async softDeleteFairytale(id: number): Promise<void> {

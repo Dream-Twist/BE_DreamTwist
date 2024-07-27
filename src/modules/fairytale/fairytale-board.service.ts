@@ -9,6 +9,7 @@ Date        Author      Status      Description
 2024.07.22  강민규      Modified    create 리포지토리 기반
 2024.07.25  강민규      Modified    GET: 동화 스토리 조회
 2024.07.26  강민규      Modified    DELETE: 동화 스토리 및 줄거리 제거
+2024.07.27  강민규      Modified    GET: 동화 목록 및 특정 동화 세부 조회
 */
 
 import { Injectable, NotFoundException, } from '@nestjs/common';
@@ -19,8 +20,7 @@ import { User } from '../user/user.entity';
 import { Fairytale } from './entity/fairytale.entity';
 import { FairytaleContent } from './entity/fairytale-content.entity';
 import { BoardFairytaleDto } from './dto/fairytale-board.dto';
-
-
+import { BoardFairytaleRepository } from './repository/fairytale-board.repository';
 @Injectable()
 export class BoardFairytaleService {
     constructor(
@@ -30,52 +30,36 @@ export class BoardFairytaleService {
     private readonly fairytaleRepository: Repository<Fairytale>,
     @InjectRepository(FairytaleContent)
     private readonly contentRepository: Repository<FairytaleContent>,
-    ) {}
+    @InjectRepository (BoardFairytaleRepository)
+    private readonly boardFairytaleRepository: BoardFairytaleRepository
+  ) {}
 
-    //스토리 조회 
-    async getUserWithFairytales(userId: string) {
-        try {
-          const user = await this.userRepository.createQueryBuilder('user')
-            .leftJoinAndSelect('user.fairytales', 'fairytale')
-            .leftJoinAndSelect('fairytale.content', 'content')
-            .where('user.id = :userId', { userId })
-            .getOne();
-    
-          if (!user) {
-            throw new NotFoundException(`요청한 리소스를 찾을 수 없습니다`);
-          }
-          return user;
-        } catch (error) {
-          console.error('Error retrieving user with fairytales:', error);
-          throw error;
-        }
+    //유저 동화 전체 조회
+    async getFairytalesByUserId(userId: number) {
+      return this.boardFairytaleRepository.findAllByUserId(userId);
+  }
+    //동화 세부 조회
+    async getFairytaleContent(fairytaleId: number, userId: number): Promise<any> {
+      const fairytale = await this.boardFairytaleRepository.findByIdWithContent(fairytaleId);
+      
+      if (!fairytale) {
+          throw new NotFoundException('Fairytale not found');
       }
 
+      // Check if the requesting user is different from the author to increase views
+      // if (fairytale.user.id !== userId) {
+      //     await this.boardFairytaleRepository.incrementViews(fairytaleId);
+      // }
+
+      return fairytale.content;
+  }
+  
+  
+
     //스토리 수정
-  //   async editUserFairytale(boardFairytaleDto: BoardFairytaleDto) {
-  //     try {
-  //         const content = await this.contentRepository.findOne({
-  //             where: { id: boardFairytaleDto.id },
-  //             relations: ['user'],
-  //         });
-  
-  //         if (!content) {
-  //             throw new Error('Content not found');
-  //         }
-  
-  //         const fairytale = await this.fairytaleRepository.save({
-  //             user: content.user,
-  //             content: content,
-  //             title: boardFairytaleDto.title,
-  //             labeling: boardFairytaleDto.labeling,
-  //             isPublic: boardFairytaleDto.isPublic,
-  //         });
-  
-  //         return { message: '동화 스토리가 성공적으로 수정되었습니다.', fairytale: fairytale };
-  //     } catch (error) {
-  //         return { message: error.message }; // Handle and return meaningful error messages
-  //     }
-  // }
+    async editUserFairytale(boardFairytaleDto: BoardFairytaleDto) {
+      
+    }
   
 
 
