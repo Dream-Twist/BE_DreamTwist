@@ -51,7 +51,7 @@ export class BoardFairytaleService {
       //     await this.boardFairytaleRepository.incrementViews(fairytaleId);
       // }
 
-      return fairytale.content;
+      return fairytale;
   }
   
   
