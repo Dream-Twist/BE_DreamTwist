@@ -10,6 +10,7 @@ Date        Author      Status      Description
 2024.07.25  강민규      Modified    GET: 동화 스토리 조회
 2024.07.26  강민규      Modified    DELETE: 동화 스토리 및 줄거리 제거
 2024.07.27  강민규      Modified    GET: 동화 목록 및 특정 동화 세부 조회
+2024.07.29  강민규      Modified    GET: 조회수 상승
 */
 
 import { Injectable, NotFoundException, } from '@nestjs/common';
@@ -39,22 +40,45 @@ export class BoardFairytaleService {
       return this.boardFairytaleRepository.findAllByUserId(userId);
   }
     //동화 세부 조회
-    async getFairytaleContent(fairytaleId: number, userId: number): Promise<any> {
-      const fairytale = await this.boardFairytaleRepository.findByIdWithContent(fairytaleId);
-      
+    async getFairytaleContent(fairytaleId: number, id: number): Promise<any> {
+      const fairytale = await this.boardFairytaleRepository.findOne({
+        where: { id: fairytaleId },
+        relations: ['user'], // Ensure the 'user' relation is loaded
+      });
+
       if (!fairytale) {
           throw new NotFoundException('Fairytale not found');
       }
 
-      // Check if the requesting user is different from the author to increase views
-      // if (fairytale.user.id !== userId) {
-      //     await this.boardFairytaleRepository.incrementViews(fairytaleId);
-      // }
+      // 작성자가 아니면 조회 시 +1
+      // let userId = 1; ★★★ 이걸 바꾸면서 임시 유저로 테스트하기 (fairytale-board.controller)
+      const viewer = await this.userRepository.findOne({
+        where: { id },
+        relations: ['fairytales'],
+      });
 
-      return fairytale.content;
+      // 조회 인원과 동화가 존재하는지 확인
+      if (viewer && fairytale) {
+        // 조회자가 작성자가 아니면 +1
+        if (fairytale.user && viewer.id !== fairytale.user.id) {
+          await this.boardFairytaleRepository.incrementViews(fairytaleId);
+        } else {
+          // 조회자가 작성자이면
+          console.error('작성자입니다.');
+        }
+      } else {
+        // 조회 인원 또는 동화가 없으면
+        console.error('조회되지 않는 인원 또는 해당 동화가 없습니다.');
+      }
+      
+
+      return fairytale;
   }
   
-  
+    //동화 좋아요
+  //   async createFairytaleLike(userId: number) {
+  //     return this.boardFairytaleRepository.incrementLikes(userId);
+  // }
 
     //스토리 수정
     async editUserFairytale(boardFairytaleDto: BoardFairytaleDto) {
