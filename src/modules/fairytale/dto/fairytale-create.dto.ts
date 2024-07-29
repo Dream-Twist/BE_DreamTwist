@@ -17,12 +17,12 @@ export class CreateFairytaleDto {
     @ApiProperty()
     @IsString()
     @IsNotEmpty()
-    title: string;
+    theme: string;
 
     @ApiProperty()
     @IsString()
     @IsNotEmpty()
-    labeling: string;
+    title: string;
 
     @ApiProperty()
     @IsString()
