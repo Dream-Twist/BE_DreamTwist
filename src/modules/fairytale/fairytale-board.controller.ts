@@ -69,7 +69,7 @@ export class BoardFairytaleController {
         description: '요청한 리소스를 찾을 수 없음',
         schema: {
             type: 'object',
-            properties: { error: { type: 'string', example: '요청한 리소스를 찾을 수 없습니다' } },
+            properties: { error: { type: 'string', example: '요청한 유저 {id}의 동화 목록을 찾을 수 없습니다' } },
         },
     })
     @ApiResponse({
@@ -117,7 +117,7 @@ export class BoardFairytaleController {
         description: '요청한 리소스를 찾을 수 없음',
         schema: {
             type: 'object',
-            properties: { error: { type: 'string', example: '요청한 리소스를 찾을 수 없습니다' } },
+            properties: { error: { type: 'string', example: '{id}번 동화 줄거리를 찾을 수 없습니다.' } },
         },
     })
     @ApiResponse({
@@ -133,9 +133,6 @@ export class BoardFairytaleController {
         // 임시 유저
         const userId = 1;
         const content = await this.fairytaleService.getFairytaleContent(fairytaleId, userId);
-        if (!content) {
-            throw new NotFoundException('Fairytale content not found');
-        }
         return content;
     }
     // 수정
@@ -193,7 +190,7 @@ export class BoardFairytaleController {
         schema: {
             type: 'object',
             properties: {
-                message: { type: 'string', example: '${id} 번째 동화책을 삭제했습니다' },
+                message: { type: 'string', example: '${id} 번 동화책을 삭제했습니다' },
             },
         },
     })
@@ -226,7 +223,12 @@ export class BoardFairytaleController {
         description: '요청한 리소스를 찾을 수 없음',
         schema: {
             type: 'object',
-            properties: { error: { type: 'string', example: '동화책을 찾을 수 없습니다' } },
+            properties: {
+                error: {
+                    type: 'string',
+                    example: ['{id}번 동화책을 찾을 수 없습니다', '{id}번 동화책의 줄거리를 찾을 수 없습니다'],
+                },
+            },
         },
     })
     @ApiResponse({

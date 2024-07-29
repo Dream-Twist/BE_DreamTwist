@@ -37,7 +37,11 @@ export class BoardFairytaleService {
 
     //유저 동화 전체 조회
     async getFairytalesByUserId(userId: number) {
-        return this.boardFairytaleRepository.findAllByUserId(userId);
+        const fairytales = await this.boardFairytaleRepository.findAllByUserId(userId);
+        if (!fairytales || fairytales.length === 0) {
+            throw new NotFoundException(`요청한 유저 ${userId}의 동화 목록을 찾을 수 없습니다`);
+        }
+        return fairytales;
     }
     //동화 세부 조회
     async getFairytaleContent(fairytaleId: number, id: number): Promise<any> {
@@ -47,7 +51,7 @@ export class BoardFairytaleService {
         });
 
         if (!fairytale) {
-            throw new NotFoundException('Fairytale not found');
+            throw new NotFoundException('{id}번 동화 줄거리를 찾을 수 없습니다.');
         }
 
         // 작성자가 아니면 조회 시 +1
@@ -86,18 +90,18 @@ export class BoardFairytaleService {
     async deleteFairytale(id: number): Promise<string> {
         const fairytale = await this.fairytaleRepository.findOne({ where: { id, deletedAt: null } });
         if (!fairytale) {
-            throw new NotFoundException(`Fairytale with ID ${id} not found`);
+            throw new NotFoundException(`{id}번 동화책을 찾을 수 없습니다`);
         }
 
         await this.fairytaleRepository.softDelete(id);
 
         const content = await this.contentRepository.findOne({ where: { id, deletedAt: null } });
         if (!content) {
-            throw new NotFoundException(`Fairytale summary not found`);
+            throw new NotFoundException(`{id}번 동화책의 줄거리를 찾을 수 없습니다`);
         }
 
         await this.contentRepository.softDelete(id);
 
-        return `${id} 번째 동화책을 삭제했습니다`;
+        return `${id} 번 동화책을 삭제했습니다`;
     }
 }
