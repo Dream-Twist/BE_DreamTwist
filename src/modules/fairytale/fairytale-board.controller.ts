@@ -190,7 +190,7 @@ export class BoardFairytaleController {
         schema: {
             type: 'object',
             properties: {
-                message: { type: 'string', example: '${id} 번 동화책을 삭제했습니다' },
+                message: { type: 'string', example: '${id} 번 동화를 삭제했습니다' },
             },
         },
     })
@@ -226,7 +226,7 @@ export class BoardFairytaleController {
             properties: {
                 error: {
                     type: 'string',
-                    example: ['{id}번 동화책을 찾을 수 없습니다', '{id}번 동화책의 줄거리를 찾을 수 없습니다'],
+                    example: ['{id}번 동화를 찾을 수 없습니다', '{id}번 동화의 줄거리를 찾을 수 없습니다'],
                 },
             },
         },
@@ -243,7 +243,7 @@ export class BoardFairytaleController {
     @Delete(':id')
     async deleteFairytale(@Param('id', ParseIntPipe) id: number): Promise<string> {
         await this.fairytaleService.deleteFairytale(id);
-        return `${id} 번 동화책을 삭제했습니다`;
+        return `${id} 번 동화를 삭제했습니다`;
     }
     //좋아요 올리기
     // @ApiOperation({ summary: '좋아요 올리기' })

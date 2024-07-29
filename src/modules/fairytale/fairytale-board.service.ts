@@ -96,13 +96,13 @@ export class BoardFairytaleService {
             // 동화가 삭제되지 않았는지 확인
             const fairytale = await queryRunner.manager.findOne(Fairytale, { where: { id, deletedAt: null } });
             if (!fairytale) {
-                throw new NotFoundException(`{id}번 동화책을 찾을 수 없습니다`);
+                throw new NotFoundException(`{id}번 동화를 찾을 수 없습니다`);
             }
 
             // 동화 줄거리가 삭제되지 않았는지 확인
             const content = await queryRunner.manager.findOne(FairytaleContent, { where: { id, deletedAt: null } });
             if (!content) {
-                throw new NotFoundException(`{id}번 동화책의 줄거리를 찾을 수 없습니다`);
+                throw new NotFoundException(`{id}번 동화의 줄거리를 찾을 수 없습니다`);
             }
 
             // 동화와 동화 줄거리에 deletedAt 값 생성
