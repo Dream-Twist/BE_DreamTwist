@@ -15,7 +15,7 @@ import { CreateFairytaleDto } from 'src/modules/fairytale/dto/fairytale-create.d
 export class UserDto {
     @ApiProperty()
     @IsNumber() // Assuming ID is a UUID; use @IsNumber() if it's a numeric ID
-    @IsOptional() 
+    @IsOptional()
     id: number;
 
     @ApiProperty()
@@ -41,7 +41,7 @@ export class UserDto {
     updatedAt: Date;
 
     @ApiProperty()
-    @IsOptional() 
+    @IsOptional()
     @IsDate()
     deletedAt?: Date;
 

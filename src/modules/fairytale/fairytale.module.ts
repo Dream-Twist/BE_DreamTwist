@@ -27,7 +27,7 @@ import { BoardFairytaleController } from './fairytale-board.controller';
 import { ForbiddenWord } from './entity/fairytale-forbidden-word.entity';
 import { ForbiddenWordRepository } from './repository/fairytale-forbidden-word.repository';
 //조회 좋아요
-import { Views,Likes } from './entity/fairytale-utilities.entity';
+import { Views, Likes } from './entity/fairytale-utilities.entity';
 import { DataSource, View } from 'typeorm';
 
 @Module({

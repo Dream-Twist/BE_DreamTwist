@@ -26,11 +26,13 @@ export class BoardFairytaleRepository extends Repository<Fairytale> {
     // 동화 조회
     //동화 목록
     async findAllByUserId(userId: number): Promise<Fairytale[]> {
-        return this.createQueryBuilder('fairytale')
-            .leftJoinAndSelect('fairytale.content', 'content')
-            .where('fairytale.userId = :userId', { userId })
-            // .withDeleted() 필요하면 사용
-            .getMany();
+        return (
+            this.createQueryBuilder('fairytale')
+                .leftJoinAndSelect('fairytale.content', 'content')
+                .where('fairytale.userId = :userId', { userId })
+                // .withDeleted() 필요하면 사용
+                .getMany()
+        );
     }
     //찾는 동화 세부
     async findByIdWithContent(fairytaleId: number): Promise<Fairytale> {
@@ -39,9 +41,9 @@ export class BoardFairytaleRepository extends Repository<Fairytale> {
             .where('fairytale.id = :fairytaleId', { fairytaleId })
             .getOne();
     }
-    
+
     //조회 수 추가
-    async incrementViews(fairytaleId: number){
+    async incrementViews(fairytaleId: number) {
         // 동화에 해당되는 Views 엔티티 행이 없으면 올라가지 않음
         return this.createQueryBuilder()
             .update(Views)
@@ -58,10 +60,9 @@ export class BoardFairytaleRepository extends Repository<Fairytale> {
             .where('fairytale.id = :fairytaleId', { fairytaleId })
             .execute();
     }
-    
+
     // 동화 수정
-    async updateFairytale() {
-    }
+    async updateFairytale() {}
 
     // 동화 삭제
     async softDeleteFairytale(id: number): Promise<void> {

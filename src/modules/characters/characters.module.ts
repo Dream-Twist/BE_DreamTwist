@@ -3,7 +3,7 @@ import { CharactersService } from './characters.service';
 import { CharactersController } from './characters.controller';
 
 @Module({
-  providers: [CharactersService],
-  controllers: [CharactersController]
+    providers: [CharactersService],
+    controllers: [CharactersController],
 })
 export class CharactersModule {}

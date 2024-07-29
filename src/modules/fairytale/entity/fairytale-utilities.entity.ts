@@ -26,8 +26,8 @@ export class Views {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({default:0})
-    views: number
+    @Column({ default: 0 })
+    views: number;
     // initially 0
 
     @ManyToOne(() => Fairytale)
@@ -51,8 +51,8 @@ export class Likes {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({default:0})
-    likes: number
+    @Column({ default: 0 })
+    likes: number;
     // initially 0
 
     @ManyToOne(() => Fairytale)
