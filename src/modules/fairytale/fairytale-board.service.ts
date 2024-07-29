@@ -15,7 +15,7 @@ Date        Author      Status      Description
 
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 
 import { User } from '../user/user.entity';
 import { Fairytale } from './entity/fairytale.entity';
@@ -33,6 +33,7 @@ export class BoardFairytaleService {
         private readonly contentRepository: Repository<FairytaleContent>,
         @InjectRepository(BoardFairytaleRepository)
         private readonly boardFairytaleRepository: BoardFairytaleRepository,
+        private readonly dataSource: DataSource,
     ) {}
 
     //유저 동화 전체 조회
@@ -87,21 +88,34 @@ export class BoardFairytaleService {
     async editUserFairytale(boardFairytaleDto: BoardFairytaleDto) {}
 
     //스토리 삭제
-    async deleteFairytale(id: number): Promise<string> {
-        const fairytale = await this.fairytaleRepository.findOne({ where: { id, deletedAt: null } });
-        if (!fairytale) {
-            throw new NotFoundException(`{id}번 동화책을 찾을 수 없습니다`);
+    async deleteFairytale(id: number): Promise<void> {
+        const queryRunner = this.dataSource.getRepository(Fairytale).manager.connection.createQueryRunner();
+        await queryRunner.startTransaction();
+
+        try {
+            // 동화가 삭제되지 않았는지 확인
+            const fairytale = await queryRunner.manager.findOne(Fairytale, { where: { id, deletedAt: null } });
+            if (!fairytale) {
+                throw new NotFoundException(`{id}번 동화책을 찾을 수 없습니다`);
+            }
+
+            // 동화 줄거리가 삭제되지 않았는지 확인
+            const content = await queryRunner.manager.findOne(FairytaleContent, { where: { id, deletedAt: null } });
+            if (!content) {
+                throw new NotFoundException(`{id}번 동화책의 줄거리를 찾을 수 없습니다`);
+            }
+
+            // 동화와 동화 줄거리에 deletedAt 값 생성
+            await queryRunner.manager.softDelete(Fairytale, id);
+            await queryRunner.manager.softDelete(FairytaleContent, id);
+
+            // 모든 조건 만족하면 transaction
+            await queryRunner.commitTransaction();
+        } catch (error) {
+            await queryRunner.rollbackTransaction();
+            throw error;
+        } finally {
+            await queryRunner.release();
         }
-
-        await this.fairytaleRepository.softDelete(id);
-
-        const content = await this.contentRepository.findOne({ where: { id, deletedAt: null } });
-        if (!content) {
-            throw new NotFoundException(`{id}번 동화책의 줄거리를 찾을 수 없습니다`);
-        }
-
-        await this.contentRepository.softDelete(id);
-
-        return `${id} 번 동화책을 삭제했습니다`;
     }
 }

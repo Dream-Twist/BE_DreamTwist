@@ -241,8 +241,9 @@ export class BoardFairytaleController {
     })
     // 동화 스토리 지우기
     @Delete(':id')
-    async deleteFairytale(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    async deleteFairytale(@Param('id', ParseIntPipe) id: number): Promise<string> {
         await this.fairytaleService.deleteFairytale(id);
+        return `${id} 번 동화책을 삭제했습니다`;
     }
     //좋아요 올리기
     // @ApiOperation({ summary: '좋아요 올리기' })
