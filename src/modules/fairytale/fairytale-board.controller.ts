@@ -10,11 +10,12 @@ Date        Author      Status      Description
 2024.07.25  강민규      Modified    GET: 동화 스토리 조회
 2024.07.26  강민규      Modified    DELETE: 동화 스토리 및 줄거리 제거
 2024.07.27  강민규      Modified    GET: 동화 목록 및 특정 동화 세부 조회
+2024.07.29  강민규      Modified    GET: 조회수 상승
 
 */
 
 // import { Controller, Post, Body, Request } from '@nestjs/common';
-import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Post, Put, Query } from '@nestjs/common';
 import { BoardFairytaleService } from './fairytale-board.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { BoardFairytaleDto } from './dto/fairytale-board.dto';
@@ -234,8 +235,55 @@ export class BoardFairytaleController {
     async deleteFairytale(@Param('id', ParseIntPipe) id: number): Promise<void> {
         await this.fairytaleService.deleteFairytale(id);
     }
-    
-
+    //좋아요 올리기
+    // @ApiOperation({ summary: '좋아요 올리기' })
+    // @ApiResponse({
+    //     status: 201,
+    //     description: '좋아요 생성 성공',
+    //     schema: {
+    //         type: 'object',
+    //         properties: {
+    //             message: { type: 'string', example: '1개의 좋아요가 성공적으로 생성되었습니다.' },
+    //         },
+    //     },
+    // })
+    // @ApiResponse({
+    //     status: 400,
+    //     description: '잘못된 요청',
+    //     schema: {
+    //         type: 'object',
+    //         properties: { error: { type: 'string', example: '잘못된 요청입니다.' } },
+    //     },
+    // })
+    // @ApiResponse({
+    //     status: 401,
+    //     description: '인증 실패',
+    //     schema: {
+    //         type: 'object',
+    //         properties: { error: { type: 'string', example: '인증에 실패했습니다.' } },
+    //     },
+    // })
+    // @ApiResponse({
+    //     status: 404,
+    //     description: '요청한 리소스를 찾을 수 없음',
+    //     schema: {
+    //         type: 'object',
+    //         properties: { error: { type: 'string', example: '요청한 리소스를 찾을 수 없습니다.' } },
+    //     },
+    // })
+    // @ApiResponse({
+    //     status: 500,
+    //     description: '서버 내부 오류',
+    //     schema: {
+    //         type: 'object',
+    //         properties: { error: { type: 'string', example: '서버 내부 에러가 발생했습니다.' } },
+    //     },
+    // })
+    // @Post()
+    // async createFairytaleLike(@Body() boardFairytaleDto: BoardFairytaleDto) {
+    //     await this.fairytaleService.createFairytaleLike(boardFairytaleDto);
+    //     return { message: '1개의 좋아요가 성공적으로 생성되었습니다.' };
+    // }
     
 }
 
