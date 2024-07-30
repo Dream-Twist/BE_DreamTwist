@@ -10,7 +10,7 @@ Date        Author      Status      Description
 2024.07.25  강민규      Modified    GET: 동화 스토리 조회
 2024.07.26  강민규      Modified    DELETE: 동화 스토리 및 줄거리 제거
 2024.07.27  강민규      Modified    GET: 동화 목록 및 특정 동화 세부 조회
-2024.07.29  강민규      Modified    GET: 조회수 상승
+2024.07.30  강민규      Modified    GET: 조회수 기록
 */
 
 import { Injectable, NotFoundException } from '@nestjs/common';
@@ -20,6 +20,7 @@ import { DataSource, Repository } from 'typeorm';
 import { User } from '../user/user.entity';
 import { Fairytale } from './entity/fairytale.entity';
 import { FairytaleContent } from './entity/fairytale-content.entity';
+import { Views, Likes } from './entity/fairytale-utilities.entity';
 import { BoardFairytaleDto } from './dto/fairytale-board.dto';
 import { BoardFairytaleRepository } from './repository/fairytale-board.repository';
 @Injectable()
@@ -46,37 +47,58 @@ export class BoardFairytaleService {
     }
     //동화 세부 조회
     async getFairytaleContent(fairytaleId: number, id: number): Promise<any> {
-        const fairytale = await this.boardFairytaleRepository.findOne({
-            where: { id: fairytaleId },
-            relations: ['user'], // Ensure the 'user' relation is loaded
-        });
+        const queryRunner = this.dataSource.createQueryRunner();
 
-        if (!fairytale) {
-            throw new NotFoundException('{id}번 동화 줄거리를 찾을 수 없습니다.');
-        }
+        await queryRunner.startTransaction();
 
-        // 작성자가 아니면 조회 시 +1
-        // let userId = 1; ★★★ 이걸 바꾸면서 임시 유저로 테스트하기 (fairytale-board.controller)
-        const viewer = await this.userRepository.findOne({
-            where: { id },
-            relations: ['fairytales'],
-        });
+        try {
+            const fairytale = await queryRunner.manager.findOne(Fairytale, {
+                where: { id: fairytaleId },
+                relations: ['user'],
+            });
 
-        // 조회 인원과 동화가 존재하는지 확인
-        if (viewer && fairytale) {
-            // 조회자가 작성자가 아니면 +1
-            if (fairytale.user && viewer.id !== fairytale.user.id) {
-                await this.boardFairytaleRepository.incrementViews(fairytaleId);
-            } else {
-                // 조회자가 작성자이면
-                console.error('작성자입니다.');
+            if (!fairytale) {
+                throw new NotFoundException(`{id}번 동화 줄거리를 찾을 수 없습니다.`);
             }
-        } else {
-            // 조회 인원 또는 동화가 없으면
-            console.error('조회되지 않는 인원 또는 해당 동화가 없습니다.');
-        }
 
-        return fairytale;
+            // 조회자 확인
+            const viewer = await queryRunner.manager.findOne(User, {
+                where: { id },
+                relations: ['fairytales'],
+            });
+
+            if (viewer && fairytale) {
+                // 작성자가 아니면 조회자 기록
+                if (fairytale.user && viewer.id !== fairytale.user.id) {
+                    await queryRunner.manager.insert('views', {
+                        user: { id: viewer.id },
+                        fairytale: { id: fairytaleId },
+                    });
+                } else {
+                    // 작성자가 조회
+                    console.error('작성자입니다.');
+                }
+            } else {
+                // 조회자 또는 동화가 없음
+                console.error('조회되지 않는 인원 또는 해당 동화가 없습니다.');
+            }
+            // 조회자 콘솔
+            console.log(`조회 유저 ID: ${viewer.id}`);
+            const viewCount = await queryRunner.manager
+                .createQueryBuilder()
+                .select('COUNT(DISTINCT view.userId)', 'count')
+                .from(Views, 'view')
+                .where('view.fairytaleId = :fairytaleId', { fairytaleId })
+                .getRawOne();
+            console.log(`동화 ${fairytaleId} 의 조회수: ${viewCount.count}`);
+            await queryRunner.commitTransaction();
+            return fairytale;
+        } catch (err) {
+            await queryRunner.rollbackTransaction();
+            throw err;
+        } finally {
+            await queryRunner.release();
+        }
     }
 
     //동화 좋아요

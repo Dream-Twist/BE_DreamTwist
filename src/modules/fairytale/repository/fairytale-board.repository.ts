@@ -10,7 +10,7 @@ Date        Author      Status      Description
 2024.07.25  강민규      Modified    GET: 유저의 동화 목록 조회
 2024.07.26  강민규      Modified    DELETE: 동화 스토리 및 줄거리 제거
 2024.07.27  강민규      Modified    GET: 동화 목록 및 특정 동화 세부 조회
-2024.07.29  강민규      Modified    GET: 조회수 상승
+2024.07.30  강민규      Modified    GET: 조회수 기록
 */
 
 import { Injectable } from '@nestjs/common';
@@ -42,14 +42,24 @@ export class BoardFairytaleRepository extends Repository<Fairytale> {
             .getOne();
     }
 
-    //조회 수 추가
-    async incrementViews(fairytaleId: number) {
-        // 동화에 해당되는 Views 엔티티 행이 없으면 올라가지 않음
-        return this.createQueryBuilder()
-            .update(Views)
-            .set({ views: () => 'views + 1' })
-            .where('fairytale.id = :fairytaleId', { fairytaleId })
+    //조회 수 기록
+    async recordViews(fairytaleId: number, userId: number): Promise<void> {
+        await this.createQueryBuilder()
+            .insert()
+            .into('views')
+            .values({
+                user: { id: userId },
+                fairytale: { id: fairytaleId },
+            })
             .execute();
+    }
+
+    //해당 동화 조회 수 확인
+    async getViewCount(fairytaleId: number): Promise<number> {
+        const count = await this.createQueryBuilder('views')
+            .where('views.id = :fairytaleId', { fairytaleId })
+            .getCount();
+        return count;
     }
 
     //좋아요 수 추가, 아직 작동 안 함

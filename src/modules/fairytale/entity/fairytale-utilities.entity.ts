@@ -26,10 +26,6 @@ export class Views {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ default: 0 })
-    views: number;
-    // initially 0
-
     @ManyToOne(() => Fairytale)
     fairytale: Fairytale;
 

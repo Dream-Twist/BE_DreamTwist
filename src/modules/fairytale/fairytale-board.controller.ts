@@ -10,7 +10,7 @@ Date        Author      Status      Description
 2024.07.25  강민규      Modified    GET: 동화 스토리 조회
 2024.07.26  강민규      Modified    DELETE: 동화 스토리 및 줄거리 제거
 2024.07.27  강민규      Modified    GET: 동화 목록 및 특정 동화 세부 조회
-2024.07.29  강민규      Modified    GET: 조회수 상승
+2024.07.30  강민규      Modified    GET: 조회수 기록
 
 */
 
