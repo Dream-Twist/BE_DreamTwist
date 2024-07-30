@@ -9,6 +9,7 @@ Date        Author      Status      Description
 2024.07.20  박수정      Modified    동화 스토리 생성 기능 추가
 2024.07.24  강민규      Modified    동화 조회 기능 추가
 2024.07.24  박수정      Modified    금지어 설정 기능 추가
+2024.07.27  박수정      Modified    동화 이미지 업로드 기능 추가
 */
 
 import { Module } from '@nestjs/common';
@@ -29,9 +30,14 @@ import { ForbiddenWordRepository } from './repository/fairytale-forbidden-word.r
 //조회 좋아요
 import { Views,Likes } from './entity/fairytale-utilities.entity';
 import { DataSource, View } from 'typeorm';
+import { FairytaleImgRepository } from './repository/fairytale-img.repository';
+import { S3Service } from '../s3.service';
+import { FairytaleImg } from './entity/fairytale-img.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Fairytale, FairytaleContent, User, ForbiddenWord, Views])],
+    imports: [
+        TypeOrmModule.forFeature([Fairytale, FairytaleContent, User, ForbiddenWord, Views, FairytaleImg]),
+    ],
     controllers: [FairytaleController, BoardFairytaleController],
     providers: [
         FairytaleService,
@@ -40,7 +46,6 @@ import { DataSource, View } from 'typeorm';
         UserRepository,
         BoardFairytaleService,
         BoardFairytaleRepository,
-        // ForbiddenWordRepository,
         {
             provide: ForbiddenWordRepository,
             useFactory: (dataSource: DataSource) => {
@@ -48,6 +53,8 @@ import { DataSource, View } from 'typeorm';
             },
             inject: [DataSource],
         },
+        FairytaleImgRepository,
+        S3Service,
     ],
 })
 export class FairytaleModule {}

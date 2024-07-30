@@ -19,9 +19,11 @@ import {
     CreateDateColumn,
     UpdateDateColumn,
     DeleteDateColumn,
+    OneToMany,
 } from 'typeorm';
 import { User } from '../../user/user.entity';
 import { FairytaleContent } from './fairytale-content.entity';
+import { FairytaleImg } from './fairytale-img.entity';
 
 @Entity('fairytale')
 export class Fairytale {
@@ -32,14 +34,17 @@ export class Fairytale {
     user: User;
 
     @Column()
-    title: string;
+    theme: string;
 
     @Column()
-    labeling: string;
+    title: string;
 
     @OneToOne(() => FairytaleContent)
     @JoinColumn()
     content: FairytaleContent;
+
+    @OneToMany(() => FairytaleImg, fairytaleImg => fairytaleImg.fairytale)
+    image: FairytaleImg[];
 
     @Column()
     isPublic: boolean;
