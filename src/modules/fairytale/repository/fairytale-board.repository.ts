@@ -11,10 +11,11 @@ Date        Author      Status      Description
 2024.07.26  강민규      Modified    DELETE: 동화 스토리 및 줄거리 제거
 2024.07.27  강민규      Modified    GET: 동화 목록 및 특정 동화 세부 조회
 2024.07.30  강민규      Modified    GET: 조회수 기록
+2024.07.31  강민규      Modified    GET: 동화 목록 최신순 검색, 닉네임 이미지 조회 
 */
 
 import { Injectable } from '@nestjs/common';
-import { Repository, DataSource, Like } from 'typeorm';
+import { Repository, DataSource, Like, EntityRepository } from 'typeorm';
 import { Fairytale } from '../entity/fairytale.entity';
 import { BoardFairytaleDto } from '../dto/fairytale-board.dto';
 import { Likes, Views } from '../entity/fairytale-utilities.entity';
@@ -25,21 +26,33 @@ export class BoardFairytaleRepository extends Repository<Fairytale> {
     }
     // 동화 조회
     //동화 목록
-    async findAllByUserId(userId: number): Promise<Fairytale[]> {
+    async findAllByUserId(userId: number, page: number): Promise<Fairytale[]> {
         return (
             this.createQueryBuilder('fairytale')
+                .leftJoin('fairytale.user', 'user')
+                .addSelect('user.nickname')
                 .leftJoinAndSelect('fairytale.content', 'content')
+                .leftJoinAndSelect('fairytale.image', 'path')
+                // 최신순 정렬
+                .orderBy('fairytale.createdAt', 'DESC')
                 .where('fairytale.userId = :userId', { userId })
                 // .withDeleted() 필요하면 사용
                 .getMany()
         );
     }
     //찾는 동화 세부
-    async findByIdWithContent(fairytaleId: number): Promise<Fairytale> {
-        return this.createQueryBuilder('fairytale')
-            .leftJoinAndSelect('fairytale.content', 'content')
-            .where('fairytale.id = :fairytaleId', { fairytaleId })
-            .getOne();
+    async findByIdWithContent(fairytaleId: number): Promise<Fairytale[]> {
+        return (
+            this.createQueryBuilder('fairytale')
+                .leftJoin('fairytale.user', 'user')
+                .addSelect('user.nickname')
+                .leftJoinAndSelect('fairytale.content', 'content')
+                .leftJoinAndSelect('fairytale.image', 'path')
+                // 최신순 정렬
+                .orderBy('fairytale.createdAt', 'DESC')
+                .where('fairytale.id = :fairytaleId', { fairytaleId })
+                .getMany()
+        );
     }
 
     //조회 수 기록

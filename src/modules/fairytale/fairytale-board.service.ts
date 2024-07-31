@@ -11,6 +11,7 @@ Date        Author      Status      Description
 2024.07.26  강민규      Modified    DELETE: 동화 스토리 및 줄거리 제거
 2024.07.27  강민규      Modified    GET: 동화 목록 및 특정 동화 세부 조회
 2024.07.30  강민규      Modified    GET: 조회수 기록
+2024.07.31  강민규      Modified    GET: 동화 목록 최신순 검색, 닉네임 이미지 조회
 */
 
 import { Injectable, NotFoundException } from '@nestjs/common';
@@ -21,6 +22,7 @@ import { User } from '../user/user.entity';
 import { Fairytale } from './entity/fairytale.entity';
 import { FairytaleContent } from './entity/fairytale-content.entity';
 import { Views, Likes } from './entity/fairytale-utilities.entity';
+import { FairytaleImg } from './entity/fairytale-img.entity';
 import { BoardFairytaleDto } from './dto/fairytale-board.dto';
 import { BoardFairytaleRepository } from './repository/fairytale-board.repository';
 @Injectable()
@@ -38,8 +40,8 @@ export class BoardFairytaleService {
     ) {}
 
     //유저 동화 전체 조회
-    async getFairytalesByUserId(userId: number) {
-        const fairytales = await this.boardFairytaleRepository.findAllByUserId(userId);
+    async getFairytalesByUserId(userId: number, page: number) {
+        const fairytales = await this.boardFairytaleRepository.findAllByUserId(userId, page);
         if (!fairytales || fairytales.length === 0) {
             throw new NotFoundException(`요청한 유저 ${userId}의 동화 목록을 찾을 수 없습니다`);
         }
