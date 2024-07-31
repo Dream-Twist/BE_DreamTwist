@@ -8,6 +8,7 @@ Date        Author      Status      Description
 2024.07.19  강민규      Created     
 2024.07.22  박수정      Modified     Swagger 설정
 2024.07.23  박수정      Modified     Hot Reload 설정
+2024.07.31  이유민      Modified     CORS 관련 코드 수정
 */
 
 import { NestFactory } from '@nestjs/core';
@@ -19,6 +20,14 @@ declare const module: any; // Hot Reload 설정
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
+
+    // CORS 관련 코드
+    app.enableCors({
+        origin: 'http://localhost:3000',
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+        allowedHeaders: 'Content-Type, Accept, Authorization',
+        credentials: true,
+    });
 
     // 로그 확인
     app.useLogger(new Logger('debug'));
@@ -42,12 +51,4 @@ async function bootstrap() {
     }
 }
 
-//CORS 멀티 리포지토리 통신
-// async function repoCORS() {
-//     const app = await NestFactory.create(AppModule);
-//     app.enableCors();
-//     await app.listen(4000);
-// }
-
 bootstrap();
-// repoCORS();
