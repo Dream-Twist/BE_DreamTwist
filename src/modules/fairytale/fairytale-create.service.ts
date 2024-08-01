@@ -21,6 +21,7 @@ import { ForbiddenWordRepository } from './repository/fairytale-forbidden-word.r
 import { InjectRepository } from '@nestjs/typeorm';
 import { FairytaleImgRepository } from './repository/fairytale-img.repository';
 import { S3Service } from '../s3.service';
+import { FairytaleImg } from './entity/fairytale-img.entity';
 import { CreateFairytaleImgDto } from './dto/fairytale-img.dto';
 
 @Injectable()
@@ -42,7 +43,7 @@ export class FairytaleService {
         createFairytaleDto: CreateFairytaleDto,
         createFairytaleImgDto: CreateFairytaleImgDto,
         file: Express.Multer.File,
-    ): Promise<Fairytale> {
+    ): Promise<{ savedFairytale: Fairytale; savedFairytaleImg: FairytaleImg }> {
         // 임시 사용자
         const userId = 1;
         const user = await this.userRepository.findOne({ where: { id: userId } });
@@ -67,8 +68,7 @@ export class FairytaleService {
             content: JSON.parse(createFairytaleDto.content),
             privatedAt: privatedAt,
         });
-
-        await this.fairytaleRepository.save(fairytale);
+        const savedFairytale = await this.fairytaleRepository.save(fairytale);
 
         // 동화 이미지 업로드
         let imgUrl: string;
@@ -80,13 +80,17 @@ export class FairytaleService {
             imgUrl = this.s3Service.getDefaultImgUrl();
         }
 
-        const fairytaleImg = await this.fairytaleImgRepository.createFairytaleImg({
-            creationWay: createFairytaleImgDto.creationWay,
-            path: [imgUrl] as any,
-        });
-        await this.fairytaleImgRepository.save(fairytaleImg);
+        const images = JSON.parse(createFairytaleImgDto.images);
+        const combinedImages = { '0': createFairytaleImgDto.coverImage, ...images };
 
-        return fairytale;
+        const fairytaleImg = await this.fairytaleImgRepository.createFairytaleImg({
+            fairytaleId: fairytale.id,
+            creationWay: createFairytaleImgDto.creationWay,
+            path: combinedImages,
+        });
+        const savedFairytaleImg = await this.fairytaleImgRepository.save(fairytaleImg);
+
+        return { savedFairytale, savedFairytaleImg };
     }
 
     // 금지어 설정
