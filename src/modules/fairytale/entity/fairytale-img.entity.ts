@@ -7,32 +7,24 @@ History
 Date        Author      Status      Description
 2024.07.26  박수정      Created     
 2024.07.26  박수정      Modified    동화 이미지 업로드 기능 추가
+2024.08.01  박수정      Modified    Entity 변경
 */
 
-import {
-    Entity,
-    PrimaryGeneratedColumn,
-    ManyToOne,
-    Column,
-    CreateDateColumn,
-    DeleteDateColumn,
-    UpdateDateColumn,
-} from 'typeorm';
-import { Fairytale } from './fairytale.entity';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('fairytale_img')
 export class FairytaleImg {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => Fairytale, fairytale => fairytale.image)
-    fairytale: Fairytale;
-
-    @Column()
+    @Column({
+        type: 'enum',
+        enum: ['default', 'upload', 'ai', 'palette', 'mix'],
+    })
     creationWay: string;
 
-    @Column()
-    path: string;
+    @Column('json')
+    path: any;
 
     @CreateDateColumn()
     createdAt: Date;

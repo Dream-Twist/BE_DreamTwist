@@ -1,33 +1,26 @@
 /**
-File Name : fairytale.entity
-Description : 동화 스토리 Entity
+File Name : rel_fairytale_img.entity
+Description : 중간 테이블 Entity - 동화 스토리, 동화 이미지
 Author : 박수정
 
 History
 Date        Author      Status      Description
-2024.07.19  박수정      Created     
-2024.07.20  박수정      Modified    동화 스토리 생성 기능 추가
-2024.08.01  박수정      Modified    Entity 변경
+2024.08.01  박수정      Created     
+2024.08.01  박수정      Modified    중간 테이블 생성
 */
 
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
 
-@Entity('fairytale')
-export class Fairytale {
+@Entity('rel_fairytale_img')
+export class RelFairytaleImg {
     @PrimaryGeneratedColumn()
     id: number;
 
     @Column()
-    title: string;
+    fairytaleId: number;
 
     @Column()
-    theme: string;
-
-    @Column('json')
-    content: any;
-
-    @Column({ type: 'timestamp' })
-    privated_at: Date;
+    fairytaleImgId: number;
 
     @CreateDateColumn()
     createdAt: Date;

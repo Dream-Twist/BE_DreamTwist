@@ -18,8 +18,8 @@ import {
     DeleteDateColumn,
     Column,
 } from 'typeorm';
-import { User } from '../../user/user.entity';
 import { Fairytale } from './fairytale.entity';
+import { User } from 'src/modules/user/entity/user.entity';
 
 @Entity('views')
 export class Views {
@@ -29,7 +29,7 @@ export class Views {
     @ManyToOne(() => Fairytale)
     fairytale: Fairytale;
 
-    @ManyToOne(() => User, user => user.fairytales)
+    // @ManyToOne(() => User, user => user.fairytales) // ★
     user: User;
 
     @CreateDateColumn()
@@ -54,7 +54,7 @@ export class Likes {
     @ManyToOne(() => Fairytale)
     fairytale: Fairytale;
 
-    @ManyToOne(() => User, user => user.fairytales)
+    // @ManyToOne(() => User, user => user.fairytales) // ★
     user: User;
 
     @CreateDateColumn()

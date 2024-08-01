@@ -18,9 +18,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 
-import { User } from '../user/user.entity';
+import { User } from 'src/modules/user/entity/user.entity';
 import { Fairytale } from './entity/fairytale.entity';
-import { FairytaleContent } from './entity/fairytale-content.entity';
+// import { FairytaleContent } from './entity/fairytale-content.entity'; // ★
 import { Views, Likes } from './entity/fairytale-utilities.entity';
 import { FairytaleImg } from './entity/fairytale-img.entity';
 import { BoardFairytaleDto } from './dto/fairytale-board.dto';
@@ -32,8 +32,8 @@ export class BoardFairytaleService {
         private readonly userRepository: Repository<User>,
         @InjectRepository(Fairytale)
         private readonly fairytaleRepository: Repository<Fairytale>,
-        @InjectRepository(FairytaleContent)
-        private readonly contentRepository: Repository<FairytaleContent>,
+        // @InjectRepository(FairytaleContent) // ★
+        // private readonly contentRepository: Repository<FairytaleContent>, // ★
         @InjectRepository(BoardFairytaleRepository)
         private readonly boardFairytaleRepository: BoardFairytaleRepository,
         private readonly dataSource: DataSource,
@@ -71,6 +71,7 @@ export class BoardFairytaleService {
 
             if (viewer && fairytale) {
                 // 작성자가 아니면 조회자 기록
+                /* // ★
                 if (fairytale.user && viewer.id !== fairytale.user.id) {
                     await queryRunner.manager.insert('views', {
                         user: { id: viewer.id },
@@ -80,6 +81,7 @@ export class BoardFairytaleService {
                     // 작성자가 조회
                     console.error('작성자입니다.');
                 }
+                */
             } else {
                 // 조회자 또는 동화가 없음
                 console.error('조회되지 않는 인원 또는 해당 동화가 없습니다.');
@@ -109,7 +111,8 @@ export class BoardFairytaleService {
     // }
 
     //스토리 수정
-    async editUserFairytale(boardFairytaleDto: BoardFairytaleDto) {}
+    // async editUserFairytale(boardFairytaleDto: BoardFairytaleDto) {} // ★
+    // async editUserFairytale(boardFairytaleDto: BoardFairytaleDto) {} // ★
 
     //스토리 삭제
     async deleteFairytale(id: number): Promise<void> {
@@ -124,14 +127,16 @@ export class BoardFairytaleService {
             }
 
             // 동화 줄거리가 삭제되지 않았는지 확인
+            /* // ★
             const content = await queryRunner.manager.findOne(FairytaleContent, { where: { id, deletedAt: null } });
             if (!content) {
                 throw new NotFoundException(`{id}번 동화의 줄거리를 찾을 수 없습니다`);
             }
+            */
 
             // 동화와 동화 줄거리에 deletedAt 값 생성
             await queryRunner.manager.softDelete(Fairytale, id);
-            await queryRunner.manager.softDelete(FairytaleContent, id);
+            // await queryRunner.manager.softDelete(FairytaleContent, id); // ★
 
             // 모든 조건 만족하면 transaction
             await queryRunner.commitTransaction();

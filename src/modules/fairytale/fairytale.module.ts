@@ -17,11 +17,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { FairytaleController } from './fairytale-create.controller';
 import { FairytaleService } from './fairytale-create.service';
 import { FairytaleRepository } from './repository/fairytale-create.repository';
-import { FairytaleContentRepository } from './repository/fairytale-content.repository';
+// import { FairytaleContentRepository } from './repository/fairytale-content.repository';
 import { UserRepository } from '../user/user.repository';
 import { Fairytale } from './entity/fairytale.entity';
-import { FairytaleContent } from './entity/fairytale-content.entity';
-import { User } from '../user/user.entity';
+import { User } from '../user/entity/user.entity';
 import { BoardFairytaleService } from './fairytale-board.service';
 import { BoardFairytaleRepository } from './repository/fairytale-board.repository';
 import { BoardFairytaleController } from './fairytale-board.controller';
@@ -33,16 +32,28 @@ import { DataSource, View } from 'typeorm';
 import { FairytaleImgRepository } from './repository/fairytale-img.repository';
 import { S3Service } from '../s3.service';
 import { FairytaleImg } from './entity/fairytale-img.entity';
+import { RelFairytaleImg } from './entity/rel_fairytale_img.entity';
+import { ProfileImage } from '../user/entity/profile_image.entity';
+import { RelFairytaleUsers } from '../user/entity/rel_fairytale_users.entity';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([Fairytale, FairytaleContent, User, ForbiddenWord, Views, FairytaleImg]),
+        TypeOrmModule.forFeature([
+            Fairytale,
+            User,
+            ForbiddenWord,
+            FairytaleImg,
+            RelFairytaleImg,
+            ProfileImage,
+            RelFairytaleUsers,
+            Views,
+        ]),
     ],
     controllers: [FairytaleController, BoardFairytaleController],
     providers: [
         FairytaleService,
         FairytaleRepository,
-        FairytaleContentRepository,
+        // FairytaleContentRepository,
         UserRepository,
         BoardFairytaleService,
         BoardFairytaleRepository,
