@@ -5,17 +5,17 @@ Author : 박수정
 
 History
 Date        Author      Status      Description
-2024.07.19  박수정      Created     
+2024.07.19  박수정      Created
 2024.07.20  박수정      Modified    동화 스토리 생성 기능 추가
 2024.07.22  박수정      Modified    금지어 설정 기능 추가
-2024.07.26  박수정      Modified    동화 이미지 업로드 기능 추가  
+2024.07.26  박수정      Modified    동화 이미지 업로드 기능 추가
 */
 
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateFairytaleDto } from './dto/fairytale-create.dto';
 // import { User } from '../user/user.entity';
 import { FairytaleRepository } from './repository/fairytale-create.repository';
-import { FairytaleContentRepository } from './repository/fairytale-content.repository';
+// import { FairytaleContentRepository } from './repository/fairytale-content.repository';
 import { UserRepository } from '../user/user.repository';
 import { Fairytale } from './entity/fairytale.entity';
 import { ForbiddenWordRepository } from './repository/fairytale-forbidden-word.repository';
@@ -28,8 +28,8 @@ export class FairytaleService {
     constructor(
         @InjectRepository(FairytaleRepository)
         private readonly fairytaleRepository: FairytaleRepository,
-        @InjectRepository(FairytaleContentRepository)
-        private readonly fairytaleContentRepository: FairytaleContentRepository,
+        // @InjectRepository(FairytaleContentRepository)
+        // private readonly fairytaleContentRepository: FairytaleContentRepository,
         @InjectRepository(UserRepository)
         private readonly userRepository: UserRepository,
         private readonly forbiddenWordRepository: ForbiddenWordRepository,
@@ -53,19 +53,18 @@ export class FairytaleService {
         await this.checkForbiddenWodrds([createFairytaleDto.title, createFairytaleDto.content]);
 
         // 동화 스토리 내용
-        const content = await this.fairytaleContentRepository.createContent({
-            user,
-            content: createFairytaleDto.content,
-        });
-        await this.fairytaleContentRepository.save(content);
+        // const content = await this.fairytaleContentRepository.createContent({
+        //     user,
+        //     content: createFairytaleDto.content,
+        // });
+        // await this.fairytaleContentRepository.save(content);
 
         // 동화 스토리
         const fairytale = await this.fairytaleRepository.createFairytale({
-            user,
             theme: createFairytaleDto.theme,
             title: createFairytaleDto.title,
-            content,
-            isPublic: createFairytaleDto.isPublic,
+            // content,
+            // isPublic: createFairytaleDto.isPublic,
         });
         await this.fairytaleRepository.save(fairytale);
 
@@ -80,7 +79,7 @@ export class FairytaleService {
         }
 
         const fairytaleImg = await this.fairytaleImgRepository.createFairytaleImg({
-            fairytale,
+            // fairytale,
             creationWay: file ? 'upload' : 'default',
             path: imgUrl,
         });

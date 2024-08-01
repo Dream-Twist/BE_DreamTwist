@@ -5,9 +5,9 @@ Author : 박수정
 
 History
 Date        Author      Status      Description
-2024.07.19  박수정      Created     
-2024.07.20  박수정      Modified    동화 스토리 생성 기능 추가     
-2024.07.22  박수정      Modified     Swagger 설정
+2024.07.19  박수정      Created
+2024.07.20  박수정      Modified    동화 스토리 생성 기능 추가
+2024.07.22  박수정      Modified    Swagger 설정
 2024.07.26  박수정      Modified    동화 이미지 업로드 기능 추가
 */
 

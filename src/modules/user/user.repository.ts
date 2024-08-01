@@ -11,7 +11,7 @@ Date        Author      Status      Description
 
 import { Injectable } from '@nestjs/common';
 import { Repository, DataSource } from 'typeorm';
-import { User } from './user.entity';
+import { User } from './entity/user.entity';
 
 @Injectable()
 export class UserRepository extends Repository<User> {
