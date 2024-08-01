@@ -14,9 +14,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { FairytaleModule } from './modules/fairytale/fairytale.module';
 import { AIFairytaleModule } from './modules/fairytale/ai-fairytale.module';
-import { ImagesModule } from './modules/images/images.module';
 import { AudioModule } from './modules/audio/audio.module';
-import { CharactersModule } from './modules/characters/characters.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -46,9 +44,7 @@ import { AppService } from './app.service';
         }),
         FairytaleModule,
         AIFairytaleModule,
-        ImagesModule,
         AudioModule,
-        CharactersModule,
     ],
     controllers: [AppController],
     providers: [AppService],

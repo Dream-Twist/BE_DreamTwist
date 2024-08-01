@@ -20,16 +20,17 @@ export class FairytaleImg {
     @Column({
         type: 'enum',
         enum: ['default', 'upload', 'ai', 'palette', 'mix'],
+        default: 'default',
     })
     creationWay: string;
 
     @Column('json')
-    path: any;
+    path: JSON;
 
     @CreateDateColumn()
     createdAt: Date;
 
-    @UpdateDateColumn()
+    @UpdateDateColumn({ nullable: true })
     updatedAt: Date;
 
     @DeleteDateColumn()

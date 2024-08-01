@@ -22,7 +22,7 @@ export class ForbiddenWord {
     @CreateDateColumn()
     createdAt: Date;
 
-    @UpdateDateColumn()
+    @UpdateDateColumn({ nullable: true })
     updatedAt: Date;
 
     @DeleteDateColumn()

@@ -24,15 +24,15 @@ export class Fairytale {
     theme: string;
 
     @Column('json')
-    content: any;
+    content: JSON;
 
-    @Column({ type: 'timestamp' })
-    privated_at: Date;
+    @Column({ type: 'timestamp', nullable: true })
+    privatedAt: Date;
 
     @CreateDateColumn()
     createdAt: Date;
 
-    @UpdateDateColumn()
+    @UpdateDateColumn({ nullable: true })
     updatedAt: Date;
 
     @DeleteDateColumn()
