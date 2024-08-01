@@ -19,7 +19,12 @@ export class CreateFairytaleImgDto {
     creationWay: 'default' | 'upload' | 'ai' | 'palette' | 'mix';
 
     @ApiProperty()
+    @IsString()
+    @IsNotEmpty()
+    coverImage: string;
+
+    @ApiProperty()
     @IsJSON()
     @IsNotEmpty()
-    path: string;
+    images: string;
 }

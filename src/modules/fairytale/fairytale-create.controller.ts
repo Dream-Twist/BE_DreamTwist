@@ -75,10 +75,10 @@ export class FairytaleController {
         @Body() createFairytaleImgDto: CreateFairytaleImgDto,
         @UploadedFile() file: Express.Multer.File,
     ) {
-        const fairytale = await this.fairytaleService.createFairytale(createFairytaleDto, createFairytaleImgDto, file);
+        const result = await this.fairytaleService.createFairytale(createFairytaleDto, createFairytaleImgDto, file);
         return {
             message: '동화 스토리가 성공적으로 생성되었습니다.',
-            fairytale,
+            result,
         };
     }
 }

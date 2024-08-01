@@ -32,7 +32,7 @@ export class User {
     @CreateDateColumn()
     createdAt: Date;
 
-    @UpdateDateColumn({ nullable: true })
+    @UpdateDateColumn({ type: 'timestamp', nullable: true })
     updatedAt: Date;
 
     @DeleteDateColumn()
