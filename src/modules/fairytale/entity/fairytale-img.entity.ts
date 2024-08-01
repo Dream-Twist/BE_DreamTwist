@@ -10,12 +10,15 @@ Date        Author      Status      Description
 2024.08.01  박수정      Modified    Entity 변경
 */
 
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn } from 'typeorm';
 
 @Entity('fairytale_img')
 export class FairytaleImg {
     @PrimaryGeneratedColumn()
     id: number;
+
+    @Column()
+    fairytaleId: number;
 
     @Column({
         type: 'enum',
@@ -30,7 +33,7 @@ export class FairytaleImg {
     @CreateDateColumn()
     createdAt: Date;
 
-    @UpdateDateColumn({ nullable: true })
+    @Column({ type: 'timestamp', nullable: true })
     updatedAt: Date;
 
     @DeleteDateColumn()
