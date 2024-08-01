@@ -17,7 +17,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { FairytaleController } from './fairytale-create.controller';
 import { FairytaleService } from './fairytale-create.service';
 import { FairytaleRepository } from './repository/fairytale-create.repository';
-// import { FairytaleContentRepository } from './repository/fairytale-content.repository';
 import { UserRepository } from '../user/user.repository';
 import { Fairytale } from './entity/fairytale.entity';
 import { User } from '../user/entity/user.entity';
@@ -32,7 +31,6 @@ import { DataSource, View } from 'typeorm';
 import { FairytaleImgRepository } from './repository/fairytale-img.repository';
 import { S3Service } from '../s3.service';
 import { FairytaleImg } from './entity/fairytale-img.entity';
-import { RelFairytaleImg } from './entity/rel_fairytale_img.entity';
 import { ProfileImage } from '../user/entity/profile_image.entity';
 import { RelFairytaleUsers } from '../user/entity/rel_fairytale_users.entity';
 
@@ -43,7 +41,6 @@ import { RelFairytaleUsers } from '../user/entity/rel_fairytale_users.entity';
             User,
             ForbiddenWord,
             FairytaleImg,
-            RelFairytaleImg,
             ProfileImage,
             RelFairytaleUsers,
             Views,
@@ -53,7 +50,6 @@ import { RelFairytaleUsers } from '../user/entity/rel_fairytale_users.entity';
     providers: [
         FairytaleService,
         FairytaleRepository,
-        // FairytaleContentRepository,
         UserRepository,
         BoardFairytaleService,
         BoardFairytaleRepository,

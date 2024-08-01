@@ -19,15 +19,9 @@ export class FairytaleRepository extends Repository<Fairytale> {
         super(Fairytale, dataSource.createEntityManager());
     }
 
+    // 동화 스토리 생성
     async createFairytale(fairytaleData: Partial<Fairytale>): Promise<Fairytale> {
         const fairytale = this.create(fairytaleData);
         return this.save(fairytale);
-    }
-
-    async findFairytale(id: number): Promise<Fairytale> {
-        return this.findOne({
-            where: { id },
-            relations: ['user', 'content'],
-        });
     }
 }

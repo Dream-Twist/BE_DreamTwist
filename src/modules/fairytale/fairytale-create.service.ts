@@ -9,27 +9,25 @@ Date        Author      Status      Description
 2024.07.20  박수정      Modified    동화 스토리 생성 기능 추가
 2024.07.22  박수정      Modified    금지어 설정 기능 추가
 2024.07.26  박수정      Modified    동화 이미지 업로드 기능 추가
+2024.08.01  박수정      Modified    Entity 변경에 대한 Service 변경
 */
 
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateFairytaleDto } from './dto/fairytale-create.dto';
-// import { User } from '../user/user.entity';
 import { FairytaleRepository } from './repository/fairytale-create.repository';
-// import { FairytaleContentRepository } from './repository/fairytale-content.repository';
 import { UserRepository } from '../user/user.repository';
 import { Fairytale } from './entity/fairytale.entity';
 import { ForbiddenWordRepository } from './repository/fairytale-forbidden-word.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FairytaleImgRepository } from './repository/fairytale-img.repository';
 import { S3Service } from '../s3.service';
+import { CreateFairytaleImgDto } from './dto/fairytale-img.dto';
 
 @Injectable()
 export class FairytaleService {
     constructor(
         @InjectRepository(FairytaleRepository)
         private readonly fairytaleRepository: FairytaleRepository,
-        // @InjectRepository(FairytaleContentRepository)
-        // private readonly fairytaleContentRepository: FairytaleContentRepository,
         @InjectRepository(UserRepository)
         private readonly userRepository: UserRepository,
         private readonly forbiddenWordRepository: ForbiddenWordRepository,
@@ -40,7 +38,11 @@ export class FairytaleService {
 
     // 동화 스토리 생성
     // async createFairytale(createFairytaleDto: CreateFairytaleDto, user: User) {
-    async createFairytale(createFairytaleDto: CreateFairytaleDto, file: Express.Multer.File): Promise<Fairytale> {
+    async createFairytale(
+        createFairytaleDto: CreateFairytaleDto,
+        createFairytaleImgDto: CreateFairytaleImgDto,
+        file: Express.Multer.File,
+    ): Promise<Fairytale> {
         // 임시 사용자
         const userId = 1;
         const user = await this.userRepository.findOne({ where: { id: userId } });
@@ -52,20 +54,20 @@ export class FairytaleService {
         // 금지어 확인
         await this.checkForbiddenWodrds([createFairytaleDto.title, createFairytaleDto.content]);
 
-        // 동화 스토리 내용
-        // const content = await this.fairytaleContentRepository.createContent({
-        //     user,
-        //     content: createFairytaleDto.content,
-        // });
-        // await this.fairytaleContentRepository.save(content);
+        // 동화 스토리 공개 여부 확인
+        let privatedAt: Date | null = null;
+        if (createFairytaleDto.privatedAt === true) {
+            privatedAt = new Date();
+        }
 
         // 동화 스토리
         const fairytale = await this.fairytaleRepository.createFairytale({
-            theme: createFairytaleDto.theme,
             title: createFairytaleDto.title,
-            // content,
-            // isPublic: createFairytaleDto.isPublic,
+            theme: createFairytaleDto.theme,
+            content: JSON.parse(createFairytaleDto.content),
+            privatedAt: privatedAt,
         });
+
         await this.fairytaleRepository.save(fairytale);
 
         // 동화 이미지 업로드
@@ -79,14 +81,11 @@ export class FairytaleService {
         }
 
         const fairytaleImg = await this.fairytaleImgRepository.createFairytaleImg({
-            // fairytale,
-            creationWay: file ? 'upload' : 'default',
-            path: imgUrl,
+            creationWay: createFairytaleImgDto.creationWay,
+            path: [imgUrl] as any,
         });
-
         await this.fairytaleImgRepository.save(fairytaleImg);
 
-        // return this.fairytaleRepository.findFairytale(fairytale.id);
         return fairytale;
     }
 
