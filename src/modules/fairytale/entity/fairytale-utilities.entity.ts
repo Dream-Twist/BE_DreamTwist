@@ -9,7 +9,7 @@ Date        Author      Status      Description
 2024.07.29  강민규      Modified    조회 수 좋아요 수   
 */
 
-import { Entity, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, CreateDateColumn, DeleteDateColumn, Column } from 'typeorm';
 import { Fairytale } from './fairytale.entity';
 import { User } from 'src/modules/user/entity/user.entity';
 
@@ -27,7 +27,7 @@ export class Views {
     @CreateDateColumn()
     createdAt: Date;
 
-    @UpdateDateColumn({ type: 'timestamp', nullable: true })
+    @Column({ type: 'timestamp', nullable: true })
     updatedAt: Date;
 
     @DeleteDateColumn()
@@ -52,7 +52,7 @@ export class Likes {
     @CreateDateColumn()
     createdAt: Date;
 
-    @UpdateDateColumn({ type: 'timestamp', nullable: true })
+    @Column({ type: 'timestamp', nullable: true })
     updatedAt: Date;
 
     @DeleteDateColumn()

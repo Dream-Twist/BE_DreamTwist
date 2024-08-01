@@ -9,7 +9,7 @@ Date        Author      Status      Description
 2024.07.24  박수정      Modified    금지어 설정 기능 추가
 */
 
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn } from 'typeorm';
 
 @Entity('fairytale_forbidden_word')
 export class ForbiddenWord {
@@ -22,7 +22,7 @@ export class ForbiddenWord {
     @CreateDateColumn()
     createdAt: Date;
 
-    @UpdateDateColumn({ type: 'timestamp', nullable: true })
+    @Column({ type: 'timestamp', nullable: true })
     updatedAt: Date;
 
     @DeleteDateColumn()
