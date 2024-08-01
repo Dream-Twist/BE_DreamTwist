@@ -17,8 +17,9 @@ Date        Author      Status      Description
 import { Injectable } from '@nestjs/common';
 import { Repository, DataSource, Like, EntityRepository } from 'typeorm';
 import { Fairytale } from '../entity/fairytale.entity';
-import { BoardFairytaleDto } from '../dto/fairytale-board.dto';
-import { Likes, Views } from '../entity/fairytale-utilities.entity';
+// import { BoardFairytaleDto } from '../dto/fairytale-board.dto';
+// import { Views } from '../entity/fairytale-views.entity';
+// import { Likes } from '../entity/fairytale-views.entity';
 @Injectable()
 export class BoardFairytaleRepository extends Repository<Fairytale> {
     constructor(private dataSource: DataSource) {
@@ -26,7 +27,7 @@ export class BoardFairytaleRepository extends Repository<Fairytale> {
     }
     // 동화 조회
     //동화 목록
-    async findAllByUserId(userId: number, page: number): Promise<Fairytale[]> {
+    async findAllByUserId(userId: number): Promise<Fairytale[]> {
         return (
             this.createQueryBuilder('fairytale')
                 .leftJoin('fairytale.user', 'user')
@@ -76,13 +77,13 @@ export class BoardFairytaleRepository extends Repository<Fairytale> {
     }
 
     //좋아요 수 추가, 아직 작동 안 함
-    async incrementLikes(fairytaleId: number) {
-        return this.createQueryBuilder()
-            .update(Likes)
-            .set({ likes: () => 'likes + 1' })
-            .where('fairytale.id = :fairytaleId', { fairytaleId })
-            .execute();
-    }
+    // async incrementLikes(fairytaleId: number) {
+    //     return this.createQueryBuilder()
+    //         .update(Likes)
+    //         .set({ likes: () => 'likes + 1' })
+    //         .where('fairytale.id = :fairytaleId', { fairytaleId })
+    //         .execute();
+    // }
 
     // 동화 수정
     async updateFairytale() {}

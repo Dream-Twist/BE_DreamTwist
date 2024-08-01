@@ -21,17 +21,18 @@ import { DataSource, Repository } from 'typeorm';
 import { User } from 'src/modules/user/entity/user.entity';
 import { Fairytale } from './entity/fairytale.entity';
 // import { FairytaleContent } from './entity/fairytale-content.entity'; // ★
-import { Views, Likes } from './entity/fairytale-utilities.entity';
-import { FairytaleImg } from './entity/fairytale-img.entity';
-import { BoardFairytaleDto } from './dto/fairytale-board.dto';
+import { Views } from './entity/fairytale-views.entity';
+// import { Likes } from './entity/fairytale-views.entity';
+// import { FairytaleImg } from './entity/fairytale-img.entity';
+// import { BoardFairytaleDto } from './dto/fairytale-board.dto';
 import { BoardFairytaleRepository } from './repository/fairytale-board.repository';
 @Injectable()
 export class BoardFairytaleService {
     constructor(
-        @InjectRepository(User)
-        private readonly userRepository: Repository<User>,
-        @InjectRepository(Fairytale)
-        private readonly fairytaleRepository: Repository<Fairytale>,
+        // @InjectRepository(User)
+        // private readonly userRepository: Repository<User>,
+        // @InjectRepository(Fairytale)
+        // private readonly fairytaleRepository: Repository<Fairytale>,
         // @InjectRepository(FairytaleContent) // ★
         // private readonly contentRepository: Repository<FairytaleContent>, // ★
         @InjectRepository(BoardFairytaleRepository)
@@ -40,8 +41,8 @@ export class BoardFairytaleService {
     ) {}
 
     //유저 동화 전체 조회
-    async getFairytalesByUserId(userId: number, page: number) {
-        const fairytales = await this.boardFairytaleRepository.findAllByUserId(userId, page);
+    async getFairytalesByUserId(userId: number) {
+        const fairytales = await this.boardFairytaleRepository.findAllByUserId(userId);
         if (!fairytales || fairytales.length === 0) {
             throw new NotFoundException(`요청한 유저 ${userId}의 동화 목록을 찾을 수 없습니다`);
         }

@@ -27,7 +27,8 @@ import { BoardFairytaleController } from './fairytale-board.controller';
 import { ForbiddenWord } from './entity/fairytale-forbidden-word.entity';
 import { ForbiddenWordRepository } from './repository/fairytale-forbidden-word.repository';
 //조회 좋아요
-import { Views, Likes } from './entity/fairytale-utilities.entity';
+import { Views } from './entity/fairytale-views.entity';
+import { Likes } from './entity/fairytale-views.entity';
 import { DataSource, View } from 'typeorm';
 import { FairytaleImgRepository } from './repository/fairytale-img.repository';
 import { S3Service } from '../s3.service';
@@ -47,6 +48,7 @@ import { RelFairytaleUsers } from '../user/entity/rel_fairytale_users.entity';
             ProfileImage,
             RelFairytaleUsers,
             Views,
+            Likes,
         ]),
     ],
     controllers: [FairytaleController, BoardFairytaleController],
