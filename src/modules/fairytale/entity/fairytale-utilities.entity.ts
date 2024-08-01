@@ -10,7 +10,7 @@ Date        Author      Status      Description
 */
 
 import { Entity, PrimaryGeneratedColumn, CreateDateColumn, DeleteDateColumn, Column } from 'typeorm';
-import { Fairytale } from './fairytale.entity';
+import { Fairytale } from 'src/modules/fairytale/entity/fairytale.entity';
 import { User } from 'src/modules/user/entity/user.entity';
 
 @Entity('views')

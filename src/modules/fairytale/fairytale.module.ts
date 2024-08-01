@@ -14,25 +14,24 @@ Date        Author      Status      Description
 
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { FairytaleController } from './fairytale-create.controller';
-import { FairytaleService } from './fairytale-create.service';
-import { FairytaleRepository } from './repository/fairytale-create.repository';
-import { UserRepository } from '../user/user.repository';
-import { Fairytale } from './entity/fairytale.entity';
-import { User } from '../user/entity/user.entity';
-import { BoardFairytaleService } from './fairytale-board.service';
-import { BoardFairytaleRepository } from './repository/fairytale-board.repository';
-import { BoardFairytaleController } from './fairytale-board.controller';
-import { ForbiddenWord } from './entity/fairytale-forbidden-word.entity';
-import { ForbiddenWordRepository } from './repository/fairytale-forbidden-word.repository';
-//조회 좋아요
-import { Views, Likes } from './entity/fairytale-utilities.entity';
-import { DataSource, View } from 'typeorm';
-import { FairytaleImgRepository } from './repository/fairytale-img.repository';
-import { S3Service } from '../s3.service';
-import { FairytaleImg } from './entity/fairytale-img.entity';
-import { ProfileImage } from '../user/entity/profile_image.entity';
-import { RelFairytaleUsers } from '../user/entity/rel_fairytale_users.entity';
+import { DataSource } from 'typeorm';
+import { Fairytale } from 'src/modules/fairytale/entity/fairytale.entity';
+import { FairytaleImg } from 'src/modules/fairytale/entity/fairytale-img.entity';
+import { Views } from 'src/modules/fairytale/entity/fairytale-utilities.entity';
+import { ForbiddenWord } from 'src/modules/fairytale/entity/fairytale-forbidden-word.entity';
+import { User } from 'src/modules/user/entity/user.entity';
+import { ProfileImage } from 'src/modules//user/entity/profile_image.entity';
+import { RelFairytaleUsers } from 'src/modules//user/entity/rel_fairytale_users.entity';
+import { FairytaleController } from 'src/modules/fairytale/fairytale-create.controller';
+import { BoardFairytaleController } from 'src/modules/fairytale/fairytale-board.controller';
+import { FairytaleService } from 'src/modules/fairytale/fairytale-create.service';
+import { BoardFairytaleService } from 'src/modules/fairytale/fairytale-board.service';
+import { FairytaleRepository } from 'src/modules/fairytale/repository/fairytale-create.repository';
+import { BoardFairytaleRepository } from 'src/modules/fairytale/repository/fairytale-board.repository';
+import { FairytaleImgRepository } from 'src/modules/fairytale/repository/fairytale-img.repository';
+import { ForbiddenWordRepository } from 'src/modules/fairytale/repository/fairytale-forbidden-word.repository';
+import { UserRepository } from 'src/modules/user/user.repository';
+import { S3Service } from 'src/modules/s3.service';
 
 @Module({
     imports: [

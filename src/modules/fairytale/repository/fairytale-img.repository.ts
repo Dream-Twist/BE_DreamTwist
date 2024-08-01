@@ -11,7 +11,7 @@ Date        Author      Status      Description
 
 import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
-import { FairytaleImg } from '../entity/fairytale-img.entity';
+import { FairytaleImg } from 'src/modules/fairytale/entity/fairytale-img.entity';
 
 @Injectable()
 export class FairytaleImgRepository extends Repository<FairytaleImg> {
