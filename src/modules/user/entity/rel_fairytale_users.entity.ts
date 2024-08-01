@@ -25,7 +25,7 @@ export class RelFairytaleUsers {
     @CreateDateColumn()
     createdAt: Date;
 
-    @UpdateDateColumn()
+    @UpdateDateColumn({ nullable: true })
     updatedAt: Date;
 
     @DeleteDateColumn()

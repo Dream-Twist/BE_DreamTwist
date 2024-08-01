@@ -22,7 +22,7 @@ export class ProfileImage {
     @CreateDateColumn()
     createdAt: Date;
 
-    @UpdateDateColumn()
+    @UpdateDateColumn({ nullable: true })
     updatedAt: Date;
 
     @DeleteDateColumn()

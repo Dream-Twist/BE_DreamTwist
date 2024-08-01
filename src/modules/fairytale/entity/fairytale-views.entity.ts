@@ -26,7 +26,7 @@ export class Views {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => Fairytale)
+    // @ManyToOne(() => Fairytale)
     fairytale: Fairytale;
 
     // @ManyToOne(() => User, user => user.fairytales) // ★
@@ -35,7 +35,7 @@ export class Views {
     @CreateDateColumn()
     createdAt: Date;
 
-    @UpdateDateColumn()
+    @UpdateDateColumn({ nullable: true })
     updatedAt: Date;
 
     @DeleteDateColumn()
@@ -51,7 +51,7 @@ export class Likes {
     likes: number;
     // initially 0
 
-    @ManyToOne(() => Fairytale)
+    // @ManyToOne(() => Fairytale)
     fairytale: Fairytale;
 
     // @ManyToOne(() => User, user => user.fairytales) // ★
@@ -60,7 +60,7 @@ export class Likes {
     @CreateDateColumn()
     createdAt: Date;
 
-    @UpdateDateColumn()
+    @UpdateDateColumn({ nullable: true })
     updatedAt: Date;
 
     @DeleteDateColumn()

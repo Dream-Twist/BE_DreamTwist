@@ -11,13 +11,13 @@ Date        Author      Status      Description
 2024.07.26  박수정      Modified    동화 이미지 업로드 기능 추가
 */
 
-// import { Controller, Post, Body, Request } from '@nestjs/common';
-import { Controller, Post, Body, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Post, Body, UseInterceptors, UploadedFile, ValidationPipe } from '@nestjs/common';
 import { FairytaleService } from './fairytale-create.service';
 import { CreateFairytaleDto } from './dto/fairytale-create.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
+import { CreateFairytaleImgDto } from './dto/fairytale-img.dto';
 
 // 동화 스토리 생성
 @ApiTags('Fairytale')
@@ -70,9 +70,12 @@ export class FairytaleController {
     })
     @Post()
     @UseInterceptors(FileInterceptor('image', { storage: memoryStorage() }))
-    // async createFairytale(@Body() createFairytaleDto: CreateFairytaleDto, @Request() req) {
-    async createFairytale(@Body() createFairytaleDto: CreateFairytaleDto, @UploadedFile() file: Express.Multer.File) {
-        const fairytale = await this.fairytaleService.createFairytale(createFairytaleDto, file);
+    async createFairytale(
+        @Body(new ValidationPipe({ transform: true })) createFairytaleDto: CreateFairytaleDto,
+        @Body() createFairytaleImgDto: CreateFairytaleImgDto,
+        @UploadedFile() file: Express.Multer.File,
+    ) {
+        const fairytale = await this.fairytaleService.createFairytale(createFairytaleDto, createFairytaleImgDto, file);
         return {
             message: '동화 스토리가 성공적으로 생성되었습니다.',
             fairytale,
