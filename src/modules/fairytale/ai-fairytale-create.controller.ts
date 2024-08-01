@@ -7,6 +7,7 @@ History
 Date        Author      Status      Description
 2024.07.29  이유민      Created     
 2024.07.29  이유민      Modified    AI 동화 스토리 생성 기능 추가
+2024.08.01  이유민      Modified    AI 동화 스토리 생성 경로 수정
 */
 
 import { Controller, Post, Body } from '@nestjs/common';
@@ -15,7 +16,7 @@ import { AIFairytaleService } from './ai-fairytale-create.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('AI-Fairytale')
-@Controller('ai-fairytale/story')
+@Controller('ai-fairytale')
 export class AIFairytaleController {
     constructor(private readonly aiFairytaleService: AIFairytaleService) {}
 
@@ -69,7 +70,7 @@ export class AIFairytaleController {
             properties: { error: { type: 'string', example: '서버 내부 에러가 발생했습니다.' } },
         },
     })
-    @Post()
+    @Post('story')
     async createAIStory(@Body() createAIFairytaleDto: CreateAIFairytaleDto): Promise<any> {
         return this.aiFairytaleService.generateFairytale(createAIFairytaleDto);
     }
