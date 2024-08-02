@@ -21,7 +21,7 @@ import { DataSource, Repository } from 'typeorm';
 import { User } from 'src/modules/user/entity/user.entity';
 import { Fairytale } from './entity/fairytale.entity';
 // import { FairytaleContent } from './entity/fairytale-content.entity'; // ★
-import { Views } from './entity/fairytale-views.entity';
+// import { Views } from './entity/fairytale-views.entity';
 // import { Likes } from './entity/fairytale-views.entity';
 // import { FairytaleImg } from './entity/fairytale-img.entity';
 // import { BoardFairytaleDto } from './dto/fairytale-board.dto';
@@ -49,61 +49,12 @@ export class BoardFairytaleService {
         return fairytales;
     }
     //동화 세부 조회
-    async getFairytaleContent(fairytaleId: number, id: number): Promise<any> {
-        const queryRunner = this.dataSource.createQueryRunner();
-
-        await queryRunner.startTransaction();
-
-        try {
-            const fairytale = await queryRunner.manager.findOne(Fairytale, {
-                where: { id: fairytaleId },
-                relations: ['user'],
-            });
-
-            if (!fairytale) {
-                throw new NotFoundException(`{id}번 동화 줄거리를 찾을 수 없습니다.`);
-            }
-
-            // 조회자 확인
-            const viewer = await queryRunner.manager.findOne(User, {
-                where: { id },
-                relations: ['fairytales'],
-            });
-
-            if (viewer && fairytale) {
-                // 작성자가 아니면 조회자 기록
-                /* // ★
-                if (fairytale.user && viewer.id !== fairytale.user.id) {
-                    await queryRunner.manager.insert('views', {
-                        user: { id: viewer.id },
-                        fairytale: { id: fairytaleId },
-                    });
-                } else {
-                    // 작성자가 조회
-                    console.error('작성자입니다.');
-                }
-                */
-            } else {
-                // 조회자 또는 동화가 없음
-                console.error('조회되지 않는 인원 또는 해당 동화가 없습니다.');
-            }
-            // 조회자 콘솔
-            console.log(`조회 유저 ID: ${viewer.id}`);
-            const viewCount = await queryRunner.manager
-                .createQueryBuilder()
-                .select('COUNT(DISTINCT view.userId)', 'count')
-                .from(Views, 'view')
-                .where('view.fairytaleId = :fairytaleId', { fairytaleId })
-                .getRawOne();
-            console.log(`동화 ${fairytaleId} 의 조회수: ${viewCount.count}`);
-            await queryRunner.commitTransaction();
-            return fairytale;
-        } catch (err) {
-            await queryRunner.rollbackTransaction();
-            throw err;
-        } finally {
-            await queryRunner.release();
+    async getFairytaleContent(fairytaleId: number, id: number) {
+        const fairytales = await this.boardFairytaleRepository.findByIdWithContent(fairytaleId);
+        if (!fairytales) {
+            throw new NotFoundException(`요청한 유저의 동화 목록을 찾을 수 없습니다`);
         }
+        return fairytales;
     }
 
     //동화 좋아요

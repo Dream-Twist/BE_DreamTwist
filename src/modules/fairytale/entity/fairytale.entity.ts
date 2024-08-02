@@ -22,9 +22,6 @@ export class Fairytale {
     userId: number;
 
     @Column()
-    userId: number;
-
-    @Column()
     title: string;
 
     @Column({

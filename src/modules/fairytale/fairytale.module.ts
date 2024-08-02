@@ -17,7 +17,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { Fairytale } from 'src/modules/fairytale/entity/fairytale.entity';
 import { FairytaleImg } from 'src/modules/fairytale/entity/fairytale-img.entity';
-import { Views } from 'src/modules/fairytale/entity/fairytale-utilities.entity';
+// import { Views } from 'src/modules/fairytale/entity/fairytale-utilities.entity';
 import { ForbiddenWord } from 'src/modules/fairytale/entity/fairytale-forbidden-word.entity';
 import { User } from 'src/modules/user/entity/user.entity';
 import { ProfileImage } from 'src/modules//user/entity/profile_image.entity';
@@ -35,16 +35,7 @@ import { S3Service } from 'src/modules/s3.service';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([
-            Fairytale,
-            User,
-            ForbiddenWord,
-            FairytaleImg,
-            ProfileImage,
-            RelFairytaleUsers,
-            Views,
-            Likes,
-        ]),
+        TypeOrmModule.forFeature([Fairytale, User, ForbiddenWord, FairytaleImg, ProfileImage, RelFairytaleUsers]),
     ],
     controllers: [FairytaleController, BoardFairytaleController],
     providers: [
