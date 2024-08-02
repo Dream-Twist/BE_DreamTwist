@@ -63,6 +63,7 @@ export class BoardFairytaleRepository extends Repository<Fairytale> {
                 theme: fairytale.theme,
                 nickname: userNicknameMap.get(fairytale.userId) || 'Unknown',
                 coverImage: coverImage,
+                createdAt: fairytale.createdAt || 'unknown',
             };
         });
 
