@@ -12,11 +12,12 @@ Date        Author      Status      Description
 2024.08.02  박수정      Modified    이미지 업로드 방식 변경 - Presigned URL
 */
 
-import { Controller, Post, Body, ValidationPipe } from '@nestjs/common';
+import { Controller, Post, Body, ValidationPipe, UseInterceptors } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { FairytaleService } from 'src/modules/fairytale/fairytale-create.service';
 import { CreateFairytaleDto } from 'src/modules/fairytale/dto/fairytale-create.dto';
 import { CreateFairytaleImgDto } from 'src/modules/fairytale/dto/fairytale-img.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 // 동화 스토리 생성
 @ApiTags('Fairytale')
@@ -68,6 +69,7 @@ export class FairytaleController {
         },
     })
     @Post()
+    @UseInterceptors(FileInterceptor('image'))
     async createFairytale(
         @Body(new ValidationPipe({ transform: true })) createFairytaleDto: CreateFairytaleDto,
         @Body() createFairytaleImgDto: CreateFairytaleImgDto,

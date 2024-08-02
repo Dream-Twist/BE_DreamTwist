@@ -17,10 +17,6 @@ import { IsString, IsNotEmpty, IsBoolean } from 'class-validator';
 
 export class CreateFairytaleDto {
     @ApiProperty()
-    @IsNotEmpty()
-    user: number;
-
-    @ApiProperty()
     @IsString()
     @IsNotEmpty()
     title: string;

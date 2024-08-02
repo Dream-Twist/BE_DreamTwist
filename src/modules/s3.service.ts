@@ -62,7 +62,12 @@ export class S3Service {
             Key: key,
         });
 
-        return await getSignedUrl(this.s3Client, command, { expiresIn: 3600 });
+        try {
+            return await getSignedUrl(this.s3Client, command, { expiresIn: 3600 });
+        } catch (err) {
+            console.error('Error', err);
+            throw new Error('Presigned URL 생성에 실패했습니다.');
+        }
     }
 
     getDefaultImgURL(): string {
