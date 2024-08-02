@@ -82,8 +82,8 @@ export class FairytaleController {
     }
 
     @Post('presigned-url')
-    async getPresignedURL(@Body() body: { fairytaleId: number; fileName: string }) {
-        const presignedURL = await this.fairytaleService.getPresignedURL(body.fairytaleId, body.fileName);
+    async getPresignedURL(@Body() body: { userId: number; fileName: string }) {
+        const presignedURL = await this.fairytaleService.getPresignedURL(body.userId, body.fileName);
         return { presignedURL };
     }
 }

@@ -24,6 +24,7 @@ import { ForbiddenWordRepository } from 'src/modules/fairytale/repository/fairyt
 import { FairytaleImgRepository } from './repository/fairytale-img.repository';
 import { UserRepository } from 'src/modules/user/user.repository';
 import { S3Service } from 'src/modules/s3.service';
+import { nanoid } from 'nanoid';
 
 @Injectable()
 export class FairytaleService {
@@ -85,8 +86,9 @@ export class FairytaleService {
     }
 
     // S3에서 Presigned URL 생성 요청
-    async getPresignedURL(fairytaleId: number, fileName: string): Promise<string> {
-        const key = `img/${fairytaleId}/${Date.now()}-${fileName}`;
+    async getPresignedURL(userId: number, fileName: string): Promise<string> {
+        const folderId = nanoid(6);
+        const key = `img/${userId}/${folderId}/${Date.now()}-${fileName}`;
 
         return this.s3Service.generatePresignedURL(key);
     }
