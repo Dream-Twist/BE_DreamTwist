@@ -49,12 +49,12 @@ export class BoardFairytaleService {
         return fairytales;
     }
     //동화 세부 조회
-    async getFairytaleContent(fairytaleId: number, id: number) {
-        // const fairytales = await this.boardFairytaleRepository.findByIdWithContent(fairytaleId);
-        // if (!fairytales) {
-        //     throw new NotFoundException(`요청한 유저의 동화 목록을 찾을 수 없습니다`);
-        // }
-        // return fairytales;
+    async getFairytaleContent(fairytaleId: number, userId: number) {
+        const fairytales = await this.boardFairytaleRepository.findByIdWithContent(fairytaleId, userId);
+        if (!fairytales) {
+            throw new NotFoundException(`해당되는 동화를 찾을 수 없습니다`);
+        }
+        return fairytales;
     }
 
     //동화 좋아요

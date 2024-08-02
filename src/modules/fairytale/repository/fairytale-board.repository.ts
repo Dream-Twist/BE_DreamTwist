@@ -90,56 +90,60 @@ export class BoardFairytaleRepository extends Repository<Fairytale> {
         return count;
     }
 
-    //찾는 동화 세부
-    async findByIdWithContent(fairytaleId: number) {
-        // // 유저 닉네임만
-        // const users = await this.dataSource
-        //     .getRepository(User)
-        //     .createQueryBuilder('users')
-        //     .select(['users.id', 'users.nickname'])
-        //     .getMany();
-        // // 매핑
-        // const userNicknameMap = new Map<number, string>(users.map(user => [user.id, user.nickname]));
-        // //동화 목록
-        // const fairytales = await this.createQueryBuilder('fairytale')
-        //     // 최신순 정렬
-        //     // .orderBy('fairytale.createdAt', 'DESC')
-        //     .where('fairytale.privatedAt IS NULL')
-        //     .getMany();
-        // // 동화 삽화
-        // const images = await this.dataSource
-        //     .getRepository(FairytaleImg)
-        //     .createQueryBuilder('fairytale_img')
-        //     // 최신순 정렬
-        //     // .orderBy('fairytale_img.createdAt', 'DESC')
-        //     .getMany();
-        // // 매핑
-        // const fairytaleImageMap = images.reduce(
-        //     (map, img) => {
-        //         if (!map[img.fairytaleId]) {
-        //             map[img.fairytaleId] = [];
-        //         }
-        //         map[img.fairytaleId].push(img);
-        //         return map;
-        //     },
-        //     {} as Record<number, FairytaleImg[]>,
-        // );
-        // const formattedFairytales = fairytales.map(fairytale => {
-        //     const images = fairytaleImageMap[fairytale.id] || []; //JSON이 아닌 오브젝트
-        //     const paths = Object.values(images[0].path);
-        //     const coverImage = paths.length > 0 ? paths[0] : null;
-        //     const contentImages = paths.length > 1 ? paths.slice(1) : [];
-        //     return {
-        //         title: fairytale.title,
-        //         theme: fairytale.theme,
-        //         nickname: userNicknameMap.get(fairytale.userId) || 'Unknown',
-        //         content: fairytale.content,
-        //         coverImage: coverImage,
-        //         images: contentImages,
-        //     };
-        // });
-        // return formattedFairytales;
+    //동화 세부
+    async findByIdWithContent(fairytaleId: number, userId: number) {
+        // 유저 닉네임 id만
+        const users = await this.dataSource
+            .getRepository(User)
+            .createQueryBuilder('users')
+            .select(['users.id', 'users.nickname'])
+            .where('users.id = id', { userId })
+            .getOne();
+        // 매핑
+        const userNickname = users ? users.nickname : 'Unknown';
+        // 동화 줄거리
+        const fairytales = await this.createQueryBuilder('fairytale')
+            .andWhere('fairytale.id = :fairytaleId', { fairytaleId })
+            .getMany();
+        // 동화 삽화
+        const images = await this.dataSource
+            .getRepository(FairytaleImg)
+            .createQueryBuilder('fairytale_img')
+            .where('fairytale_img.id = :fairytaleId', { fairytaleId })
+            .getMany();
+        // 매핑
+        const fairytaleImageMap = images.reduce(
+            (map, img) => {
+                if (!map[img.fairytaleId]) {
+                    map[img.fairytaleId] = [];
+                }
+                map[img.fairytaleId].push(img);
+                return map;
+            },
+            {} as Record<number, FairytaleImg[]>,
+        );
+
+        const formattedFairytales = fairytales.map(fairytale => {
+            const images = fairytaleImageMap[fairytale.id] || []; //JSON이 아닌 오브젝트
+            const paths = Object.values(images[0].path);
+            const coverImage = paths.length > 0 ? paths[0] : null;
+            const contentImages = paths.length > 1 ? paths.slice(1) : [];
+            return {
+                userId: fairytale.userId,
+                nickname: userNickname,
+                fairytaleId: fairytale.id,
+                title: fairytale.title,
+                theme: fairytale.theme,
+                content: fairytale.content,
+                coverImage: coverImage,
+                images: contentImages,
+            };
+        });
+        return formattedFairytales;
     }
+
+    // 제목으로 검색
+    async getAllbyTitle(titleId: string) {}
 
     //좋아요 수 추가, 아직 작동 안 함
     // async incrementLikes(fairytaleId: number) {
