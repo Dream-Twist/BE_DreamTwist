@@ -119,6 +119,7 @@ export class BillingService {
                 body: response.data,
             };
         } catch (e) {
+            // 아직 결제 에러날 경우는 작성하지 않음
             console.log('토스 페이먼츠 에러 코드', e);
         }
     }

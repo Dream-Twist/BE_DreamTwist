@@ -28,14 +28,14 @@ import { PointRates } from 'src/modules/billing/entity/point-rates.entity';
 
 @Module({
     imports: [
-        HttpModule, // HttpModule을 임포트하여 HttpService를 사용 가능하게 합니다.
+        HttpModule,
         TypeOrmModule.forFeature([Order]),
         TypeOrmModule.forFeature([Payment]),
         TypeOrmModule.forFeature([PointHistory]),
         TypeOrmModule.forFeature([Point]),
         TypeOrmModule.forFeature([PointRates]),
     ],
-    controllers: [BillingController], // PaymentController를 등록합니다.
+    controllers: [BillingController],
     providers: [
         BillingService,
         OrderRepository,
@@ -43,7 +43,7 @@ import { PointRates } from 'src/modules/billing/entity/point-rates.entity';
         PointHistoryRepository,
         PointRepository,
         PointRatesRepository,
-    ], // PaymentService를 등록합니다.
+    ],
     exports: [BillingService],
 })
 export class BillingModule {}
