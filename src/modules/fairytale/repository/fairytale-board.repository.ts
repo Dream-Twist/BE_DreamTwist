@@ -43,6 +43,7 @@ export class BoardFairytaleRepository extends Repository<Fairytale> {
             const fairytales = await this.createQueryBuilder('fairytale')
                 // 최신순 정렬
                 // .orderBy('fairytale.createdAt', 'DESC')
+                .where('fairytale.privatedAt IS NULL')
                 .getMany();
             // 동화 삽화
             const images = await this.dataSource
@@ -63,9 +64,10 @@ export class BoardFairytaleRepository extends Repository<Fairytale> {
                 {} as Record<number, FairytaleImg[]>,
             );
             const formattedFairytales = fairytales.map(fairytale => {
-                const images = fairytaleImageMap[fairytale.id] || [];
-                const coverImage = images.length > 0 ? images[0].path[0] : null;
-                const contentImages = images.length > 0 ? images[0].path : null;
+                const images = fairytaleImageMap[fairytale.id] || []; //JSON이 아닌 오브젝트
+                const paths = Object.values(images[0].path);
+                const coverImage = paths.length > 0 ? paths[0] : null;
+                const contentImages = paths.length > 1 ? paths.slice(1) : [];
                 return {
                     title: fairytale.title,
                     theme: fairytale.theme,
@@ -80,20 +82,6 @@ export class BoardFairytaleRepository extends Repository<Fairytale> {
         } catch (error) {
             throw new NotFoundException('동화 목록을 조회할 수 없습니다.');
         }
-    }
-    //찾는 동화 세부
-    async findByIdWithContent(fairytaleId: number): Promise<Fairytale[]> {
-        return (
-            this.createQueryBuilder('fairytale')
-                .leftJoin('fairytale.user', 'user')
-                .addSelect('user.nickname')
-                .leftJoinAndSelect('fairytale.content', 'content')
-                .leftJoinAndSelect('fairytale.image', 'path')
-                // 최신순 정렬
-                .orderBy('fairytale.createdAt', 'DESC')
-                .where('fairytale.id = :fairytaleId', { fairytaleId })
-                .getMany()
-        );
     }
 
     //조회 수 기록
@@ -114,6 +102,21 @@ export class BoardFairytaleRepository extends Repository<Fairytale> {
             .where('views.id = :fairytaleId', { fairytaleId })
             .getCount();
         return count;
+    }
+
+    //찾는 동화 세부
+    async findByIdWithContent(fairytaleId: number): Promise<Fairytale[]> {
+        return (
+            this.createQueryBuilder('fairytale')
+                .leftJoin('fairytale.user', 'user')
+                .addSelect('user.nickname')
+                .leftJoinAndSelect('fairytale.content', 'content')
+                .leftJoinAndSelect('fairytale.image', 'path')
+                // 최신순 정렬
+                .orderBy('fairytale.createdAt', 'DESC')
+                .where('fairytale.id = :fairytaleId', { fairytaleId })
+                .getMany()
+        );
     }
 
     //좋아요 수 추가, 아직 작동 안 함
