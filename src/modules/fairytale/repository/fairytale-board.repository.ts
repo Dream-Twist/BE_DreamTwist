@@ -57,8 +57,8 @@ export class BoardFairytaleRepository extends Repository<Fairytale> {
             const images = fairytaleImageMap[fairytale.id] || []; //JSON이 아닌 오브젝트
             const paths = Object.values(images[0].path);
             const coverImage = paths.length > 0 ? paths[0] : null;
-            const contentImages = paths.length > 1 ? paths.slice(1) : [];
             return {
+                fairytaleId: fairytale.id,
                 title: fairytale.title,
                 theme: fairytale.theme,
                 nickname: userNicknameMap.get(fairytale.userId) || 'Unknown',
