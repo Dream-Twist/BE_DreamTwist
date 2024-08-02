@@ -39,6 +39,7 @@ import { AppService } from 'src/app.service';
                 autoLoadEntities: true,
                 charset: 'utf8mb4',
                 keepConnectionAlive: true,
+                timezone: 'Asia/Seoul',
             }),
             inject: [ConfigService],
         }),
