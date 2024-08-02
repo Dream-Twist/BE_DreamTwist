@@ -9,12 +9,11 @@ Date        Author      Status      Description
 2024.07.20  박수정      Modified    동화 스토리 생성 기능 추가
 2024.07.22  박수정      Modified    Swagger 설정
 2024.07.26  박수정      Modified    동화 이미지 업로드 기능 추가
+2024.08.02  박수정      Modified    이미지 업로드 방식 변경 - Presigned URL
 */
 
-import { Controller, Post, Body, UseInterceptors, UploadedFile, ValidationPipe } from '@nestjs/common';
+import { Controller, Post, Body, ValidationPipe } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { memoryStorage } from 'multer';
 import { FairytaleService } from 'src/modules/fairytale/fairytale-create.service';
 import { CreateFairytaleDto } from 'src/modules/fairytale/dto/fairytale-create.dto';
 import { CreateFairytaleImgDto } from 'src/modules/fairytale/dto/fairytale-img.dto';
@@ -69,16 +68,20 @@ export class FairytaleController {
         },
     })
     @Post()
-    @UseInterceptors(FileInterceptor('image', { storage: memoryStorage() }))
     async createFairytale(
         @Body(new ValidationPipe({ transform: true })) createFairytaleDto: CreateFairytaleDto,
         @Body() createFairytaleImgDto: CreateFairytaleImgDto,
-        @UploadedFile() file: Express.Multer.File,
     ) {
-        const result = await this.fairytaleService.createFairytale(createFairytaleDto, createFairytaleImgDto, file);
+        const result = await this.fairytaleService.createFairytale(createFairytaleDto, createFairytaleImgDto);
         return {
             message: '동화 스토리가 성공적으로 생성되었습니다.',
             result,
         };
+    }
+
+    @Post('presigned-url')
+    async getPresignedURL(@Body() body: { fairytaleId: number; fileName: string }) {
+        const presignedURL = await this.fairytaleService.getPresignedURL(body.fairytaleId, body.fileName);
+        return { presignedURL };
     }
 }

@@ -10,6 +10,7 @@ Date        Author      Status      Description
 2024.07.22  박수정      Modified    금지어 설정 기능 추가
 2024.07.26  박수정      Modified    동화 이미지 업로드 기능 추가
 2024.08.01  박수정      Modified    Entity 변경에 대한 Service 변경
+2024.08.02  박수정      Modified    이미지 업로드 방식 변경 - Presigned URL
 */
 
 import { BadRequestException, Injectable } from '@nestjs/common';
@@ -42,7 +43,6 @@ export class FairytaleService {
     async createFairytale(
         createFairytaleDto: CreateFairytaleDto,
         createFairytaleImgDto: CreateFairytaleImgDto,
-        file: Express.Multer.File,
     ): Promise<{ savedFairytale: Fairytale; savedFairytaleImg: FairytaleImg }> {
         // 임시 사용자
         const userId = 1;
@@ -56,10 +56,7 @@ export class FairytaleService {
         await this.checkForbiddenWodrds([createFairytaleDto.title, createFairytaleDto.content]);
 
         // 동화 스토리 공개 여부 확인
-        let privatedAt: Date | null = null;
-        if (createFairytaleDto.privatedAt === true) {
-            privatedAt = new Date();
-        }
+        const privatedAt = createFairytaleDto.privatedAt ? new Date() : null;
 
         // 동화 스토리
         const fairytale = await this.fairytaleRepository.createFairytale({
@@ -71,16 +68,9 @@ export class FairytaleService {
         });
         const savedFairytale = await this.fairytaleRepository.save(fairytale);
 
-        // 동화 이미지 업로드
-        let imgUrl: string;
+        // let imgUrl = this.s3Service.getDefaultImgUrl();
 
-        if (file) {
-            const key = `img/${fairytale.id}/${Date.now()}-${file.originalname}`;
-            imgUrl = await this.s3Service.uploadFile(file, key);
-        } else {
-            imgUrl = this.s3Service.getDefaultImgUrl();
-        }
-
+        // 동화 이미지 저장
         const images = JSON.parse(createFairytaleImgDto.images);
         const combinedImages = { '0': createFairytaleImgDto.coverImage, ...images };
 
@@ -92,6 +82,13 @@ export class FairytaleService {
         const savedFairytaleImg = await this.fairytaleImgRepository.save(fairytaleImg);
 
         return { savedFairytale, savedFairytaleImg };
+    }
+
+    // S3에서 Presigned URL 생성 요청
+    async getPresignedURL(fairytaleId: number, fileName: string): Promise<string> {
+        const key = `img/${fairytaleId}/${Date.now()}-${fileName}`;
+
+        return this.s3Service.generatePresignedURL(key);
     }
 
     // 금지어 설정
