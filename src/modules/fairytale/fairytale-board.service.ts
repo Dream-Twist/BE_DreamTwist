@@ -41,10 +41,10 @@ export class BoardFairytaleService {
     ) {}
 
     //유저 동화 전체 조회
-    async getFairytalesByUserId(userId: number) {
-        const fairytales = await this.boardFairytaleRepository.findAllByUserId(userId);
-        if (!fairytales || fairytales.length === 0) {
-            throw new NotFoundException(`요청한 유저 ${userId}의 동화 목록을 찾을 수 없습니다`);
+    async getFairytales() {
+        const fairytales = await this.boardFairytaleRepository.findAllByUserId();
+        if (!fairytales) {
+            throw new NotFoundException(`요청한 유저의 동화 목록을 찾을 수 없습니다`);
         }
         return fairytales;
     }

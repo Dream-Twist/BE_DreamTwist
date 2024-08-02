@@ -84,8 +84,8 @@ export class BoardFairytaleController {
     @Get()
     async getAllFairytalesForUser() {
         // 임시 유저
-        const userId = 1;
-        return this.fairytaleService.getFairytalesByUserId(userId);
+        // const userId = 1;
+        return this.fairytaleService.getFairytales();
     }
     @ApiOperation({ summary: '동화 상세 조회' })
     @ApiResponse({

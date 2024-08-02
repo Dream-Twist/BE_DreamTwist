@@ -63,6 +63,7 @@ export class FairytaleService {
 
         // 동화 스토리
         const fairytale = await this.fairytaleRepository.createFairytale({
+            userId: createFairytaleDto.user,
             title: createFairytaleDto.title,
             theme: createFairytaleDto.theme,
             content: JSON.parse(createFairytaleDto.content),
