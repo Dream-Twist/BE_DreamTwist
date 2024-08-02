@@ -12,12 +12,12 @@ Date        Author      Status      Description
 */
 
 import { Controller, Post, Body, UseInterceptors, UploadedFile, ValidationPipe } from '@nestjs/common';
-import { FairytaleService } from './fairytale-create.service';
-import { CreateFairytaleDto } from './dto/fairytale-create.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
-import { CreateFairytaleImgDto } from './dto/fairytale-img.dto';
+import { FairytaleService } from 'src/modules/fairytale/fairytale-create.service';
+import { CreateFairytaleDto } from 'src/modules/fairytale/dto/fairytale-create.dto';
+import { CreateFairytaleImgDto } from 'src/modules/fairytale/dto/fairytale-img.dto';
 
 // 동화 스토리 생성
 @ApiTags('Fairytale')

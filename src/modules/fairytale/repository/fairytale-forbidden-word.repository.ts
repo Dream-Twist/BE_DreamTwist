@@ -11,7 +11,7 @@ Date        Author      Status      Description
 
 import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
-import { ForbiddenWord } from '../entity/fairytale-forbidden-word.entity';
+import { ForbiddenWord } from 'src/modules/fairytale/entity/fairytale-forbidden-word.entity';
 
 @Injectable()
 export class ForbiddenWordRepository extends Repository<ForbiddenWord> {
