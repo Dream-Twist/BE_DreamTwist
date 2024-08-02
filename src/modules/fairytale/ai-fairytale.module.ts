@@ -17,10 +17,12 @@ import { AIFairytaleService } from 'src/modules/fairytale/ai-fairytale-create.se
 import { AIFairytaleController } from 'src/modules/fairytale/ai-fairytale-create.controller';
 import { PointRepository } from 'src/modules/billing/repository/point.repository';
 import { Point } from 'src/modules/billing/entity/point.entity';
+import { PointHistoryRepository } from 'src/modules/billing/repository/point-history.repository';
+import { PointHistory } from 'src/modules/billing/entity/point-history.entity';
 
 @Module({
-    imports: [HttpModule, TypeOrmModule.forFeature([Point])],
+    imports: [HttpModule, TypeOrmModule.forFeature([Point]), TypeOrmModule.forFeature([PointHistory])],
     controllers: [AIFairytaleController],
-    providers: [AIFairytaleService, PointRepository],
+    providers: [AIFairytaleService, PointRepository, PointHistoryRepository],
 })
 export class AIFairytaleModule {}
