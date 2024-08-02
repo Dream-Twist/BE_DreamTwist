@@ -24,9 +24,9 @@ export class PointRepository extends Repository<Point> {
         return this.save(point);
     }
 
-    async updatePointByUserId(user_id: number, pointsToAdd: number): Promise<Point> {
+    async updatePointByUserId(user_id: number, pointsChange: number): Promise<Point> {
         const userPoints = await this.findOne({ where: { user_id } });
-        userPoints.points += pointsToAdd;
+        userPoints.points += pointsChange;
         return this.save(userPoints);
     }
 
@@ -35,7 +35,7 @@ export class PointRepository extends Repository<Point> {
             .getRepository(Point)
             .createQueryBuilder('point')
             .select(['point.user_id', 'point.points'])
-            .where('point.user_id := user_id', { user_id })
+            .where('point.user_id = :user_id', { user_id })
             .getOne();
 
         return res;
