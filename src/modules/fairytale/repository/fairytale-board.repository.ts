@@ -62,14 +62,19 @@ export class BoardFairytaleRepository extends Repository<Fairytale> {
                 },
                 {} as Record<number, FairytaleImg[]>,
             );
-            const formattedFairytales = fairytales.map(fairytale => ({
-                title: fairytale.title,
-                theme: fairytale.theme,
-                nickname: userNicknameMap.get(fairytale.userId) || 'Unknown',
-                content: fairytale.content,
-                coverImage: fairytaleImageMap[fairytale.id]?.[0]?.path || null,
-                images: fairytaleImageMap[fairytale.id]?.map(img => img.path) || [],
-            }));
+            const formattedFairytales = fairytales.map(fairytale => {
+                const images = fairytaleImageMap[fairytale.id] || [];
+                const coverImage = images.length > 0 ? images[0].path[0] : null;
+                const contentImages = images.length > 0 ? images[0].path : null;
+                return {
+                    title: fairytale.title,
+                    theme: fairytale.theme,
+                    nickname: userNicknameMap.get(fairytale.userId) || 'Unknown',
+                    content: fairytale.content,
+                    coverImage: coverImage,
+                    images: contentImages,
+                };
+            });
 
             return formattedFairytales;
         } catch (error) {
