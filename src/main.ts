@@ -12,9 +12,9 @@ Date        Author      Status      Description
 */
 
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger } from '@nestjs/common';
+import { AppModule } from 'src/app.module';
 
 declare const module: any; // Hot Reload 설정
 

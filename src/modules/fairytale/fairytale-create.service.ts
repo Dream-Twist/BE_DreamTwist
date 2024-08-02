@@ -13,16 +13,16 @@ Date        Author      Status      Description
 */
 
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateFairytaleDto } from './dto/fairytale-create.dto';
-import { FairytaleRepository } from './repository/fairytale-create.repository';
-import { UserRepository } from '../user/user.repository';
-import { Fairytale } from './entity/fairytale.entity';
-import { ForbiddenWordRepository } from './repository/fairytale-forbidden-word.repository';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Fairytale } from 'src/modules/fairytale/entity/fairytale.entity';
+import { FairytaleImg } from 'src/modules/fairytale/entity/fairytale-img.entity';
+import { CreateFairytaleDto } from 'src/modules/fairytale/dto/fairytale-create.dto';
+import { CreateFairytaleImgDto } from 'src/modules/fairytale/dto/fairytale-img.dto';
+import { FairytaleRepository } from 'src/modules/fairytale/repository/fairytale-create.repository';
+import { ForbiddenWordRepository } from 'src/modules/fairytale/repository/fairytale-forbidden-word.repository';
 import { FairytaleImgRepository } from './repository/fairytale-img.repository';
-import { S3Service } from '../s3.service';
-import { FairytaleImg } from './entity/fairytale-img.entity';
-import { CreateFairytaleImgDto } from './dto/fairytale-img.dto';
+import { UserRepository } from 'src/modules/user/user.repository';
+import { S3Service } from 'src/modules/s3.service';
 
 @Injectable()
 export class FairytaleService {
@@ -63,6 +63,7 @@ export class FairytaleService {
 
         // 동화 스토리
         const fairytale = await this.fairytaleRepository.createFairytale({
+            userId: userId,
             title: createFairytaleDto.title,
             theme: createFairytaleDto.theme,
             content: JSON.parse(createFairytaleDto.content),
@@ -100,8 +101,8 @@ export class FairytaleService {
 
         for (const text of texts) {
             for (const word of forbiddenWords) {
-                if (text.includes(word.forbidden_word)) {
-                    foundForbiddenWords.push(word.forbidden_word);
+                if (text.includes(word.forbiddenWord)) {
+                    foundForbiddenWords.push(word.forbiddenWord);
                 }
             }
         }

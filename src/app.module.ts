@@ -12,12 +12,12 @@ Date        Author      Status      Description
 
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { FairytaleModule } from './modules/fairytale/fairytale.module';
-import { AIFairytaleModule } from './modules/fairytale/ai-fairytale.module';
-import { AudioModule } from './modules/audio/audio.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { FairytaleModule } from 'src/modules/fairytale/fairytale.module';
+import { AIFairytaleModule } from 'src/modules/fairytale/ai-fairytale.module';
+import { AudioModule } from 'src/modules/audio/audio.module';
+import { AppController } from 'src/app.controller';
+import { AppService } from 'src/app.service';
 
 @Module({
     imports: [
