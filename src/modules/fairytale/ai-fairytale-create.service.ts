@@ -12,14 +12,22 @@ Date        Author      Status      Description
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { CreateAIFairytaleDto } from './dto/ai-fairytale-create.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AIFairytaleService {
-    constructor(private readonly httpService: HttpService) {}
+    private readonly aiUrl: string;
+
+    constructor(
+        private readonly httpService: HttpService,
+        private configService: ConfigService,
+    ) {
+        this.aiUrl = this.configService.get('AI_SERVER_URL');
+    }
 
     async generateFairytale(createAIFairytaleDto: CreateAIFairytaleDto): Promise<any> {
         const { prompt } = createAIFairytaleDto;
-        const res = await this.httpService.post('http://127.0.0.1:5000/story', { prompt }).toPromise();
+        const res = await this.httpService.post(`${this.aiUrl}/story`, { prompt }).toPromise();
         return res.data;
     }
 }
