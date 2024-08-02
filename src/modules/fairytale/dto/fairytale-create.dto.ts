@@ -28,7 +28,7 @@ export class CreateFairytaleDto {
     @ApiProperty()
     @IsString()
     @IsNotEmpty()
-    theme: string;
+    theme: '우화' | '환경' | '사랑' | '모험' | '추리' | '기타';
 
     @ApiProperty()
     @IsNotEmpty()
