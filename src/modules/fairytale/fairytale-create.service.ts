@@ -63,6 +63,7 @@ export class FairytaleService {
 
         // 동화 스토리
         const fairytale = await this.fairytaleRepository.createFairytale({
+            userId: userId,
             title: createFairytaleDto.title,
             theme: createFairytaleDto.theme,
             content: JSON.parse(createFairytaleDto.content),
@@ -100,8 +101,8 @@ export class FairytaleService {
 
         for (const text of texts) {
             for (const word of forbiddenWords) {
-                if (text.includes(word.forbidden_word)) {
-                    foundForbiddenWords.push(word.forbidden_word);
+                if (text.includes(word.forbiddenWord)) {
+                    foundForbiddenWords.push(word.forbiddenWord);
                 }
             }
         }

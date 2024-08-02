@@ -8,6 +8,7 @@ Date        Author      Status      Description
 2024.07.19  박수정      Created
 2024.07.20  박수정      Modified    회원 기능 추가
 2024.08.01  박수정      Modified    Entity 변경
+2024.08.02  박수정      Modified    DB 컬럼명 수정
 */
 
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn } from 'typeorm';
@@ -17,7 +18,7 @@ export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column({ name: 'profile_image_id' })
     profileImageId: number;
 
     @Column({ unique: true })
@@ -26,15 +27,15 @@ export class User {
     @Column({ unique: true })
     nickname: string;
 
-    @Column()
+    @Column({ name: 'is_online' })
     isOnline: boolean;
 
-    @CreateDateColumn()
+    @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;
 
-    @Column({ type: 'timestamp', nullable: true })
+    @Column({ name: 'updated_at', type: 'timestamp', nullable: true })
     updatedAt: Date;
 
-    @DeleteDateColumn()
+    @DeleteDateColumn({ name: 'deleted_at' })
     deletedAt: Date;
 }

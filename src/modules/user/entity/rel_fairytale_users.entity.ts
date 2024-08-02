@@ -7,6 +7,7 @@ History
 Date        Author      Status      Description
 2024.08.01  박수정      Created     
 2024.08.01  박수정      Modified    중간 테이블 생성
+2024.08.02  박수정      Modified    DB 컬럼명 수정
 */
 
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn } from 'typeorm';
@@ -16,18 +17,18 @@ export class RelFairytaleUsers {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column({ name: 'fairytale_id' })
     fairytaleId: number;
 
-    @Column()
+    @Column({ name: 'user_id' })
     userId: number;
 
-    @CreateDateColumn()
+    @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;
 
-    @Column({ type: 'timestamp', nullable: true })
+    @Column({ name: 'updated_at', type: 'timestamp', nullable: true })
     updatedAt: Date;
 
-    @DeleteDateColumn()
+    @DeleteDateColumn({ name: 'deleted_at' })
     deletedAt: Date;
 }

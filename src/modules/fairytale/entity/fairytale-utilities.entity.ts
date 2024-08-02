@@ -7,30 +7,29 @@ History
 Date        Author      Status      Description
 2024.07.29  강민규      Created     
 2024.07.29  강민규      Modified    조회 수 좋아요 수   
+2024.08.02  박수정      Modified    DB 컬럼명 수정
 */
 
 import { Entity, PrimaryGeneratedColumn, CreateDateColumn, DeleteDateColumn, Column } from 'typeorm';
-import { Fairytale } from 'src/modules/fairytale/entity/fairytale.entity';
-import { User } from 'src/modules/user/entity/user.entity';
 
 @Entity('views')
 export class Views {
     @PrimaryGeneratedColumn()
     id: number;
 
-    // @ManyToOne(() => Fairytale)
-    fairytale: Fairytale;
+    @Column({ name: 'fairytale_id' })
+    fairytaleId: number;
 
-    // @ManyToOne(() => User, user => user.fairytales) // ★
-    user: User;
+    @Column({ name: 'user_id' })
+    userId: number;
 
-    @CreateDateColumn()
+    @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;
 
-    @Column({ type: 'timestamp', nullable: true })
+    @Column({ name: 'updated_at', type: 'timestamp', nullable: true })
     updatedAt: Date;
 
-    @DeleteDateColumn()
+    @DeleteDateColumn({ name: 'deleted_at' })
     deletedAt: Date;
 }
 
@@ -41,20 +40,19 @@ export class Likes {
 
     @Column({ default: 0 })
     likes: number;
-    // initially 0
 
-    // @ManyToOne(() => Fairytale)
-    fairytale: Fairytale;
+    @Column({ name: 'fairytale_id' })
+    fairytaleId: number;
 
-    // @ManyToOne(() => User, user => user.fairytales) // ★
-    user: User;
+    @Column({ name: 'user_id' })
+    userId: number;
 
-    @CreateDateColumn()
+    @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;
 
-    @Column({ type: 'timestamp', nullable: true })
+    @Column({ name: 'updated_at', type: 'timestamp', nullable: true })
     updatedAt: Date;
 
-    @DeleteDateColumn()
+    @DeleteDateColumn({ name: 'deleted_at' })
     deletedAt: Date;
 }
