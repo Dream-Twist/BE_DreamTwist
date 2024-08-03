@@ -136,6 +136,54 @@ export class BoardFairytaleController {
         const content = await this.fairytaleService.getFairytaleContent(fairytaleId, userId);
         return content;
     }
+    // 제목 조회
+    @ApiOperation({ summary: '동화 제목으로 검색' })
+    @ApiResponse({
+        status: 200,
+        description: '동화 조회 성공',
+        schema: {
+            type: 'object',
+            properties: {
+                message: { type: 'string', example: '해당되는 동화를 성공적으로 조회했습니다.' },
+            },
+        },
+    })
+    @ApiResponse({
+        description: '잘못된 요청',
+        schema: {
+            type: 'object',
+            properties: { error: { type: 'string', example: '잘못된 요청입니다.' } },
+        },
+    })
+    @ApiResponse({
+        status: 401,
+        description: '인증 실패',
+        schema: {
+            type: 'object',
+            properties: { error: { type: 'string', example: '인증에 실패했습니다.' } },
+        },
+    })
+    @ApiResponse({
+        status: 404,
+        description: '요청한 리소스를 찾을 수 없음',
+        schema: {
+            type: 'object',
+            properties: { error: { type: 'string', example: '{title}에 해당되는 동화 줄거리를 찾을 수 없습니다.' } },
+        },
+    })
+    @ApiResponse({
+        status: 500,
+        description: '서버 내부 오류',
+        schema: {
+            type: 'object',
+            properties: { error: { type: 'string', example: '서버 내부 에러가 발생했습니다.' } },
+        },
+    })
+    @Get('byTitle')
+    async getFairytalebyTitle(@Query('title') title: string) {
+        const content = await this.fairytaleService.getAllbyTitle(title);
+        return content;
+    }
     // 수정
     @ApiOperation({ summary: '동화 스토리 수정' })
     @ApiResponse({
@@ -226,7 +274,7 @@ export class BoardFairytaleController {
             properties: {
                 error: {
                     type: 'string',
-                    example: ['{id}번 동화를 찾을 수 없습니다', '{id}번 동화의 줄거리를 찾을 수 없습니다'],
+                    example: ['{id}번 동화를 찾을 수 없습니다'],
                 },
             },
         },
@@ -240,8 +288,8 @@ export class BoardFairytaleController {
         },
     })
     // 동화 스토리 지우기
-    @Delete(':id')
-    async deleteFairytale(@Param('id', ParseIntPipe) id: number): Promise<string> {
+    @Delete(':fairytaleId')
+    async deleteFairytale(@Param('fairytaleId', ParseIntPipe) id: number): Promise<string> {
         await this.fairytaleService.deleteFairytale(id);
         return `${id} 번 동화를 삭제했습니다`;
     }
