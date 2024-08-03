@@ -6,44 +6,65 @@ Author : 원경혜
 History
 Date        Author      Status      Description
 2024.08.01  원경혜      Created     
-2024.08.02  원경혜      Modified    AI 동화 이미지 생성 기능 추가
+2024.08.02  원경혜      Modified    AI 동화 이미지 생성 기능 API 추가
 2024.08.03  원경혜      Modified    생성된 이미지 S3 업로드 및 URL 생성
+2024.08.04  원경혜      Modified    번역 기능 API 추가
 */
 
 import { ConfigService } from '@nestjs/config';
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
-import { InjectRepository } from '@nestjs/typeorm';
-// import { FairytaleImg } from 'src/modules/fairytale/entity/fairytale-img.entity';
 import { CreateAIFairytaleDto } from 'src/modules/fairytale/dto/ai-fairytale-create.dto';
-import { FairytaleImgRepository } from 'src/modules/fairytale/repository/fairytale-img.repository';
-import { UserRepository } from 'src/modules/user/user.repository';
 import { S3Service } from 'src/modules/s3.service';
 import { Readable } from 'stream';
+import * as deepl from 'deepl-node';
+// import { InjectRepository } from '@nestjs/typeorm';
+// import { FairytaleImg } from 'src/modules/fairytale/entity/fairytale-img.entity';
 // import { CreateFairytaleImgDto } from './dto/fairytale-img.dto';
+// import { FairytaleImgRepository } from 'src/modules/fairytale/repository/fairytale-img.repository';
+// import { UserRepository } from 'src/modules/user/user.repository';
 
 @Injectable()
 export class AIFairytaleImageService {
     private readonly aiImageEngineId: string;
     private readonly aiImageApiHost: string;
     private readonly aiImageApiKey: string;
+    private readonly deeplAuthKey: string;
+    private readonly deeplTranslator: deepl.Translator;
 
     constructor(
         private readonly httpService: HttpService,
         private configService: ConfigService,
-        @InjectRepository(UserRepository)
-        private readonly userRepository: UserRepository,
-        @InjectRepository(FairytaleImgRepository)
-        private readonly fairytaleImgRepository: FairytaleImgRepository,
         private readonly s3Service: S3Service,
+        // @InjectRepository(UserRepository)
+        // private readonly userRepository: UserRepository,
+        // @InjectRepository(FairytaleImgRepository)
+        // private readonly fairytaleImgRepository: FairytaleImgRepository,
     ) {
         this.aiImageEngineId = this.configService.get<string>('AI_IMAGE_ENGINE_ID') ?? 'stable-diffusion-v1-6';
         this.aiImageApiHost = this.configService.get<string>('AI_IMAGE_API_HOST') ?? 'https://api.stability.ai';
         this.aiImageApiKey = this.configService.get<string>('AI_IMAGE_API_KEY');
+        this.deeplAuthKey = this.configService.get<string>('DEEPL_API_KEY');
 
+        if (!this.deeplAuthKey) {
+            throw new InternalServerErrorException('DeepL API키 값이 존재하지 않습니다.');
+        }
         if (!this.aiImageApiKey) {
-            throw new HttpException('API키 값이 존재하지 않습니다.', HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new InternalServerErrorException('AI 이미지 생성 API키 값이 존재하지 않습니다.');
+        }
+        this.deeplTranslator = new deepl.Translator(this.deeplAuthKey);
+    }
+
+    // AI 이미지 생성 전, 프롬프트 번역
+    private async translateText(prompt: string): Promise<string> {
+        try {
+            const result = await this.deeplTranslator.translateText(prompt, 'ko', 'en-US');
+            console.log(result.text);
+            return result.text;
+        } catch (err) {
+            console.error('번역 실패:', err);
+            throw new InternalServerErrorException('번역에 실패하였습니다.');
         }
     }
 
@@ -57,7 +78,7 @@ export class AIFairytaleImageService {
         // }
 
         // AI 이미지 생성 - Stability.ai API 접속
-        const { prompt } = createAIFairytaleDto;
+        const translatePrompt = await this.translateText(createAIFairytaleDto.prompt);
         const url = `${this.aiImageApiHost}/v1/generation/${this.aiImageEngineId}/text-to-image`;
         const payload = {
             cfg_scale: 35,
@@ -65,17 +86,16 @@ export class AIFairytaleImageService {
             width: 448,
             samples: 1,
             steps: 50,
-            seed: 1,
+            seed: 42,
             style_preset: 'digital-art',
             text_prompts: [
                 {
-                    text: prompt,
+                    text: translatePrompt,
                 },
             ],
         };
 
         console.log(this.aiImageApiKey);
-        console.log(prompt);
         console.log(url);
 
         const res = await firstValueFrom(
@@ -90,10 +110,7 @@ export class AIFairytaleImageService {
         );
 
         if (!res || !res.data) {
-            throw new HttpException(
-                `상태 코드가 200이 아닌 응답: ${res?.statusText || '응답 데이터 없음'}`,
-                res?.status || 500,
-            );
+            throw new InternalServerErrorException('API 요청 실패 및 응답 데이터가 없습니다.');
         }
 
         console.log('api 요청 및 이미지 생성 성공');
@@ -103,13 +120,13 @@ export class AIFairytaleImageService {
         // S3에 이미지 업로드
         const imageUrl = await this.s3Service.uploadAiImage(fileName, res.data as Readable);
 
-        // // DB에 URL 저장 - 도헌님과 상의 후, 구현 예정
-        // const aiImg = await this.fairytaleImgRepository.createFairytaleImg({
-        //     fairytaleId: fairytale.id,
-        //     creationWay: CreateFairytaleImgDto.creationWay,
-        //     path: imageUrl,
-        // });
-
         return imageUrl;
     }
 }
+
+// // DB에 URL 저장 - 도헌님과 상의 후, 구현 예정
+// const aiImg = await this.fairytaleImgRepository.createFairytaleImg({
+//     fairytaleId: fairytale.id,
+//     creationWay: CreateFairytaleImgDto.creationWay,
+//     path: imageUrl,
+// });

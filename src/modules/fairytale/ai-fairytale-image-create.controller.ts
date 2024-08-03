@@ -25,13 +25,8 @@ export class AIFairytaleImageController {
     @ApiPostOperation({
         summary: 'AI 동화 이미지 생성',
         successResponseSchema: {
-            type: 'object',
-            properties: {
-                url: {
-                    type: 'string',
-                    example: 'http://bucketName.s3.region.amazonaws.com/fileName',
-                },
-            },
+            type: 'string',
+            example: 'http://bucketName.s3.region.amazonaws.com/fileName',
         },
     })
     @Post('image')
