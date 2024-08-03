@@ -10,7 +10,7 @@ Date        Author      Status      Description
 2024.08.03  박수정      Modified    Repository 분리 - 조회 / 생성, 수정, 삭제
 */
 
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { Repository, DataSource } from 'typeorm';
 import { Fairytale } from 'src/modules/fairytale/entity/fairytale.entity';
 import { FairytaleImg } from 'src/modules/fairytale/entity/fairytale-img.entity';
@@ -64,7 +64,7 @@ export class ManageFairytaleRepository extends Repository<Fairytale> {
         } catch (error) {
             // 롤백
             await queryRunner.rollbackTransaction();
-            throw error;
+            throw new InternalServerErrorException('동화 삭제 중 오류가 발생했습니다');
         } finally {
             // 쿼리 해제
             await queryRunner.release();

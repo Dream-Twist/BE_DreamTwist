@@ -52,7 +52,7 @@ export class ManageFairytaleService {
         const user = await this.userRepository.findOne({ where: { id: userId } });
 
         if (!user) {
-            throw new Error('회원을 찾을 수 없습니다.');
+            throw new NotFoundException('회원을 찾을 수 없습니다.');
         }
 
         // 금지어 확인

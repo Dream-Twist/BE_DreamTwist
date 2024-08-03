@@ -10,7 +10,7 @@ Date        Author      Status      Description
 2024.08.02  박수정      Modified    이미지 업로드 방식 변경 - Presigned URL
 */
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { ConfigService } from '@nestjs/config';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
@@ -51,7 +51,7 @@ export class S3Service {
             return `https://${this.bucketName}.s3.${this.region}.amazonaws.com/${key}`;
         } catch (err) {
             console.error('Error', err);
-            throw new Error('이미지 업로드에 실패했습니다.');
+            throw new InternalServerErrorException('이미지 업로드에 실패했습니다.');
         }
     }
 
@@ -66,7 +66,7 @@ export class S3Service {
             return await getSignedUrl(this.s3Client, command, { expiresIn: 3600 });
         } catch (err) {
             console.error('Error', err);
-            throw new Error('Presigned URL 생성에 실패했습니다.');
+            throw new InternalServerErrorException('Presigned URL 생성에 실패했습니다.');
         }
     }
 
