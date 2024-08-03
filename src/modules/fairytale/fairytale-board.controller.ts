@@ -31,9 +31,9 @@ import {
 } from '@nestjs/common';
 import { BoardFairytaleService } from 'src/modules/fairytale/fairytale-board.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { BoardFairytaleDto } from 'src/modules/fairytale/dto/fairytale-board.dto';
 import { CreateFairytaleImgDto } from 'src/modules/fairytale/dto/fairytale-img.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { UpdateFairytaleDto } from './dto/fairytale-update.dto';
 
 @ApiTags('Fairytale')
 @Controller('fairytale')
@@ -231,13 +231,13 @@ export class BoardFairytaleController {
     @Put(':fairytaleId')
     @UseInterceptors(FileInterceptor('image'))
     async createFairytale(
-        @Body(new ValidationPipe({ transform: true })) boardFairytaleDto: BoardFairytaleDto,
+        @Body(new ValidationPipe({ transform: true })) updateFairytaleDto: UpdateFairytaleDto,
         @Body() createFairytaleImgDto: CreateFairytaleImgDto,
         @Param('fairytaleId', ParseIntPipe) fairytaleId: number,
     ) {
         const result = await this.fairytaleService.editUserFairytale(
             fairytaleId,
-            boardFairytaleDto,
+            updateFairytaleDto,
             createFairytaleImgDto,
         );
         return {

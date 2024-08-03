@@ -17,7 +17,6 @@ Date        Author      Status      Description
 
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
 
 import { Fairytale } from 'src/modules/fairytale/entity/fairytale.entity';
 import { FairytaleImg } from 'src/modules/fairytale/entity/fairytale-img.entity';
@@ -26,8 +25,8 @@ import { FairytaleImgRepository } from 'src/modules/fairytale/repository/fairyta
 import { ForbiddenWordRepository } from 'src/modules/fairytale/repository/fairytale-forbidden-word.repository';
 import { S3Service } from 'src/modules/s3.service';
 import { nanoid } from 'nanoid';
-import { BoardFairytaleDto } from 'src/modules/fairytale/dto/fairytale-board.dto';
 import { CreateFairytaleImgDto } from 'src/modules/fairytale/dto/fairytale-img.dto';
+import { UpdateFairytaleDto } from './dto/fairytale-update.dto';
 @Injectable()
 export class BoardFairytaleService {
     constructor(
@@ -35,7 +34,6 @@ export class BoardFairytaleService {
         private readonly boardFairytaleRepository: BoardFairytaleRepository,
         private readonly fairytaleImgRepository: FairytaleImgRepository,
         private readonly forbiddenWordRepository: ForbiddenWordRepository,
-        private readonly dataSource: DataSource,
         private readonly s3Service: S3Service,
     ) {}
 
@@ -76,7 +74,7 @@ export class BoardFairytaleService {
     //스토리 수정
     async editUserFairytale(
         fairytaleId: number,
-        updateFairytaleDto: Partial<BoardFairytaleDto>,
+        updateFairytaleDto: Partial<UpdateFairytaleDto>,
         updateFairytaleImgDto: Partial<CreateFairytaleImgDto>,
     ): Promise<{ updatedFairytale: Fairytale; updatedFairytaleImg: FairytaleImg }> {
         const existingFairytale = await this.boardFairytaleRepository.findOneBy({ id: fairytaleId });
