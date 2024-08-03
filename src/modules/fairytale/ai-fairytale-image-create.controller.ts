@@ -10,7 +10,8 @@ Date        Author      Status      Description
 */
 
 import { Controller, Post, Body } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
+import { ApiPostOperation } from 'shared/utils/swagger.decorators';
 import { CreateAIFairytaleDto } from 'src/modules/fairytale/dto/ai-fairytale-create.dto';
 import { AIFairytaleImageService } from 'src/modules/fairytale/ai-fairytale-image-create.service';
 // import { AIFairytaleType } from 'src/modules/fairytale/type/ai-fairytale-create.type';
@@ -20,16 +21,19 @@ import { AIFairytaleImageService } from 'src/modules/fairytale/ai-fairytale-imag
 export class AIFairytaleImageController {
     constructor(private readonly aiFairytaleImageService: AIFairytaleImageService) {}
 
-    // Swagger 추후 작성 예정
-    @ApiOperation({ summary: 'AI 동화 이미지 생성' })
-    @ApiResponse({
-        status: 201,
-        description: 'AI 동화 이미지 생성 성공',
-        schema: {
-            type: 'string',
+    // AI 이미지 생성 요청
+    @ApiPostOperation({
+        summary: 'AI 동화 이미지 생성',
+        successResponseSchema: {
+            type: 'object',
+            properties: {
+                url: {
+                    type: 'string',
+                    example: 'http://bucketName.s3.region.amazonaws.com/fileName',
+                },
+            },
         },
     })
-    // Api 작성
     @Post('image')
     async createAiImage(@Body() createAIFairytaleDto: CreateAIFairytaleDto): Promise<string> {
         return this.aiFairytaleImageService.generateAndUploadAiImage(createAIFairytaleDto);

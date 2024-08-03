@@ -7,11 +7,13 @@ History
 Date        Author      Status      Description
 2024.08.01  원경혜      Created     
 2024.08.02  원경혜      Modified    AI 동화 이미지 생성 기능 추가
+2024.08.03  원경혜      Modified    생성된 이미지 S3 업로드 및 URL 생성
 */
 
 import { ConfigService } from '@nestjs/config';
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 import { InjectRepository } from '@nestjs/typeorm';
 // import { FairytaleImg } from 'src/modules/fairytale/entity/fairytale-img.entity';
 import { CreateAIFairytaleDto } from 'src/modules/fairytale/dto/ai-fairytale-create.dto';
@@ -56,32 +58,36 @@ export class AIFairytaleImageService {
 
         // AI 이미지 생성 - Stability.ai API 접속
         const { prompt } = createAIFairytaleDto;
-        console.log(prompt);
         const url = `${this.aiImageApiHost}/v1/generation/${this.aiImageEngineId}/text-to-image`;
+        const payload = {
+            cfg_scale: 35,
+            height: 448,
+            width: 448,
+            samples: 1,
+            steps: 50,
+            seed: 1,
+            style_preset: 'digital-art',
+            text_prompts: [
+                {
+                    text: prompt,
+                },
+            ],
+        };
+
+        console.log(this.aiImageApiKey);
+        console.log(prompt);
         console.log(url);
-        const res = await this.httpService
-            .post(
-                url,
-                {
-                    text_prompts: [{ prompt }],
-                    cfg_scale: 35,
-                    samples: 1,
-                    height: 448,
-                    width: 448,
-                    steps: 50,
-                    seed: 1,
-                    style_preset: 'digital-art',
+
+        const res = await firstValueFrom(
+            this.httpService.post(url, payload, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'image/png',
+                    Authorization: `Bearer ${this.aiImageApiKey}`,
                 },
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'image/png',
-                        Authorization: `Bearer ${this.aiImageApiKey}`,
-                    },
-                    responseType: 'stream',
-                },
-            )
-            .toPromise();
+                responseType: 'stream',
+            }),
+        );
 
         if (!res || !res.data) {
             throw new HttpException(
@@ -89,6 +95,8 @@ export class AIFairytaleImageService {
                 res?.status || 500,
             );
         }
+
+        console.log('api 요청 및 이미지 생성 성공');
 
         const fileName = `temp_ai_img.png`;
 
