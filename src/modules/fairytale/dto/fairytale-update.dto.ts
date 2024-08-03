@@ -1,6 +1,6 @@
 /**
-File Name : fairytale-board.dto
-Description : 동화 스토리 보드 DTO
+File Name : fairytale-update.dto
+Description : 동화 스토리 수정 DTO
 Author : 강민규
 
 History

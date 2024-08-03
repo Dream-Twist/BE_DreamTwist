@@ -21,12 +21,12 @@ import { ForbiddenWord } from 'src/modules/fairytale/entity/fairytale-forbidden-
 import { User } from 'src/modules/user/entity/user.entity';
 import { ProfileImage } from 'src/modules//user/entity/profile_image.entity';
 import { RelFairytaleUsers } from 'src/modules//user/entity/rel_fairytale_users.entity';
-import { FairytaleController } from 'src/modules/fairytale/fairytale-create.controller';
-import { BoardFairytaleController } from 'src/modules/fairytale/fairytale-board.controller';
-import { FairytaleService } from 'src/modules/fairytale/fairytale-create.service';
-import { BoardFairytaleService } from 'src/modules/fairytale/fairytale-board.service';
-import { FairytaleRepository } from 'src/modules/fairytale/repository/fairytale-create.repository';
-import { BoardFairytaleRepository } from 'src/modules/fairytale/repository/fairytale-board.repository';
+import { ReadFairytaleController } from 'src/modules/fairytale/fairytale-read.controller';
+import { ManageFairytaleController } from 'src/modules/fairytale/fairytale-manage.controller';
+import { ReadFairytaleService } from 'src/modules/fairytale/fairytale-read.service';
+import { ManageFairytaleService } from 'src/modules/fairytale/fairytale-manage.service';
+import { ReadFairytaleRepository } from 'src/modules/fairytale/repository/fairytale-read.repository';
+import { ManageFairytaleRepository } from 'src/modules/fairytale/repository/fairytale-manage.repository';
 import { FairytaleImgRepository } from 'src/modules/fairytale/repository/fairytale-img.repository';
 import { ForbiddenWordRepository } from 'src/modules/fairytale/repository/fairytale-forbidden-word.repository';
 import { UserRepository } from 'src/modules/user/user.repository';
@@ -36,13 +36,13 @@ import { S3Service } from 'src/modules/s3.service';
     imports: [
         TypeOrmModule.forFeature([Fairytale, User, ForbiddenWord, FairytaleImg, ProfileImage, RelFairytaleUsers]),
     ],
-    controllers: [FairytaleController, BoardFairytaleController],
+    controllers: [ReadFairytaleController, ManageFairytaleController],
     providers: [
-        FairytaleService,
-        FairytaleRepository,
+        ReadFairytaleRepository,
+        ManageFairytaleRepository,
+        ReadFairytaleService,
+        ManageFairytaleService,
         UserRepository,
-        BoardFairytaleService,
-        BoardFairytaleRepository,
         {
             provide: ForbiddenWordRepository,
             useFactory: (dataSource: DataSource) => {
