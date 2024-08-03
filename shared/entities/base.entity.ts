@@ -11,7 +11,7 @@ Date        Author      Status      Description
 
 import { PrimaryGeneratedColumn, CreateDateColumn, Column, DeleteDateColumn } from 'typeorm';
 
-export abstract class BaseEntity {
+export abstract class CommonEntity {
     @PrimaryGeneratedColumn()
     id: number;
 

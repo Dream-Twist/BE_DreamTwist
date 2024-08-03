@@ -27,6 +27,8 @@ import { UserRepository } from 'src/modules/user/user.repository';
 import { S3Service } from 'src/modules/s3.service';
 import { nanoid } from 'nanoid';
 import { UpdateFairytaleDto } from './dto/fairytale-update.dto';
+import { FindOptionsWhere } from 'typeorm';
+import { User } from '../user/entity/user.entity';
 
 @Injectable()
 export class ManageFairytaleService {

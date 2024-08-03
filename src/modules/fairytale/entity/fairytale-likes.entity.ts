@@ -7,12 +7,14 @@ History
 Date        Author      Status      Description
 2024.07.29  강민규      Created     
 2024.07.29  강민규      Modified    좋아요 수  
+2024.08.03  박수정      Modified    공통 필드 Entity 생성
 */
 
-import { Entity, Column, BaseEntity } from 'typeorm';
+import { CommonEntity } from 'shared/entities/base.entity';
+import { Entity, Column } from 'typeorm';
 
-@Entity('likes')
-export class Likes extends BaseEntity {
+@Entity('fairytale_like')
+export class FairytaleLike extends CommonEntity {
     @Column({ name: 'fairytale_id' })
     fairytale: number;
 
