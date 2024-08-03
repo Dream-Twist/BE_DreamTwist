@@ -12,6 +12,7 @@ Date        Author      Status      Description
 2024.07.27  강민규      Modified    GET: 동화 목록 및 특정 동화 세부 조회
 2024.07.30  강민규      Modified    GET: 조회수 기록
 2024.07.31  강민규      Modified    GET: 동화 목록 최신순 검색, 닉네임 이미지 조회
+2024.08.03  강민규      Modified    PUT: 동화 작성자가 수정
 
 */
 
@@ -27,12 +28,17 @@ import {
     Post,
     Put,
     Query,
+    UseInterceptors,
+    ValidationPipe,
 } from '@nestjs/common';
 import { BoardFairytaleService } from './fairytale-board.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { BoardFairytaleDto } from './dto/fairytale-board.dto';
 import { UserDto } from '../user/dto/user.dto';
 import { Fairytale } from './entity/fairytale.entity';
+import { CreateFairytaleImgDto } from './dto/fairytale-img.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+
 @ApiTags('Fairytale')
 @Controller('fairytale')
 export class BoardFairytaleController {
@@ -83,8 +89,6 @@ export class BoardFairytaleController {
     })
     @Get()
     async getAllFairytalesForUser() {
-        // 임시 유저
-        // const userId = 1;
         return this.fairytaleService.getFairytales();
     }
     @ApiOperation({ summary: '동화 상세 조회' })
@@ -229,8 +233,22 @@ export class BoardFairytaleController {
         },
     })
     @Put(':fairytaleId')
-    async editUserFairytale(@Body() boardFairytaleDto: BoardFairytaleDto) {}
-
+    @UseInterceptors(FileInterceptor('image'))
+    async createFairytale(
+        @Body(new ValidationPipe({ transform: true })) boardFairytaleDto: BoardFairytaleDto,
+        @Body() createFairytaleImgDto: CreateFairytaleImgDto,
+        @Param('fairytaleId', ParseIntPipe) fairytaleId: number,
+    ) {
+        const result = await this.fairytaleService.editUserFairytale(
+            fairytaleId,
+            boardFairytaleDto,
+            createFairytaleImgDto,
+        );
+        return {
+            message: '동화 스토리가 성공적으로 수정되었습니다.',
+            result,
+        };
+    }
     @ApiOperation({ summary: '동화 스토리 삭제' })
     @ApiResponse({
         status: 200,

@@ -10,6 +10,7 @@ Date        Author      Status      Description
 */
 
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import { IsString, IsNotEmpty, IsBoolean } from 'class-validator';
 
 export class BoardFairytaleDto {
@@ -21,15 +22,14 @@ export class BoardFairytaleDto {
     @ApiProperty()
     @IsString()
     @IsNotEmpty()
-    labeling: string;
+    theme: '우화' | '환경' | '사랑' | '모험' | '추리' | '기타';
 
     @ApiProperty()
-    @IsString()
     @IsNotEmpty()
     content: string;
 
     @ApiProperty()
     @IsBoolean()
-    @IsNotEmpty()
-    isPublic: boolean;
+    @Transform(({ value }) => value === 'true' || value === true)
+    privatedAt: boolean;
 }
