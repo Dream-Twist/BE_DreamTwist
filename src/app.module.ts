@@ -15,7 +15,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FairytaleModule } from 'src/modules/fairytale/fairytale.module';
 import { AIFairytaleModule } from 'src/modules/fairytale/ai-fairytale.module';
-import { AudioModule } from 'src/modules/audio/audio.module';
 import { BillingModule } from 'src/modules/billing/billing.module';
 import { PointRatesModule } from 'src/modules/billing/point-rates.module';
 import { AppController } from 'src/app.controller';
@@ -47,7 +46,6 @@ import { AppService } from 'src/app.service';
         }),
         FairytaleModule,
         AIFairytaleModule,
-        AudioModule,
         BillingModule,
         PointRatesModule,
     ],

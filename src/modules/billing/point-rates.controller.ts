@@ -7,23 +7,23 @@ History
 Date        Author      Status      Description
 2024.08.02  이유민      Created     
 2024.08.02  이유민      Modified    포인트 기능 추가
+2024.08.03  박수정      Modified    Swagger Decorator 적용
 */
 
 import { Controller, Get, Param, BadRequestException } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { PointRatesService } from 'src/modules/billing/point-rates.service';
 import { PointRates } from 'src/modules/billing/entity/point-rates.entity';
+import { ApiGetOperation } from 'shared/utils/swagger.decorators';
 
 @ApiTags('Point-Rates')
 @Controller('point-rates')
 export class PointRatesController {
     constructor(private readonly pointRatesService: PointRatesService) {}
 
-    @ApiOperation({ summary: '상품 전체 검색' })
-    @ApiResponse({
-        status: 200,
-        description: '상품 검색 성공',
-        schema: {
+    @ApiGetOperation({
+        summary: '상품 전체 검색',
+        successResponseSchema: {
             type: 'array',
             items: {
                 type: 'object',
@@ -34,86 +34,22 @@ export class PointRatesController {
                 },
             },
         },
-    })
-    @ApiResponse({
-        status: 400,
-        description: '잘못된 요청',
-        schema: {
-            type: 'object',
-            properties: { error: { type: 'string', example: '잘못된 요청입니다.' } },
-        },
-    })
-    @ApiResponse({
-        status: 401,
-        description: '인증 실패',
-        schema: {
-            type: 'object',
-            properties: { error: { type: 'string', example: '인증에 실패했습니다.' } },
-        },
-    })
-    @ApiResponse({
-        status: 404,
-        description: '요청한 리소스를 찾을 수 없음',
-        schema: {
-            type: 'object',
-            properties: { error: { type: 'string', example: '요청한 리소스를 찾을 수 없습니다.' } },
-        },
-    })
-    @ApiResponse({
-        status: 500,
-        description: '서버 내부 오류',
-        schema: {
-            type: 'object',
-            properties: { error: { type: 'string', example: '서버 내부 에러가 발생했습니다.' } },
-        },
+        notFoundMessage: '요청한 리소스를 찾을 수 없습니다.',
     })
     @Get()
     getAllPointRates() {
         return this.pointRatesService.findAll();
     }
 
-    @ApiOperation({ summary: '가격으로 상품 포인트 검색' })
-    @ApiResponse({
-        status: 200,
-        description: '상품 포인트 검색 성공',
-        schema: {
+    @ApiGetOperation({
+        summary: '가격으로 상품 포인트 검색',
+        successResponseSchema: {
             type: 'object',
             properties: {
                 points: { type: 'number', example: '10' },
             },
         },
-    })
-    @ApiResponse({
-        status: 400,
-        description: '잘못된 요청',
-        schema: {
-            type: 'object',
-            properties: { error: { type: 'string', example: '잘못된 요청입니다.' } },
-        },
-    })
-    @ApiResponse({
-        status: 401,
-        description: '인증 실패',
-        schema: {
-            type: 'object',
-            properties: { error: { type: 'string', example: '인증에 실패했습니다.' } },
-        },
-    })
-    @ApiResponse({
-        status: 404,
-        description: '요청한 리소스를 찾을 수 없음',
-        schema: {
-            type: 'object',
-            properties: { error: { type: 'string', example: '해당 가격의 포인트 상품이 없습니다.' } },
-        },
-    })
-    @ApiResponse({
-        status: 500,
-        description: '서버 내부 오류',
-        schema: {
-            type: 'object',
-            properties: { error: { type: 'string', example: '서버 내부 에러가 발생했습니다.' } },
-        },
+        notFoundMessage: '해당 가격의 포인트 상품이 없습니다.',
     })
     @Get(':amount')
     async getPointsByAmount(@Param('amount') amount: string): Promise<PointRates> {
