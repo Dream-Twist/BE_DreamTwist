@@ -142,23 +142,38 @@ export class BoardFairytaleRepository extends Repository<Fairytale> {
         return formattedFairytales;
     }
 
-    // 제목으로 검색
-    async getAllbyTitle(titleId: string) {}
-
-    //좋아요 수 추가, 아직 작동 안 함
-    // async incrementLikes(fairytaleId: number) {
-    //     return this.createQueryBuilder()
-    //         .update(Likes)
-    //         .set({ likes: () => 'likes + 1' })
-    //         .where('fairytale.id = :fairytaleId', { fairytaleId })
-    //         .execute();
-    // }
-
     // 동화 수정
     async updateFairytale() {}
 
-    // 동화 삭제
+    // 동화 삭제 및 비공개
     async softDeleteFairytale(id: number): Promise<void> {
-        await this.update(id, { deletedAt: new Date() });
+        const queryRunner = this.dataSource.getRepository(Fairytale).manager.connection.createQueryRunner();
+        await queryRunner.startTransaction();
+
+        try {
+            const currentTime = new Date();
+
+            // 동화가 있는지 확인
+            const fairytale = await queryRunner.manager.findOne(Fairytale, { where: { id, deletedAt: null } });
+            if (!fairytale) {
+                throw new NotFoundException(`${id}번 동화를 찾을 수 없습니다`);
+            }
+
+            // 동화 삭제
+            await queryRunner.manager.update(Fairytale, id, { deletedAt: currentTime, privatedAt: currentTime });
+
+            // 이미지 삭제
+            await queryRunner.manager.update(FairytaleImg, { fairytaleId: id }, { deletedAt: currentTime });
+
+            // 성공
+            await queryRunner.commitTransaction();
+        } catch (error) {
+            // 롤백
+            await queryRunner.rollbackTransaction();
+            throw error;
+        } finally {
+            // 쿼리 해제
+            await queryRunner.release();
+        }
     }
 }

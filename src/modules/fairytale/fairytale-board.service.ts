@@ -20,10 +20,9 @@ import { DataSource, Repository } from 'typeorm';
 
 import { User } from 'src/modules/user/entity/user.entity';
 import { Fairytale } from './entity/fairytale.entity';
-// import { FairytaleContent } from './entity/fairytale-content.entity'; // ★
 // import { Views } from './entity/fairytale-views.entity';
 // import { Likes } from './entity/fairytale-views.entity';
-// import { FairytaleImg } from './entity/fairytale-img.entity';
+import { FairytaleImg } from './entity/fairytale-img.entity';
 // import { BoardFairytaleDto } from './dto/fairytale-board.dto';
 import { BoardFairytaleRepository } from './repository/fairytale-board.repository';
 @Injectable()
@@ -33,8 +32,6 @@ export class BoardFairytaleService {
         // private readonly userRepository: Repository<User>,
         // @InjectRepository(Fairytale)
         // private readonly fairytaleRepository: Repository<Fairytale>,
-        // @InjectRepository(FairytaleContent) // ★
-        // private readonly contentRepository: Repository<FairytaleContent>, // ★
         @InjectRepository(BoardFairytaleRepository)
         private readonly boardFairytaleRepository: BoardFairytaleRepository,
         private readonly dataSource: DataSource,
@@ -56,6 +53,18 @@ export class BoardFairytaleService {
         }
         return fairytales;
     }
+    //동화 제목 검색 쿼리 안 들어감
+    async getAllbyTitle(title: string) {
+        // try {
+        //     const fairytales = await this.getFairytales();
+        //     const filteredFairytales = fairytales.filter(fairytale =>
+        //         fairytale.title.toLowerCase().includes(title.toLowerCase()),
+        //     );
+        //     return filteredFairytales;
+        // } catch (error) {
+        //     throw new NotFoundException('제목 ${title} 에 해당되는 동화가 없습니다.');
+        // }
+    }
 
     //동화 좋아요
     //   async createFairytaleLike(userId: number) {
@@ -68,35 +77,7 @@ export class BoardFairytaleService {
 
     //스토리 삭제
     async deleteFairytale(id: number): Promise<void> {
-        const queryRunner = this.dataSource.getRepository(Fairytale).manager.connection.createQueryRunner();
-        await queryRunner.startTransaction();
-
-        try {
-            // 동화가 삭제되지 않았는지 확인
-            const fairytale = await queryRunner.manager.findOne(Fairytale, { where: { id, deletedAt: null } });
-            if (!fairytale) {
-                throw new NotFoundException(`{id}번 동화를 찾을 수 없습니다`);
-            }
-
-            // 동화 줄거리가 삭제되지 않았는지 확인
-            /* // ★
-            const content = await queryRunner.manager.findOne(FairytaleContent, { where: { id, deletedAt: null } });
-            if (!content) {
-                throw new NotFoundException(`{id}번 동화의 줄거리를 찾을 수 없습니다`);
-            }
-            */
-
-            // 동화와 동화 줄거리에 deletedAt 값 생성
-            await queryRunner.manager.softDelete(Fairytale, id);
-            // await queryRunner.manager.softDelete(FairytaleContent, id); // ★
-
-            // 모든 조건 만족하면 transaction
-            await queryRunner.commitTransaction();
-        } catch (error) {
-            await queryRunner.rollbackTransaction();
-            throw error;
-        } finally {
-            await queryRunner.release();
-        }
+        const softDelete = await this.boardFairytaleRepository.softDeleteFairytale(id);
+        return softDelete;
     }
 }
