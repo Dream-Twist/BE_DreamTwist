@@ -17,20 +17,17 @@ Date        Author      Status      Description
 
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource } from 'typeorm';
 
-import { User } from 'src/modules/user/entity/user.entity';
-import { Fairytale } from './entity/fairytale.entity';
-// import { Views } from './entity/fairytale-views.entity';
-// import { Likes } from './entity/fairytale-likes.entity';
-import { FairytaleImg } from './entity/fairytale-img.entity';
-import { BoardFairytaleRepository } from './repository/fairytale-board.repository';
-import { FairytaleImgRepository } from './repository/fairytale-img.repository';
+import { Fairytale } from 'src/modules/fairytale/entity/fairytale.entity';
+import { FairytaleImg } from 'src/modules/fairytale/entity/fairytale-img.entity';
+import { BoardFairytaleRepository } from 'src/modules/fairytale/repository/fairytale-board.repository';
+import { FairytaleImgRepository } from 'src/modules/fairytale/repository/fairytale-img.repository';
 import { ForbiddenWordRepository } from 'src/modules/fairytale/repository/fairytale-forbidden-word.repository';
 import { S3Service } from 'src/modules/s3.service';
 import { nanoid } from 'nanoid';
-import { BoardFairytaleDto } from './dto/fairytale-board.dto';
-import { CreateFairytaleImgDto } from './dto/fairytale-img.dto';
+import { BoardFairytaleDto } from 'src/modules/fairytale/dto/fairytale-board.dto';
+import { CreateFairytaleImgDto } from 'src/modules/fairytale/dto/fairytale-img.dto';
 @Injectable()
 export class BoardFairytaleService {
     constructor(

@@ -22,21 +22,17 @@ import {
     Controller,
     Delete,
     Get,
-    NotFoundException,
     Param,
     ParseIntPipe,
-    Post,
     Put,
     Query,
     UseInterceptors,
     ValidationPipe,
 } from '@nestjs/common';
-import { BoardFairytaleService } from './fairytale-board.service';
+import { BoardFairytaleService } from 'src/modules/fairytale/fairytale-board.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { BoardFairytaleDto } from './dto/fairytale-board.dto';
-import { UserDto } from '../user/dto/user.dto';
-import { Fairytale } from './entity/fairytale.entity';
-import { CreateFairytaleImgDto } from './dto/fairytale-img.dto';
+import { BoardFairytaleDto } from 'src/modules/fairytale/dto/fairytale-board.dto';
+import { CreateFairytaleImgDto } from 'src/modules/fairytale/dto/fairytale-img.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Fairytale')

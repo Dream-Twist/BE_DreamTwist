@@ -17,12 +17,9 @@ Date        Author      Status      Description
 
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository, DataSource } from 'typeorm';
-import { Fairytale } from '../entity/fairytale.entity';
+import { Fairytale } from 'src/modules/fairytale/entity/fairytale.entity';
 import { User } from 'src/modules/user/entity/user.entity';
-import { FairytaleImg } from '../entity/fairytale-img.entity';
-// import { BoardFairytaleDto } from '../dto/fairytale-board.dto';
-// import { Views } from '../entity/fairytale-views.entity';
-// import { Likes } from '../entity/fairytale-views.entity';
+import { FairytaleImg } from 'src/modules/fairytale/entity/fairytale-img.entity';
 @Injectable()
 export class BoardFairytaleRepository extends Repository<Fairytale> {
     constructor(private dataSource: DataSource) {

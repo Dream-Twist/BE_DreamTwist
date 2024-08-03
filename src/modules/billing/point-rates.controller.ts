@@ -12,7 +12,7 @@ Date        Author      Status      Description
 import { Controller, Get, Param, BadRequestException } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PointRatesService } from 'src/modules/billing/point-rates.service';
-import { PointRates } from './entity/point-rates.entity';
+import { PointRates } from 'src/modules/billing/entity/point-rates.entity';
 
 @ApiTags('Point-Rates')
 @Controller('point-rates')

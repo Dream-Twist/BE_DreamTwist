@@ -16,7 +16,6 @@ import {
     CreateDateColumn,
     UpdateDateColumn,
     DeleteDateColumn,
-    Column,
 } from 'typeorm';
 import { Fairytale } from './fairytale.entity';
 import { User } from 'src/modules/user/entity/user.entity';
