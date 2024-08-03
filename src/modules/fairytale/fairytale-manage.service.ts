@@ -27,8 +27,6 @@ import { UserRepository } from 'src/modules/user/user.repository';
 import { S3Service } from 'src/modules/s3.service';
 import { nanoid } from 'nanoid';
 import { UpdateFairytaleDto } from './dto/fairytale-update.dto';
-import { FindOptionsWhere } from 'typeorm';
-import { User } from '../user/entity/user.entity';
 
 @Injectable()
 export class ManageFairytaleService {
@@ -143,7 +141,7 @@ export class ManageFairytaleService {
         return softDelete;
     }
 
-    // S3에서 Presigned URL 생성 요청
+    // Presigned URL 생성 요청
     async getPresignedURL(userId: number, fileName: string): Promise<string> {
         const folderId = nanoid(6);
         const key = `img/${userId}/${folderId}/${Date.now()}-${fileName}`;

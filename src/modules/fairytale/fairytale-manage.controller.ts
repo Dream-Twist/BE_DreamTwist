@@ -32,6 +32,7 @@ import { CreateFairytaleImgDto } from 'src/modules/fairytale/dto/fairytale-img.d
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateFairytaleDto } from './dto/fairytale-update.dto';
 import { ApiDeleteOperation, ApiPostOperation, ApiPutOperation } from 'shared/utils/swagger.decorators';
+import { LikeFairytaleDto } from './dto/fairytale-like.dto';
 
 @ApiTags('Fairytale')
 @Controller('fairytale')
@@ -103,13 +104,13 @@ export class ManageFairytaleController {
     }
 
     // 동화 스토리 좋아요
-    // @ApiPostOperation({
-    //     summary: '좋아요 생성',
-    //     successMessage: '1개의 좋아요가 성공적으로 생성되었습니다.',
-    // })
-    // @Post('like')
-    // async createFairytaleLike(@Body() boardFairytaleDto: BoardFairytaleDto) {
-    //     await this.manageFairytaleService.createFairytaleLike(boardFairytaleDto);
-    //     return { message: '1개의 좋아요가 성공적으로 생성되었습니다.' };
-    // }
+    @ApiPostOperation({
+        summary: '좋아요 생성',
+        successMessage: '1개의 좋아요가 성공적으로 생성되었습니다.',
+    })
+    @Post('like')
+    async createFairytaleLike(@Body() likeFairytaleDto: LikeFairytaleDto) {
+        // await this.manageFairytaleService.createFairytaleLike(likeFairytaleDto);
+        return { message: '1개의 좋아요가 성공적으로 생성되었습니다.' };
+    }
 }
