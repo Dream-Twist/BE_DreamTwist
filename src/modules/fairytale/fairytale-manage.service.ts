@@ -14,7 +14,7 @@ Date        Author      Status      Description
 2024.08.03  박수정      Modified    Service 분리 - 조회 / 생성, 수정, 삭제
 */
 
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Fairytale } from 'src/modules/fairytale/entity/fairytale.entity';
 import { FairytaleImg } from 'src/modules/fairytale/entity/fairytale-img.entity';

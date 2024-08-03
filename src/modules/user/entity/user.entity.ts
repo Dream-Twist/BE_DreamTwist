@@ -11,13 +11,10 @@ Date        Author      Status      Description
 2024.08.02  박수정      Modified    DB 컬럼명 수정
 */
 
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn } from 'typeorm';
+import { Entity, Column, BaseEntity } from 'typeorm';
 
 @Entity('users')
-export class User {
-    @PrimaryGeneratedColumn()
-    id: number;
-
+export class User extends BaseEntity {
     @Column({ name: 'profile_image_id' })
     profileImageId: number;
 
@@ -29,13 +26,4 @@ export class User {
 
     @Column({ name: 'is_online' })
     isOnline: boolean;
-
-    @CreateDateColumn({ name: 'created_at' })
-    createdAt: Date;
-
-    @Column({ name: 'updated_at', type: 'timestamp', nullable: true })
-    updatedAt: Date;
-
-    @DeleteDateColumn({ name: 'deleted_at' })
-    deletedAt: Date;
 }

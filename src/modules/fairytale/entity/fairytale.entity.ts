@@ -11,13 +11,10 @@ Date        Author      Status      Description
 2024.08.02  박수정      Modified    DB 컬럼명 수정
 */
 
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn } from 'typeorm';
+import { Entity, Column, BaseEntity } from 'typeorm';
 
 @Entity('fairytale')
-export class Fairytale {
-    @PrimaryGeneratedColumn()
-    id: number;
-
+export class Fairytale extends BaseEntity {
     @Column({ name: 'user_id' })
     userId: number;
 
@@ -35,13 +32,4 @@ export class Fairytale {
 
     @Column({ name: 'privated_at', type: 'timestamp', nullable: true })
     privatedAt: Date;
-
-    @CreateDateColumn({ name: 'created_at' })
-    createdAt: Date;
-
-    @Column({ name: 'updated_at', type: 'timestamp', nullable: true })
-    updatedAt: Date;
-
-    @DeleteDateColumn({ name: 'deleted_at' })
-    deletedAt: Date;
 }

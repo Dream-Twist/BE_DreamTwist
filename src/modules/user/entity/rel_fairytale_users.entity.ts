@@ -10,25 +10,13 @@ Date        Author      Status      Description
 2024.08.02  박수정      Modified    DB 컬럼명 수정
 */
 
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn } from 'typeorm';
+import { Entity, Column, BaseEntity } from 'typeorm';
 
 @Entity('rel_fairytale_users')
-export class RelFairytaleUsers {
-    @PrimaryGeneratedColumn()
-    id: number;
-
+export class RelFairytaleUsers extends BaseEntity {
     @Column({ name: 'fairytale_id' })
     fairytaleId: number;
 
     @Column({ name: 'user_id' })
     userId: number;
-
-    @CreateDateColumn({ name: 'created_at' })
-    createdAt: Date;
-
-    @Column({ name: 'updated_at', type: 'timestamp', nullable: true })
-    updatedAt: Date;
-
-    @DeleteDateColumn({ name: 'deleted_at' })
-    deletedAt: Date;
 }

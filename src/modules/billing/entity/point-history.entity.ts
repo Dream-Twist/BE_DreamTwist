@@ -9,13 +9,10 @@ Date        Author      Status      Description
 2024.08.02  이유민      Modified    포인트 기능 추가
 */
 
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
+import { Entity, Column, BaseEntity } from 'typeorm';
 
 @Entity('point_history')
-export class PointHistory {
-    @PrimaryGeneratedColumn()
-    id: number;
-
+export class PointHistory extends BaseEntity {
     @Column()
     user_id: number;
 
@@ -24,13 +21,4 @@ export class PointHistory {
 
     @Column()
     description: string;
-
-    @CreateDateColumn()
-    created_at: Date;
-
-    @UpdateDateColumn()
-    updated_at: Date;
-
-    @DeleteDateColumn()
-    deleted_at: Date;
 }

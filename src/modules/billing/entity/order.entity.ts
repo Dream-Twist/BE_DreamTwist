@@ -9,13 +9,10 @@ Date        Author      Status      Description
 2024.08.01  이유민      Modified    결제 관련 기능 추가
 */
 
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
+import { Entity, Column, BaseEntity } from 'typeorm';
 
 @Entity('order')
-export class Order {
-    @PrimaryGeneratedColumn()
-    id: number;
-
+export class Order extends BaseEntity {
     @Column()
     order_id: string;
 
@@ -27,13 +24,4 @@ export class Order {
 
     @Column()
     user_id: number;
-
-    @CreateDateColumn()
-    created_at: Date;
-
-    @UpdateDateColumn()
-    updated_at: Date;
-
-    @DeleteDateColumn()
-    deleted_at: Date;
 }
