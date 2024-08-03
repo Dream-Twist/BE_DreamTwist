@@ -1,6 +1,6 @@
 /**
-File Name : fairytale-board.repository
-Description : 동화 스토리 생성 Repository
+File Name : fairytale-read.repository
+Description : 동화 스토리 조회 Repository
 Author : 강민규
 
 History
@@ -13,18 +13,16 @@ Date        Author      Status      Description
 2024.07.30  강민규      Modified    GET: 조회수 기록
 2024.07.31  강민규      Modified    GET: 동화 목록 최신순 검색, 닉네임 이미지 조회 
 2024.08.03  강민규      Modified    PUT: 동화 작성자가 수정
+2024.08.03  박수정      Modified    Repository 분리 - 조회 / 생성, 수정, 삭제
 */
 
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Repository, DataSource } from 'typeorm';
-import { Fairytale } from '../entity/fairytale.entity';
+import { Fairytale } from 'src/modules/fairytale/entity/fairytale.entity';
 import { User } from 'src/modules/user/entity/user.entity';
-import { FairytaleImg } from '../entity/fairytale-img.entity';
-// import { BoardFairytaleDto } from '../dto/fairytale-board.dto';
-// import { Views } from '../entity/fairytale-views.entity';
-// import { Likes } from '../entity/fairytale-views.entity';
+import { FairytaleImg } from 'src/modules/fairytale/entity/fairytale-img.entity';
 @Injectable()
-export class BoardFairytaleRepository extends Repository<Fairytale> {
+export class ReadFairytaleRepository extends Repository<Fairytale> {
     constructor(private dataSource: DataSource) {
         super(Fairytale, dataSource.createEntityManager());
     }
@@ -141,49 +139,5 @@ export class BoardFairytaleRepository extends Repository<Fairytale> {
             };
         });
         return formattedFairytales;
-    }
-
-    // 동화 수정
-    async updateFairytale(id: number, fairytaleData: Partial<Fairytale>): Promise<Fairytale> {
-        const currentTime = new Date();
-        const updateData = {
-            ...fairytaleData,
-            updatedAt: currentTime,
-        };
-
-        await this.update(id, updateData);
-        return this.findOneBy({ id });
-    }
-
-    // 동화 삭제 및 비공개
-    async softDeleteFairytale(id: number): Promise<void> {
-        const queryRunner = this.dataSource.getRepository(Fairytale).manager.connection.createQueryRunner();
-        await queryRunner.startTransaction();
-
-        try {
-            const currentTime = new Date();
-
-            // 동화가 있는지 확인
-            const fairytale = await queryRunner.manager.findOne(Fairytale, { where: { id, deletedAt: null } });
-            if (!fairytale) {
-                throw new NotFoundException(`${id}번 동화를 찾을 수 없습니다`);
-            }
-
-            // 동화 삭제
-            await queryRunner.manager.update(Fairytale, id, { deletedAt: currentTime, privatedAt: currentTime });
-
-            // 이미지 삭제
-            await queryRunner.manager.update(FairytaleImg, { fairytaleId: id }, { deletedAt: currentTime });
-
-            // 성공
-            await queryRunner.commitTransaction();
-        } catch (error) {
-            // 롤백
-            await queryRunner.rollbackTransaction();
-            throw error;
-        } finally {
-            // 쿼리 해제
-            await queryRunner.release();
-        }
     }
 }

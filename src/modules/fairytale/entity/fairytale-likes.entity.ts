@@ -7,37 +7,17 @@ History
 Date        Author      Status      Description
 2024.07.29  강민규      Created     
 2024.07.29  강민규      Modified    좋아요 수  
+2024.08.03  박수정      Modified    공통 필드 Entity 생성
 */
 
-import {
-    Entity,
-    PrimaryGeneratedColumn,
-    ManyToOne,
-    CreateDateColumn,
-    UpdateDateColumn,
-    DeleteDateColumn,
-    Column,
-} from 'typeorm';
-import { Fairytale } from './fairytale.entity';
-import { User } from 'src/modules/user/entity/user.entity';
+import { CommonEntity } from 'shared/entities/base.entity';
+import { Entity, Column } from 'typeorm';
 
-@Entity('likes')
-export class Likes {
-    @PrimaryGeneratedColumn()
-    id: number;
+@Entity('fairytale_like')
+export class FairytaleLike extends CommonEntity {
+    @Column({ name: 'fairytale_id' })
+    fairytale: number;
 
-    @ManyToOne(() => Fairytale)
-    fairytale: Fairytale;
-
-    @ManyToOne(() => User)
-    user: User;
-
-    @CreateDateColumn()
-    createdAt: Date;
-
-    @UpdateDateColumn()
-    updatedAt: Date;
-
-    @DeleteDateColumn()
-    deletedAt: Date;
+    @Column({ name: 'user_id' })
+    userId: number;
 }

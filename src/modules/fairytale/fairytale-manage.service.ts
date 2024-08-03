@@ -1,6 +1,6 @@
 /**
-File Name : fairytale-create.service
-Description : 동화 스토리 생성 Service
+File Name : fairytale-manage.service
+Description : 동화 스토리 생성, 수정, 삭제 Service
 Author : 박수정
 
 History
@@ -11,26 +11,28 @@ Date        Author      Status      Description
 2024.07.26  박수정      Modified    동화 이미지 업로드 기능 추가
 2024.08.01  박수정      Modified    Entity 변경에 대한 Service 변경
 2024.08.02  박수정      Modified    이미지 업로드 방식 변경 - Presigned URL
+2024.08.03  박수정      Modified    Service 분리 - 조회 / 생성, 수정, 삭제
 */
 
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Fairytale } from 'src/modules/fairytale/entity/fairytale.entity';
 import { FairytaleImg } from 'src/modules/fairytale/entity/fairytale-img.entity';
 import { CreateFairytaleDto } from 'src/modules/fairytale/dto/fairytale-create.dto';
 import { CreateFairytaleImgDto } from 'src/modules/fairytale/dto/fairytale-img.dto';
-import { FairytaleRepository } from 'src/modules/fairytale/repository/fairytale-create.repository';
+import { ManageFairytaleRepository } from 'src/modules/fairytale/repository/fairytale-manage.repository';
 import { ForbiddenWordRepository } from 'src/modules/fairytale/repository/fairytale-forbidden-word.repository';
 import { FairytaleImgRepository } from './repository/fairytale-img.repository';
 import { UserRepository } from 'src/modules/user/user.repository';
 import { S3Service } from 'src/modules/s3.service';
 import { nanoid } from 'nanoid';
+import { UpdateFairytaleDto } from './dto/fairytale-update.dto';
 
 @Injectable()
-export class FairytaleService {
+export class ManageFairytaleService {
     constructor(
-        @InjectRepository(FairytaleRepository)
-        private readonly fairytaleRepository: FairytaleRepository,
+        @InjectRepository(ManageFairytaleRepository)
+        private readonly manageFairytaleRepository: ManageFairytaleRepository,
         @InjectRepository(UserRepository)
         private readonly userRepository: UserRepository,
         private readonly forbiddenWordRepository: ForbiddenWordRepository,
@@ -50,7 +52,7 @@ export class FairytaleService {
         const user = await this.userRepository.findOne({ where: { id: userId } });
 
         if (!user) {
-            throw new Error('회원을 찾을 수 없습니다.');
+            throw new NotFoundException('회원을 찾을 수 없습니다.');
         }
 
         // 금지어 확인
@@ -60,14 +62,14 @@ export class FairytaleService {
         const privatedAt = createFairytaleDto.privatedAt ? new Date() : null;
 
         // 동화 스토리
-        const fairytale = await this.fairytaleRepository.createFairytale({
+        const fairytale = await this.manageFairytaleRepository.createFairytale({
             userId: userId,
             title: createFairytaleDto.title,
             theme: createFairytaleDto.theme,
             content: JSON.parse(createFairytaleDto.content),
             privatedAt: privatedAt,
         });
-        const savedFairytale = await this.fairytaleRepository.save(fairytale);
+        const savedFairytale = await this.manageFairytaleRepository.save(fairytale);
 
         // let imgUrl = this.s3Service.getDefaultImgUrl();
 
@@ -85,7 +87,61 @@ export class FairytaleService {
         return { savedFairytale, savedFairytaleImg };
     }
 
-    // S3에서 Presigned URL 생성 요청
+    // 동화 스토리 수정
+    async editUserFairytale(
+        fairytaleId: number,
+        updateFairytaleDto: Partial<UpdateFairytaleDto>,
+        updateFairytaleImgDto: Partial<CreateFairytaleImgDto>,
+    ): Promise<{ updatedFairytale: Fairytale; updatedFairytaleImg: FairytaleImg }> {
+        const existingFairytale = await this.manageFairytaleRepository.findOneBy({ id: fairytaleId });
+        // 임시 유저
+        const userId = 1;
+
+        // 동화가가 삭제되었는지 확인
+        if (!existingFairytale) {
+            throw new BadRequestException(`${fairytaleId}번 동화를 찾을 수 없습니다`);
+        }
+
+        if (existingFairytale.userId !== userId) {
+            throw new UnauthorizedException('동화를 수정할 권한이 없습니다.');
+        }
+
+        // 금지어 확인
+        await this.checkForbiddenWodrds([updateFairytaleDto.title, updateFairytaleDto.content]);
+
+        // 동화 스토리 공개 여부 확인
+        const privatedAt = updateFairytaleDto.privatedAt ? new Date() : null;
+
+        // 동화 줄거리 수정
+        const fairytale = await this.manageFairytaleRepository.updateFairytale(fairytaleId, {
+            userId: userId,
+            title: updateFairytaleDto.title,
+            theme: updateFairytaleDto.theme,
+            content: JSON.parse(updateFairytaleDto.content),
+            privatedAt: privatedAt,
+        });
+        const updatedFairytale = await this.manageFairytaleRepository.save(fairytale);
+
+        // 동화 이미지 수정
+        const images = JSON.parse(updateFairytaleImgDto.images);
+        const combinedImages = { '0': updateFairytaleImgDto.coverImage, ...images };
+
+        const updatedFairytaleImg = await this.fairytaleImgRepository.updateFairytaleImg(fairytaleId, {
+            fairytaleId: fairytale.id,
+            creationWay: updateFairytaleImgDto.creationWay,
+            path: combinedImages,
+        });
+
+        return { updatedFairytale, updatedFairytaleImg };
+    }
+
+    // 동화 스토리 삭제
+    async deleteFairytale(id: number): Promise<void> {
+        const softDelete = await this.manageFairytaleRepository.softDeleteFairytale(id);
+        return softDelete;
+    }
+
+    // Presigned URL 생성 요청
     async getPresignedURL(userId: number, fileName: string): Promise<string> {
         const folderId = nanoid(6);
         const key = `img/${userId}/${folderId}/${Date.now()}-${fileName}`;

@@ -1,19 +1,19 @@
 /**
-File Name : fairytale-board.dto
-Description : 동화 스토리 보드 DTO
-Author : 강민규
+File Name : fairytale-like.dto
+Description : 동화 스토리 좋아요 DTO
+Author : 박수정
 
 History
 Date        Author      Status      Description
-2024.07.22  강민규      Created     
-2024.07.22  강민규      Modified    based on create dto
+2024.08.03  박수정      Created     
+2024.07.20  박수정      Modified    동화 스토리 좋아요 DTO 생성
 */
 
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsString, IsNotEmpty, IsBoolean } from 'class-validator';
 
-export class BoardFairytaleDto {
+export class LikeFairytaleDto {
     @ApiProperty()
     @IsString()
     @IsNotEmpty()

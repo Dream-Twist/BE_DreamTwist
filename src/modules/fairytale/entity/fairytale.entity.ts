@@ -9,15 +9,14 @@ Date        Author      Status      Description
 2024.07.20  박수정      Modified    동화 스토리 생성 기능 추가
 2024.08.01  박수정      Modified    Entity 변경
 2024.08.02  박수정      Modified    DB 컬럼명 수정
+2024.08.03  박수정      Modified    공통 필드 Entity 생성
 */
 
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn } from 'typeorm';
+import { CommonEntity } from 'shared/entities/base.entity';
+import { Entity, Column } from 'typeorm';
 
 @Entity('fairytale')
-export class Fairytale {
-    @PrimaryGeneratedColumn()
-    id: number;
-
+export class Fairytale extends CommonEntity {
     @Column({ name: 'user_id' })
     userId: number;
 
@@ -35,13 +34,4 @@ export class Fairytale {
 
     @Column({ name: 'privated_at', type: 'timestamp', nullable: true })
     privatedAt: Date;
-
-    @CreateDateColumn({ name: 'created_at' })
-    createdAt: Date;
-
-    @Column({ name: 'updated_at', type: 'timestamp', nullable: true })
-    updatedAt: Date;
-
-    @DeleteDateColumn({ name: 'deleted_at' })
-    deletedAt: Date;
 }
