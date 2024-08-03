@@ -12,6 +12,7 @@ Date        Author      Status      Description
 2024.07.27  강민규      Modified    GET: 동화 목록 및 특정 동화 세부 조회
 2024.07.30  강민규      Modified    GET: 조회수 기록
 2024.07.31  강민규      Modified    GET: 동화 목록 최신순 검색, 닉네임 이미지 조회 
+2024.08.03  강민규      Modified    PUT: 동화 작성자가 수정
 */
 
 import { Injectable, NotFoundException } from '@nestjs/common';
@@ -143,7 +144,16 @@ export class BoardFairytaleRepository extends Repository<Fairytale> {
     }
 
     // 동화 수정
-    async updateFairytale() {}
+    async updateFairytale(id: number, fairytaleData: Partial<Fairytale>): Promise<Fairytale> {
+        const currentTime = new Date();
+        const updateData = {
+            ...fairytaleData,
+            updatedAt: currentTime,
+        };
+
+        await this.update(id, updateData);
+        return this.findOneBy({ id });
+    }
 
     // 동화 삭제 및 비공개
     async softDeleteFairytale(id: number): Promise<void> {
