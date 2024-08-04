@@ -26,7 +26,7 @@ export class AIFairytaleImageController {
         summary: 'AI 동화 이미지 생성',
         successResponseSchema: {
             type: 'string',
-            example: 'http://bucketName.s3.region.amazonaws.com/fileName',
+            example: 'http://dreamtwist-bucket.s3.ap-northeast-2.amazonaws.com/fileName.png',
         },
     })
     @Post('image')
