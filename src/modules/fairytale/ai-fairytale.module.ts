@@ -30,7 +30,7 @@ import { UserRepository } from 'src/modules/user/user.repository';
 import { S3Service } from 'src/modules/s3.service';
 
 @Module({
-    imports: [HttpModule, TypeOrmModule.forFeature([Point]), TypeOrmModule.forFeature([Point, PointHistory, PointUsage, User])],
+    imports: [HttpModule, TypeOrmModule.forFeature([Point, PointHistory, PointUsage, User])],
     controllers: [AIFairytaleController, AIFairytaleImageController],
     providers: [
         AIFairytaleService,
