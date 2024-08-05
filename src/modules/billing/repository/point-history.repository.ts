@@ -23,4 +23,44 @@ export class PointHistoryRepository extends Repository<PointHistory> {
         const point_history = this.create(PointHistoryData);
         return this.save(point_history);
     }
+
+    async findPointHistoryByUserId(user_id: number): Promise<PointHistory[]> {
+        const res = await this.dataSource
+            .getRepository(PointHistory)
+            .createQueryBuilder('ph')
+            .select(['ph.id', 'ph.payment_id', 'ph.remaining_balance'])
+            .where('ph.user_id = :user_id AND ph.remaining_balance > 0', { user_id })
+            .orderBy('ph.created_at', 'ASC')
+            .getMany();
+
+        return res;
+    }
+
+    async findPointHistoryByPaymentId(payment_id: number): Promise<PointHistory[]> {
+        const res = await this.dataSource
+            .getRepository(PointHistory)
+            .createQueryBuilder('ph')
+            .select(['ph.id', 'ph.payment_id', 'ph.points', 'ph.remaining_balance'])
+            .where('ph.payment_id = :payment_id', { payment_id })
+            .orderBy('ph.id', 'ASC')
+            .getMany();
+
+        return res;
+    }
+
+    async updatePointHistoryById(id: number, pointToUse: number): Promise<object> {
+        const history = await this.findOne({ where: { id } });
+        history.remaining_balance += pointToUse;
+        this.save(history);
+
+        return { message: '사용 내역이 수정되었습니다.' };
+    }
+
+    async updatePointHistoryByPaymentId(payment_id: number): Promise<object> {
+        const history = await this.findOne({ where: { payment_id } });
+        history.remaining_balance = 0;
+        this.save(history);
+
+        return { message: '사용 내역이 수정되었습니다.' };
+    }
 }

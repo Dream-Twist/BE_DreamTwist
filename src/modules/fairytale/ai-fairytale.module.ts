@@ -24,11 +24,13 @@ import { PointRepository } from 'src/modules/billing/repository/point.repository
 import { Point } from 'src/modules/billing/entity/point.entity';
 import { PointHistoryRepository } from 'src/modules/billing/repository/point-history.repository';
 import { PointHistory } from 'src/modules/billing/entity/point-history.entity';
+import { PointUsageRepository } from 'src/modules/billing/repository/point-usage.repository';
+import { PointUsage } from 'src/modules/billing/entity/point-usage.entity';
 import { UserRepository } from 'src/modules/user/user.repository';
 import { S3Service } from 'src/modules/s3.service';
 
 @Module({
-    imports: [HttpModule, TypeOrmModule.forFeature([Point]), TypeOrmModule.forFeature([PointHistory, User])],
+    imports: [HttpModule, TypeOrmModule.forFeature([Point]), TypeOrmModule.forFeature([Point, PointHistory, PointUsage, User])],
     controllers: [AIFairytaleController, AIFairytaleImageController],
     providers: [
         AIFairytaleService,
@@ -38,6 +40,7 @@ import { S3Service } from 'src/modules/s3.service';
         PointHistoryRepository,
         UserRepository,
         FairytaleImgRepository,
+        PointUsageRepository,
     ],
 })
 export class AIFairytaleModule {}
