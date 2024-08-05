@@ -21,6 +21,7 @@ import { ForbiddenWord } from 'src/modules/fairytale/entity/fairytale-forbidden-
 import { User } from 'src/modules/user/entity/user.entity';
 import { ProfileImage } from 'src/modules//user/entity/profile_image.entity';
 import { RelFairytaleUsers } from 'src/modules//user/entity/rel_fairytale_users.entity';
+import { Views } from './entity/fairytale-views.entity';
 import { ReadFairytaleController } from 'src/modules/fairytale/fairytale-read.controller';
 import { ManageFairytaleController } from 'src/modules/fairytale/fairytale-manage.controller';
 import { ReadFairytaleService } from 'src/modules/fairytale/fairytale-read.service';
@@ -34,7 +35,15 @@ import { S3Service } from 'src/modules/s3.service';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([Fairytale, User, ForbiddenWord, FairytaleImg, ProfileImage, RelFairytaleUsers]),
+        TypeOrmModule.forFeature([
+            Fairytale,
+            User,
+            ForbiddenWord,
+            FairytaleImg,
+            ProfileImage,
+            RelFairytaleUsers,
+            Views,
+        ]),
     ],
     controllers: [ReadFairytaleController, ManageFairytaleController],
     providers: [
