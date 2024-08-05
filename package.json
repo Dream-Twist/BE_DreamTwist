@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.620.0",
+    "@aws-sdk/lib-storage": "^3.623.0",
     "@aws-sdk/s3-request-presigner": "^3.622.0",
     "@nestjs/axios": "^3.0.2",
     "@nestjs/common": "^10.0.0",
@@ -32,6 +33,7 @@
     "@nestjs/typeorm": "^10.0.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
+    "deepl-node": "^1.13.0",
     "mysql2": "^3.10.3",
     "nanoid": "^3.3.7",
     "reflect-metadata": "^0.2.0",

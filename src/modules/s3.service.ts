@@ -8,12 +8,16 @@ Date        Author      Status      Description
 2024.07.27  박수정      Created     
 2024.07.27  박수정      Modified    AWS S3 설정 추가
 2024.08.02  박수정      Modified    이미지 업로드 방식 변경 - Presigned URL
+2024.08.02  원경혜      Modified    AI 이미지 업로드 추가
+2024.08.03  원경혜      Modified    PutObjectCommand -> Upload 클래스 사용
 */
 
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { Upload } from '@aws-sdk/lib-storage';
 import { ConfigService } from '@nestjs/config';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { Readable } from 'stream';
 
 @Injectable()
 export class S3Service {
@@ -72,5 +76,30 @@ export class S3Service {
 
     getDefaultImgURL(): string {
         return this.defaultImgURL;
+    }
+
+    // S3에 AI 이미지 업로드
+    async uploadAiImage(fileName: string, fileStream: Readable): Promise<string> {
+        try {
+            const upload = new Upload({
+                client: this.s3Client,
+                params: {
+                    Bucket: this.bucketName,
+                    Key: fileName,
+                    Body: fileStream,
+                    ContentType: 'image/png',
+                },
+            });
+
+            // 업로드 된 파일 정보 확인
+            const data = await upload.done();
+            console.log('파일명:', data.Key);
+
+            const fileUrl = `http://${this.bucketName}.s3.${this.region}.amazonaws.com/${fileName}`;
+            return fileUrl;
+        } catch (err) {
+            console.error('Error', err);
+            throw new InternalServerErrorException('이미지 업로드에 실패했습니다.');
+        }
     }
 }
