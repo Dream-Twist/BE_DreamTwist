@@ -45,7 +45,7 @@ export class AIFairytaleService {
 
         // 임시
         const user_id = 2; // 유저ID
-        const storyPoints = 13; // 스토리 생성 시 사용되는 포인트
+        const storyPoints = 10; // 스토리 생성 시 사용되는 포인트
 
         // 해당 사용자의 현재 포인트 검색
         const pointsByUser = await this.pointRepository.findPointByUserId(user_id);

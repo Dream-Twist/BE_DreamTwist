@@ -71,8 +71,6 @@ export class BillingService {
                 ),
             );
 
-            console.log(response.data);
-
             const user_id = 2; // 임시
 
             // 가격에 해당하는 포인트 검색
