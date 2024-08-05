@@ -27,14 +27,7 @@ import { PointRatesRepository } from 'src/modules/billing/repository/point-rates
 import { PointRates } from 'src/modules/billing/entity/point-rates.entity';
 
 @Module({
-    imports: [
-        HttpModule,
-        TypeOrmModule.forFeature([Order]),
-        TypeOrmModule.forFeature([Payment]),
-        TypeOrmModule.forFeature([PointHistory]),
-        TypeOrmModule.forFeature([Point]),
-        TypeOrmModule.forFeature([PointRates]),
-    ],
+    imports: [HttpModule, TypeOrmModule.forFeature([Order, Payment, PointHistory, Point, PointRates])],
     controllers: [BillingController],
     providers: [
         BillingService,

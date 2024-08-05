@@ -19,10 +19,12 @@ import { PointRepository } from 'src/modules/billing/repository/point.repository
 import { Point } from 'src/modules/billing/entity/point.entity';
 import { PointHistoryRepository } from 'src/modules/billing/repository/point-history.repository';
 import { PointHistory } from 'src/modules/billing/entity/point-history.entity';
+import { PointUsageRepository } from 'src/modules/billing/repository/point-usage.repository';
+import { PointUsage } from 'src/modules/billing/entity/point-usage.entity';
 
 @Module({
-    imports: [HttpModule, TypeOrmModule.forFeature([Point]), TypeOrmModule.forFeature([PointHistory])],
+    imports: [HttpModule, TypeOrmModule.forFeature([Point, PointHistory, PointUsage])],
     controllers: [AIFairytaleController],
-    providers: [AIFairytaleService, PointRepository, PointHistoryRepository],
+    providers: [AIFairytaleService, PointRepository, PointHistoryRepository, PointUsageRepository],
 })
 export class AIFairytaleModule {}

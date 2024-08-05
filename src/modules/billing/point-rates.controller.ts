@@ -10,10 +10,9 @@ Date        Author      Status      Description
 2024.08.03  박수정      Modified    Swagger Decorator 적용
 */
 
-import { Controller, Get, Param, BadRequestException } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { PointRatesService } from 'src/modules/billing/point-rates.service';
-import { PointRates } from 'src/modules/billing/entity/point-rates.entity';
 import { ApiGetOperation } from 'shared/utils/swagger.decorators';
 
 @ApiTags('Point-Rates')
@@ -39,26 +38,5 @@ export class PointRatesController {
     @Get()
     getAllPointRates() {
         return this.pointRatesService.findAll();
-    }
-
-    @ApiGetOperation({
-        summary: '가격으로 상품 포인트 검색',
-        successResponseSchema: {
-            type: 'object',
-            properties: {
-                points: { type: 'number', example: '10' },
-            },
-        },
-        notFoundMessage: '해당 가격의 포인트 상품이 없습니다.',
-    })
-    @Get(':amount')
-    async getPointsByAmount(@Param('amount') amount: string): Promise<PointRates> {
-        const parsedAmount = parseInt(amount, 10);
-
-        if (isNaN(parsedAmount)) {
-            throw new BadRequestException('유효한 금액이 아닙니다.');
-        }
-
-        return this.pointRatesService.findPointsByAmount(parsedAmount);
     }
 }

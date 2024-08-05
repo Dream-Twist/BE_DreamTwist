@@ -7,6 +7,7 @@ History
 Date        Author      Status      Description
 2024.08.01  이유민      Created     
 2024.08.01  이유민      Modified    결제 관련 기능 추가
+2024.08.04  이유민      Modified    결제 취소 추가
 */
 
 import { IsString, IsNotEmpty, IsInt } from 'class-validator';
@@ -27,4 +28,16 @@ export class BillingDTO {
     @IsNotEmpty()
     @IsInt()
     amount: number;
+}
+
+export class CancelDTO {
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    payment_key: string;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    cancelReason: string;
 }
