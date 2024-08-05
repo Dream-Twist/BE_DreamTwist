@@ -16,11 +16,13 @@ Date        Author      Status      Description
 2024.08.03  박수정      Modified    Repository 분리 - 조회 / 생성, 수정, 삭제
 */
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository, DataSource } from 'typeorm';
 import { Fairytale } from 'src/modules/fairytale/entity/fairytale.entity';
 import { User } from 'src/modules/user/entity/user.entity';
 import { FairytaleImg } from 'src/modules/fairytale/entity/fairytale-img.entity';
+import { Views } from '../entity/fairytale-views.entity';
+import { NotFound } from '@aws-sdk/client-s3';
 @Injectable()
 export class ReadFairytaleRepository extends Repository<Fairytale> {
     constructor(private dataSource: DataSource) {
@@ -71,22 +73,39 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
 
     //조회 수 기록
     async recordViews(fairytaleId: number, userId: number): Promise<void> {
-        await this.createQueryBuilder()
-            .insert()
-            .into('views')
-            .values({
-                user: { id: userId },
-                fairytale: { id: fairytaleId },
-            })
-            .execute();
+        const viewRepository = this.dataSource.getRepository(Views);
+
+        const newView = viewRepository.create({
+            userId: userId,
+            fairytaleId: fairytaleId,
+        });
+
+        await viewRepository.save(newView);
     }
 
     //해당 동화 조회 수 확인
-    async getViewCount(fairytaleId: number): Promise<number> {
-        const count = await this.createQueryBuilder('views')
-            .where('views.id = :fairytaleId', { fairytaleId })
+    async getViewCount(fairytaleId: number, userId: number): Promise<number> {
+        // 동화 탐색
+        const fairytale = await this.createQueryBuilder('fairytale')
+            .where('fairytale.id = :fairytaleId', { fairytaleId })
+            .select(['fairytale.userId'])
+            .getOne();
+        if (!fairytale) {
+            throw new NotFoundException(`동화 ${fairytaleId} 번은 비공개이거나 이미 삭제되었습니다.`);
+        }
+
+        // 작성자면 조회를 세지 않음
+        if (fairytale.userId === userId) {
+            console.log('동화 작성자입니다');
+        }
+        const viewCount = await this.dataSource
+            .getRepository(Views)
+            .createQueryBuilder('views')
+            .where('views.fairytale_id = :fairytaleId', { fairytaleId })
+            .andWhere('views.user_id != :userId', { userId })
             .getCount();
-        return count;
+        console.log(`동화 조회 ID: ${userId} `);
+        return viewCount;
     }
 
     //동화 세부
@@ -121,6 +140,9 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
             },
             {} as Record<number, FairytaleImg[]>,
         );
+        //조회수
+        await this.recordViews(fairytaleId, userId);
+        const viewCount = await this.getViewCount(fairytaleId, userId);
 
         const formattedFairytales = fairytales.map(fairytale => {
             const images = fairytaleImageMap[fairytale.id] || []; //JSON이 아닌 오브젝트
@@ -136,6 +158,7 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
                 content: fairytale.content,
                 coverImage: coverImage,
                 images: contentImages,
+                views: viewCount,
             };
         });
         return formattedFairytales;
