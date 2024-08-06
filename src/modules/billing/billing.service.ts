@@ -123,7 +123,6 @@ export class BillingService {
                 approvedAt: response.data.approvedAt.substring(0, 10),
             };
         } catch (e) {
-            console.log(e);
             await queryRunner.rollbackTransaction();
             throw new InternalServerErrorException('결제 처리 중 오류가 발생했습니다.');
         } finally {

@@ -72,10 +72,8 @@ export class AIFairytaleImageService {
 
         try {
             const result = await this.deeplTranslator.translateText(prompt, 'ko', 'en-US');
-            console.log(result.text);
             return result.text;
         } catch (err) {
-            console.error('번역 실패:', err);
             throw new InternalServerErrorException('번역에 실패하였습니다.');
         }
     }
