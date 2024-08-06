@@ -22,11 +22,12 @@ import { PaymentRepository } from 'src/modules/billing/repository/payment.reposi
 import { Payment } from 'src/modules/billing/entity/payment.entity';
 import { PointHistoryRepository } from 'src/modules/billing/repository/point-history.repository';
 import { PointHistory } from 'src/modules/billing/entity/point-history.entity';
+import { PointHistoryService } from 'src/modules/billing/point-history.service';
 
 @Module({
     imports: [HttpModule, TypeOrmModule.forFeature([Order, Payment, PointHistory])],
     controllers: [BillingController],
-    providers: [BillingService, OrderRepository, PaymentRepository, PointHistoryRepository],
-    exports: [BillingService],
+    providers: [BillingService, OrderRepository, PaymentRepository, PointHistoryRepository, PointHistoryService],
+    exports: [BillingService, PointHistoryService],
 })
 export class BillingModule {}
