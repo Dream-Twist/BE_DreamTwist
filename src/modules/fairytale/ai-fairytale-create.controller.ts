@@ -10,6 +10,7 @@ Date        Author      Status      Description
 2024.08.01  이유민      Modified    AI 동화 스토리 생성 경로 수정
 2024.08.03  이유민      Modified    타입 수정
 2024.08.03  박수정      Modified    Swagger Decorator 적용
+2024.08.05  이유민      Modified    Swagger 수정
 */
 
 import { Controller, Post, Body } from '@nestjs/common';
@@ -29,6 +30,14 @@ export class AIFairytaleController {
         successResponseSchema: {
             type: 'object',
             properties: {
+                theme: {
+                    type: 'string',
+                    example: '사랑',
+                },
+                title: {
+                    type: 'string',
+                    example: '사과 속에 숨겨진 사랑',
+                },
                 story: {
                     type: 'array',
                     items: {
@@ -42,6 +51,6 @@ export class AIFairytaleController {
     })
     @Post('story')
     async createAIStory(@Body() createAIFairytaleDto: CreateAIFairytaleDto): Promise<AIFairytaleType> {
-        return this.aiFairytaleService.generateFairytale(createAIFairytaleDto);
+        return await this.aiFairytaleService.generateFairytale(createAIFairytaleDto);
     }
 }
