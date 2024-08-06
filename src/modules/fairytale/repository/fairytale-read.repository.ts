@@ -200,7 +200,10 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
         if (tagsArray.length > 0) {
             queryBuilder.andWhere('fairytale.theme IN (:...tags)', { tags: tagsArray });
         }
-        const filteredFairytales = await queryBuilder.orderBy('fairytale.createdAt', 'DESC').getMany();
+        const filteredFairytales = await queryBuilder
+            .orderBy('fairytale.createdAt', 'DESC')
+            .andWhere('fairytale.privatedAt IS NULL')
+            .getMany();
         if (filteredFairytales.length === 0) {
             throw new NotFoundException(`제목 ${title} 에 해당되는 동화가 없습니다.`);
         }
