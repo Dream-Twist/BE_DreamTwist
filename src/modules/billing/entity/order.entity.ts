@@ -8,18 +8,23 @@ Date        Author      Status      Description
 2024.08.01  이유민      Created     
 2024.08.01  이유민      Modified    결제 관련 기능 추가
 2024.08.03  박수정      Modified    공통 필드 Entity 생성
+2024.08.05  이유민      Modified    결제 전체 수정
 */
-
-import { CommonEntity } from 'shared/entities/base.entity';
-import { Entity, Column } from 'typeorm';
+import { Entity, PrimaryColumn, CreateDateColumn, Column, DeleteDateColumn } from 'typeorm';
 
 @Entity('orders')
-export class Order extends CommonEntity {
-    @Column()
-    order_id: string;
+export class Order {
+    @PrimaryColumn()
+    id: string;
 
-    @Column()
-    total_amount: number;
+    @CreateDateColumn({ name: 'created_at' })
+    createdAt: Date;
+
+    @Column({ name: 'updated_at', type: 'timestamp', nullable: true })
+    updatedAt: Date;
+
+    @DeleteDateColumn({ name: 'deleted_at' })
+    deletedAt: Date;
 
     @Column()
     order_name: string;

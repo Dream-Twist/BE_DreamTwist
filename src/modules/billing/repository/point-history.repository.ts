@@ -7,6 +7,7 @@ History
 Date        Author      Status      Description
 2024.08.02  이유민      Created     
 2024.08.02  이유민      Modified    포인트 기능 추가
+2024.08.05  이유민      Modified    결제 전체 수정
 */
 
 import { Injectable } from '@nestjs/common';
@@ -30,17 +31,17 @@ export class PointHistoryRepository extends Repository<PointHistory> {
             .createQueryBuilder('ph')
             .select(['ph.id', 'ph.payment_id', 'ph.remaining_balance'])
             .where('ph.user_id = :user_id AND ph.remaining_balance > 0', { user_id })
-            .orderBy('ph.created_at', 'ASC')
+            .orderBy('ph.createdAt', 'ASC')
             .getMany();
 
         return res;
     }
 
-    async findPointHistoryByPaymentId(payment_id: number): Promise<PointHistory[]> {
+    async findPointHistoryByPaymentId(payment_id: string): Promise<PointHistory[]> {
         const res = await this.dataSource
             .getRepository(PointHistory)
             .createQueryBuilder('ph')
-            .select(['ph.id', 'ph.payment_id', 'ph.points', 'ph.remaining_balance'])
+            .select(['ph.id', 'ph.payment_id', 'ph.points', 'ph.remaining_balance', 'ph.description'])
             .where('ph.payment_id = :payment_id', { payment_id })
             .orderBy('ph.id', 'ASC')
             .getMany();
@@ -56,9 +57,10 @@ export class PointHistoryRepository extends Repository<PointHistory> {
         return { message: '사용 내역이 수정되었습니다.' };
     }
 
-    async updatePointHistoryByPaymentId(payment_id: number): Promise<object> {
+    async updatePointHistoryByPaymentId(payment_id: string, description: string): Promise<object> {
         const history = await this.findOne({ where: { payment_id } });
         history.remaining_balance = 0;
+        history.description = description;
         this.save(history);
 
         return { message: '사용 내역이 수정되었습니다.' };

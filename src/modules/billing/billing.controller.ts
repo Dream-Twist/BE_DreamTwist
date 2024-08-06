@@ -10,13 +10,13 @@ Date        Author      Status      Description
 2024.08.03  박수정      Modified    Swagger Decorator 적용
 2024.08.04  이유민      Modified    결제 취소 추가
 2024.08.04  이유민      Modified    결제 내역 조회 추가
+2024.08.05  이유민      Modified    결제 전체 수정
 */
 
 import { Controller, Post, Body, Get, Param } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { BillingService } from 'src/modules/billing/billing.service';
 import { BillingDTO, CancelDTO } from 'src/modules/billing/billing.dto';
-import { Payment } from 'src/modules/billing/entity/payment.entity';
 import { ApiPostOperation, ApiGetOperation } from 'shared/utils/swagger.decorators';
 
 @ApiTags('Billing')
@@ -30,7 +30,7 @@ export class BillingController {
         successDescription: '결제 승인 성공',
     })
     @Post()
-    async tossPayment(@Body() billingDTO: BillingDTO) {
+    async tossPayment(@Body() billingDTO: BillingDTO): Promise<object> {
         return this.billingService.tossPayment(billingDTO);
     }
 
@@ -64,7 +64,7 @@ export class BillingController {
         notFoundMessage: '해당 결제 내역이 없습니다.',
     })
     @Get(':user_id')
-    async getPointsByAmount(@Param('user_id') user_id: number): Promise<Payment[]> {
-        return this.billingService.findPaymentByUserId(user_id);
+    async getPointsByAmount(@Param('user_id') user_id: number): Promise<object> {
+        return await this.billingService.findPaymentByUserId(user_id);
     }
 }

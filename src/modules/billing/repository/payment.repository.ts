@@ -7,6 +7,7 @@ History
 Date        Author      Status      Description
 2024.08.01  이유민      Created     
 2024.08.01  이유민      Modified    결제 관련 기능 추가
+2024.08.05  이유민      Modified    결제 전체 수정
 */
 
 import { Injectable } from '@nestjs/common';
@@ -24,8 +25,8 @@ export class PaymentRepository extends Repository<Payment> {
         return this.save(payment);
     }
 
-    async cancelPayment(payment_key: string): Promise<object> {
-        const payment = await this.findOne({ where: { payment_key } });
+    async cancelPayment(id: string): Promise<object> {
+        const payment = await this.findOne({ where: { id } });
         payment.status = 'CANCELED';
         this.save(payment);
 
@@ -36,28 +37,20 @@ export class PaymentRepository extends Repository<Payment> {
         const res = await this.dataSource
             .getRepository(Payment)
             .createQueryBuilder('payment')
-            .select([
-                'payment.id',
-                'payment.payment_key',
-                'payment.amount',
-                'payment.method',
-                'payment.status',
-                'payment.order_name',
-                'payment.created_at',
-            ])
+            .select(['payment.id', 'payment.amount', 'payment.method', 'payment.status', 'payment.createdAt'])
             .where('payment.user_id = :user_id', { user_id })
-            .orderBy('payment.created_at', 'ASC')
+            .orderBy('payment.createdAt', 'ASC')
             .getMany();
 
         return res;
     }
 
-    async findPaymentByPaymentKey(payment_key: string): Promise<Payment> {
+    async findPaymentById(id: string): Promise<Payment> {
         const res = await this.dataSource
             .getRepository(Payment)
             .createQueryBuilder('payment')
-            .select(['payment.id', 'payment.status'])
-            .where('payment.payment_key = :payment_key', { payment_key })
+            .select(['payment.id', 'payment.status', 'payment.user_id'])
+            .where('payment.id = :id', { id })
             .getOne();
 
         return res;

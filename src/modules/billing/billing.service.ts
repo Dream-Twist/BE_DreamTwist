@@ -10,9 +10,15 @@ Date        Author      Status      Description
 2024.08.02  이유민      Modified    포인트 기능 추가
 2024.08.04  이유민      Modified    결제 취소 추가
 2024.08.04  이유민      Modified    결제 내역 조회 추가
+2024.08.05  이유민      Modified    결제 전체 수정
 */
 
-import { Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
+import {
+    Injectable,
+    UnprocessableEntityException,
+    ForbiddenException,
+    InternalServerErrorException,
+} from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -20,10 +26,7 @@ import { firstValueFrom } from 'rxjs';
 import { BillingDTO, CancelDTO } from 'src/modules/billing/billing.dto';
 import { OrderRepository } from 'src/modules/billing/repository/order.repository';
 import { PaymentRepository } from 'src/modules/billing/repository/payment.repository';
-import { Payment } from 'src/modules/billing/entity/payment.entity';
 import { PointHistoryRepository } from 'src/modules/billing/repository/point-history.repository';
-import { PointRepository } from 'src/modules/billing/repository/point.repository';
-import { PointRatesRepository } from 'src/modules/billing/repository/point-rates.repository';
 
 @Injectable()
 export class BillingService {
@@ -39,10 +42,6 @@ export class BillingService {
         private readonly paymentRepository: PaymentRepository,
         @InjectRepository(PointHistoryRepository)
         private readonly pointHistoryRepository: PointHistoryRepository,
-        @InjectRepository(PointRepository)
-        private readonly pointRepository: PointRepository,
-        @InjectRepository(PointRatesRepository)
-        private readonly pointRatesRepository: PointRatesRepository,
     ) {
         this.secretKey = this.configService.get('TOSS_SECRET_KEY');
         this.tossUrl = this.configService.get('TOSS_API_URL');
@@ -50,8 +49,7 @@ export class BillingService {
 
     // 결제
     async tossPayment(billingDTO: BillingDTO) {
-        const { orderId, amount, paymentKey } = billingDTO;
-
+        const { orderId, amount, paymentKey, addPoint } = billingDTO;
         try {
             // 결제 승인
             const response = await firstValueFrom(
@@ -70,68 +68,56 @@ export class BillingService {
                     },
                 ),
             );
-
             const user_id = 2; // 임시
-
-            // 가격에 해당하는 포인트 검색
-            const pointsByAmount = await this.pointRatesRepository.findPointsByAmount(amount);
-            if (!pointsByAmount) {
-                throw new NotFoundException(`${amount}원의 포인트 상품이 없습니다.`);
-            }
-
-            // 해당 사용자의 현재 포인트 검색
-            // const pointsByUser = await this.pointRepository.findPointByUserId(user_id);
-
             // DB 저장
-            // 결제 테이블 저장
-            const newPayment = await this.paymentRepository.createPayment({
-                payment_key: response.data.paymentKey,
-                order_id: response.data.orderId,
-                amount: response.data.totalAmount,
-                method: response.data.method,
-                status: response.data.status,
-                order_name: response.data.orderName,
-                user_id,
-            });
-
             await Promise.all([
+                // 결제 테이블 저장
+                this.paymentRepository.createPayment({
+                    id: response.data.paymentKey,
+                    amount: response.data.totalAmount,
+                    method: response.data.method,
+                    status: response.data.status,
+                    user_id,
+                }),
                 // 주문 테이블 저장
                 this.orderRepository.createOrder({
-                    order_id: response.data.orderId,
-                    total_amount: response.data.totalAmount,
+                    id: response.data.orderId,
                     order_name: response.data.orderName,
                     user_id,
                 }),
-
                 // 포인트 내역 테이블 저장
                 this.pointHistoryRepository.createPointHistory({
                     user_id,
-                    points: pointsByAmount.points,
+                    points: addPoint,
                     description: response.data.orderName,
-                    payment_id: newPayment.id, // 임시
-                    remaining_balance: pointsByAmount.points,
+                    payment_id: response.data.paymentKey,
+                    remaining_balance: addPoint,
                 }),
-
-                this.pointRepository.updatePointByUserId(user_id, pointsByAmount.points),
             ]);
-
             return {
                 title: '결제 성공',
-                body: response.data,
+                orderName: response.data.orderName,
+                orderId: response.data.orderId,
+                approvedAt: response.data.approvedAt.substring(0, 10),
             };
         } catch (e) {
-            // 아직 결제 에러날 경우는 작성하지 않음
-            console.log('토스 페이먼츠 에러 코드', e);
+            throw new InternalServerErrorException('결제 처리 중 오류가 발생했습니다.');
         }
     }
 
+    // 결제 취소
     async cancelPayment(cancelDTO: CancelDTO): Promise<object> {
-        const { payment_key, cancelReason } = cancelDTO;
+        const { id, cancelReason } = cancelDTO;
         const user_id = 2; // 임시
 
         try {
-            const payment = await this.paymentRepository.findPaymentByPaymentKey(payment_key);
-            const history = await this.pointHistoryRepository.findPointHistoryByPaymentId(payment.id);
+            const payment = await this.paymentRepository.findPaymentById(id);
+
+            if (payment.user_id !== user_id) {
+                throw new ForbiddenException('접근할 수 없습니다.');
+            }
+
+            const history = await this.pointHistoryRepository.findPointHistoryByPaymentId(id);
 
             if (payment.status !== 'DONE' || history[0].points !== history[0].remaining_balance) {
                 throw new UnprocessableEntityException('결제 취소가 불가능한 결제 내역입니다.');
@@ -140,7 +126,7 @@ export class BillingService {
             // 결제 취소
             await firstValueFrom(
                 this.httpService.post(
-                    `${this.tossUrl}/${payment_key}/cancel`,
+                    `${this.tossUrl}/${id}/cancel`,
                     { cancelReason },
                     {
                         headers: {
@@ -151,9 +137,8 @@ export class BillingService {
                 ),
             );
 
-            const res = await this.paymentRepository.cancelPayment(payment_key);
-            await this.pointHistoryRepository.updatePointHistoryByPaymentId(payment.id);
-            await this.pointRepository.updatePointByUserId(user_id, -1 * history[0].points);
+            const res = await this.paymentRepository.cancelPayment(id);
+            await this.pointHistoryRepository.updatePointHistoryByPaymentId(id, `${history[0].description} 취소`);
             return res;
         } catch (e) {
             throw e;
@@ -161,7 +146,7 @@ export class BillingService {
     }
 
     // 결제내역 확인
-    async findPaymentByUserId(user_id: number): Promise<Payment[]> {
+    async findPaymentByUserId(user_id: number): Promise<object> {
         const payments = await this.paymentRepository.findPaymentByUserId(user_id);
 
         const historyRecords = [];
@@ -181,6 +166,7 @@ export class BillingService {
 
         const updatedPayments = payments.map(payment => ({
             ...payment,
+            createdAt: payment.createdAt.toISOString().substring(0, 10),
             isRefundable: refundMap[payment.id] === 'T' && payment.status === 'DONE' ? 'T' : 'F',
         }));
 
