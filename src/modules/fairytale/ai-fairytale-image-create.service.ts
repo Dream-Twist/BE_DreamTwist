@@ -10,6 +10,7 @@ Date        Author      Status      Description
 2024.08.03  원경혜      Modified    생성된 이미지 S3 업로드 및 URL 생성
 2024.08.04  원경혜      Modified    번역 기능 API 추가
 2024.08.04  원경혜      Modified    유저 확인(임시) 기능 추가 및 S3 업로드 경로, 파일명 수정
+2024.08.05  이유민      Modified    포인트 사용 추가
 */
 
 import { ConfigService } from '@nestjs/config';
@@ -23,6 +24,7 @@ import { S3Service } from 'src/modules/s3.service';
 import { Readable } from 'stream';
 import * as deepl from 'deepl-node';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PointHistoryService } from 'src/modules/billing/point-history.service';
 
 @Injectable()
 export class AIFairytaleImageService {
@@ -38,6 +40,7 @@ export class AIFairytaleImageService {
         private readonly s3Service: S3Service,
         @InjectRepository(UserRepository)
         private readonly userRepository: UserRepository,
+        private readonly pointHistoryService: PointHistoryService,
     ) {
         this.aiImageEngineId = this.configService.get<string>('AI_IMAGE_ENGINE_ID') ?? 'stable-diffusion-v1-6';
         this.aiImageApiHost = this.configService.get<string>('AI_IMAGE_API_HOST') ?? 'https://api.stability.ai';
@@ -79,6 +82,12 @@ export class AIFairytaleImageService {
     async generateAndUploadAiImage(createAIFairytaleDto: CreateAIFairytaleDto): Promise<string> {
         // 임시 사용자
         const userId = 1;
+        // 이미지 생성 시 사용될 포인트
+        const imagePoints = 10;
+
+        // 포인트 확인 및 사용
+        await this.pointHistoryService.usePoints(userId, imagePoints, 'AI 이미지 생성');
+
         const translatePrompt = await this.translatePrompt(createAIFairytaleDto.prompt);
         const url = `${this.aiImageApiHost}/v1/generation/${this.aiImageEngineId}/text-to-image`;
         const payload = {

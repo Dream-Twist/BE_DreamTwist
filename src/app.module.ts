@@ -16,7 +16,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { FairytaleModule } from 'src/modules/fairytale/fairytale.module';
 import { AIFairytaleModule } from 'src/modules/fairytale/ai-fairytale.module';
 import { BillingModule } from 'src/modules/billing/billing.module';
-import { PointRatesModule } from 'src/modules/billing/point-rates.module';
 import { AppController } from 'src/app.controller';
 import { AppService } from 'src/app.service';
 
@@ -47,7 +46,6 @@ import { AppService } from 'src/app.service';
         FairytaleModule,
         AIFairytaleModule,
         BillingModule,
-        PointRatesModule,
     ],
     controllers: [AppController],
     providers: [AppService],

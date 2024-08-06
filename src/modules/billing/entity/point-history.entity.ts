@@ -9,12 +9,13 @@ Date        Author      Status      Description
 2024.08.02  이유민      Modified    포인트 기능 추가
 2024.08.03  박수정      Modified    공통 필드 Entity 생성
 2024.08.04  이유민      Modified    컬럼 추가
+2024.08.05  이유민      Modified    결제 전체 수정
 */
 
 import { CommonEntity } from 'shared/entities/base.entity';
 import { Entity, Column } from 'typeorm';
 
-@Entity('point_history')
+@Entity('points_history')
 export class PointHistory extends CommonEntity {
     @Column()
     user_id: number;
@@ -26,7 +27,7 @@ export class PointHistory extends CommonEntity {
     description: string;
 
     @Column()
-    payment_id: number;
+    payment_id: string;
 
     @Column()
     remaining_balance: number;
