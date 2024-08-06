@@ -15,13 +15,14 @@ Date        Author      Status      Description
 2024.08.03  강민규      Modified    PUT: 동화 작성자가 수정
 2024.08.03  박수정      Modified    Controller 분리 - 조회 / 생성, 수정, 삭제
 2024.08.03  박수정      Modified    Swagger Decorator 적용
+2024.08.06  강민규      Modified    GET: 동화 제목 태그 조회 / 모든 목록 조회 최신순 정렬
 
 */
 
 // import { Controller, Post, Body, Request } from '@nestjs/common';
-import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
+import { BadRequestException, Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { ReadFairytaleService } from 'src/modules/fairytale/fairytale-read.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ApiGetOperation } from 'shared/utils/swagger.decorators';
 
 @ApiTags('Fairytale')
@@ -40,6 +41,21 @@ export class ReadFairytaleController {
         return this.readFairytaleService.getFairytales();
     }
 
+    // 동화 제목 검색
+    @ApiGetOperation({
+        summary: '동화 제목으로 검색',
+        successMessage: '해당되는 동화를 성공적으로 조회했습니다.',
+        notFoundMessage: '제목 {title}에 해당되는 동화 줄거리를 찾을 수 없습니다.',
+    })
+    @ApiQuery({ name: 'title', required: false, type: String })
+    @ApiQuery({ name: 'tags', required: false, type: [String] })
+    @Get('byTitle')
+    async getFairytalebyTitle(@Query('title') title?: string, @Query('tags') tags?: string[]) {
+        const parsedTags = Array.isArray(tags) ? tags : tags ? [tags] : [];
+        const content = await this.readFairytaleService.getAllbyTitle(title, parsedTags);
+        return content;
+    }
+
     // 동화 상세 조회
     @ApiGetOperation({
         summary: '동화 상세 조회',
@@ -51,18 +67,6 @@ export class ReadFairytaleController {
         // 임시 유저
         const userId = 1;
         const content = await this.readFairytaleService.getFairytaleContent(fairytaleId, userId);
-        return content;
-    }
-
-    // 동화 제목 검색
-    @ApiGetOperation({
-        summary: '동화 제목으로 검색',
-        successMessage: '해당되는 동화를 성공적으로 조회했습니다.',
-        notFoundMessage: '{title}에 해당되는 동화 줄거리를 찾을 수 없습니다.',
-    })
-    @Get('byTitle')
-    async getFairytalebyTitle(@Query('title') title: string) {
-        const content = await this.readFairytaleService.getAllbyTitle(title);
         return content;
     }
 }

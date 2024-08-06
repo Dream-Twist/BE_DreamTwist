@@ -14,6 +14,7 @@ Date        Author      Status      Description
 2024.07.31  강민규      Modified    GET: 동화 목록 최신순 검색, 닉네임 이미지 조회
 2024.08.03  강민규      Modified    PUT: 동화 작성자가 수정
 2024.08.03  박수정      Modified    Service 분리 - 조회 / 생성, 수정, 삭제
+2024.08.06  강민규      Modified    GET: 동화 제목 태그 조회 / 모든 목록 조회 최신순 정렬
 */
 
 import { Injectable, NotFoundException } from '@nestjs/common';
@@ -46,17 +47,10 @@ export class ReadFairytaleService {
         return fairytales;
     }
 
-    //동화 제목 검색 쿼리 안 들어감
-    async getAllbyTitle(title: string) {
-        // try {
-        //     const fairytales = await this.getFairytales();
-        //     const filteredFairytales = fairytales.filter(fairytale =>
-        //         fairytale.title.toLowerCase().includes(title.toLowerCase()),
-        //     );
-        //     return filteredFairytales;
-        // } catch (error) {
-        //     throw new NotFoundException('제목 ${title} 에 해당되는 동화가 없습니다.');
-        // }
+    //동화 제목 검색
+    async getAllbyTitle(title?: string, tags?: string | string[]) {
+        const filteredFairytales = await this.readFairytaleRepository.getAllbyFilter(title, tags);
+        return filteredFairytales;
     }
 
     //동화 좋아요
