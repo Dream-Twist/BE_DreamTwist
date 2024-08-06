@@ -27,6 +27,8 @@ import { BillingDTO, CancelDTO } from 'src/modules/billing/billing.dto';
 import { OrderRepository } from 'src/modules/billing/repository/order.repository';
 import { PaymentRepository } from 'src/modules/billing/repository/payment.repository';
 import { PointHistoryRepository } from 'src/modules/billing/repository/point-history.repository';
+// 트랜잭션 관리 시도
+// import { DataSource, EntityManager } from 'typeorm';
 
 @Injectable()
 export class BillingService {
@@ -35,6 +37,7 @@ export class BillingService {
 
     constructor(
         private readonly httpService: HttpService,
+        // private readonly dataSource: DataSource, // 시도
         private configService: ConfigService,
         @InjectRepository(OrderRepository)
         private readonly orderRepository: OrderRepository,
@@ -49,6 +52,8 @@ export class BillingService {
 
     // 결제
     async tossPayment(billingDTO: BillingDTO) {
+        // const queryRunner = this.dataSource.create;
+
         const { orderId, amount, paymentKey, addPoint } = billingDTO;
         try {
             // 결제 승인
@@ -160,15 +165,21 @@ export class BillingService {
         }
 
         const refundMap = historyRecords.reduce((map, record) => {
-            map[record.payment_id] = record.isRefundable;
+            map[record.payment_id] = { isRefundable: record.isRefundable, description: record.description };
             return map;
         }, {});
 
-        const updatedPayments = payments.map(payment => ({
-            ...payment,
-            createdAt: payment.createdAt.toISOString().substring(0, 10),
-            isRefundable: refundMap[payment.id] === 'T' && payment.status === 'DONE' ? 'T' : 'F',
-        }));
+        const updatedPayments = payments.map(payment => {
+            const refundInfo = refundMap[payment.id];
+            const updateDescription = refundInfo?.description.replace('취소', '').trim(); // 취소 제거
+
+            return {
+                ...payment,
+                createdAt: payment.createdAt.toISOString().substring(0, 10),
+                description: updateDescription,
+                isRefundable: refundInfo?.isRefundable === 'T' && payment.status === 'DONE' ? 'T' : 'F',
+            };
+        });
 
         return updatedPayments;
     }
