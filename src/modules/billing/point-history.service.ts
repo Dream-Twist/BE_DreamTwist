@@ -29,15 +29,14 @@ export class PointHistoryService {
         if (userPoints < usePoints || !userPoints) {
             throw new ForbiddenException('포인트가 부족합니다.');
         }
-        console.log(usageType);
 
         // 포인트 사용 내역 추가
-        // await this.pointHistoryRepository.createPointHistory({
-        //     user_id,
-        //     points: -1 * usePoints,
-        //     description: usageType,
-        //     remaining_balance: 0,
-        // });
+        await this.pointHistoryRepository.createPointHistory({
+            user_id,
+            points: -1 * usePoints,
+            description: usageType,
+            remaining_balance: 0,
+        });
 
         // 포인트 사용
         let remainingPoints = usePoints;
