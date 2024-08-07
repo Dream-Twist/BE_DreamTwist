@@ -163,6 +163,8 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
                 coverImage: coverImage,
                 images: contentImages,
                 views: viewCount,
+                likes: 'count',
+                privatedAt: fairytale.privatedAt,
             };
         });
         return formattedFairytales;
