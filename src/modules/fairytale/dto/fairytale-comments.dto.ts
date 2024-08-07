@@ -21,5 +21,10 @@ export class CommentsFairytaleDto {
     @ApiProperty()
     @IsInt()
     @IsNotEmpty()
+    commentId: number;
+
+    @ApiProperty()
+    @IsInt()
+    @IsNotEmpty()
     fairytaleId: number;
 }

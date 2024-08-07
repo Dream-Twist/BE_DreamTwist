@@ -9,11 +9,11 @@ Date        Author      Status      Description
 2024.08.06  원경혜      Modified    동화 댓글 조회 기능 추가
 */
 
-// import { Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { Repository, EntityManager, EntityRepository } from 'typeorm';
+import { Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Repository, EntityManager } from 'typeorm';
 import { Comments } from 'src/modules/fairytale/entity/fairytale-comments.entity';
 
-@EntityRepository(Comments)
+@Injectable()
 export class CommentsRepository extends Repository<Comments> {
     constructor(private readonly entityManager: EntityManager) {
         super(Comments, entityManager);
@@ -24,11 +24,9 @@ export class CommentsRepository extends Repository<Comments> {
     */
 
     // 댓글 조회 - fairytaleId 필터링
-    async getCommentsByFairytaleId(fairytaleId: number, entityManager: EntityManager): Promise<Comments[]> {
-        const comments = await entityManager
-            .getRepository(Comments)
-            .createQueryBuilder('comments')
-            .select('comments.content')
+    async getCommentsByFairytaleId(fairytaleId: number): Promise<Comments[]> {
+        const comments = await this.createQueryBuilder('comments')
+            .select()
             .where('comments.fairytaleId = :fairytaleId', { fairytaleId })
             .orderBy('comments.createdAt', 'DESC')
             .getMany();
@@ -37,10 +35,8 @@ export class CommentsRepository extends Repository<Comments> {
     }
 
     // 댓글 조회 - userId 필터링
-    async getCommentsByUserId(userId: number, entityManager: EntityManager): Promise<Comments[]> {
-        const comments = await entityManager
-            .getRepository(Comments)
-            .createQueryBuilder('comments')
+    async getCommentsByUserId(userId: number): Promise<Comments[]> {
+        const comments = await this.createQueryBuilder('comments')
             .select('comments.content')
             .where('comments.userId = :userId', { userId })
             .orderBy('comments.createdAt', 'DESC')
@@ -50,22 +46,40 @@ export class CommentsRepository extends Repository<Comments> {
     }
 
     // 동화 댓글 생성 -> 2번 동화에서 댓글 생성
-    async createComments(newComments: Comments): Promise<Comments> {
-        return this.save(newComments);
-        // return this.entityManager.save(Comments, newComments);
+    // 대댓글 기능 추가 시, entityManager로 수정
+    async createComments(newComments: Partial<Comments>): Promise<Comments> {
+        const comments = await this.create(newComments);
+        return this.save(comments);
     }
 
     // 동화 댓글 수정
-    // async updateComments
+    async updateComments(id: number, newComments: Partial<Comments | null>): Promise<Comments> {
+        const currentTime = new Date();
+        const updateComments = {
+            ...newComments,
+            updatedAt: currentTime,
+        };
+
+        await this.update(id, updateComments);
+        return this.findOneBy({ id });
+    }
 
     // 동화 댓글 삭제
+    async softDeleteComments(id: number): Promise<Comments | null> {
+        const currentTime = new Date();
+        const comments = await this.findOne({
+            where: {
+                id,
+                deletedAt: null, // 삭제되지 않은 댓글 조회
+            },
+        });
+        if (!comments) {
+            return null;
+        }
+
+        comments.deletedAt = currentTime;
+        comments.updatedAt = currentTime;
+        await this.save(comments);
+        return comments;
+    }
 }
-
-// const res = await entityManager
-//     .getRepository(Comments)
-//     .createQueryBuilder('comments')
-//     .select()
-//     .where('comments.fairytaleId = :fairytaleId', { fairytaleId })
-//     .getMany();
-
-// return res;
