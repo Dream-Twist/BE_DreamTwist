@@ -49,7 +49,6 @@ import { S3Service } from 'src/modules/s3.service';
             UserRepository,
             Views,
             Comments,
-            CommentsRepository,
         ]),
         UsersModule,
     ],
@@ -60,6 +59,7 @@ import { S3Service } from 'src/modules/s3.service';
         ReadFairytaleService,
         ManageFairytaleService,
         UserRepository,
+        CommentsRepository,
         CommentsService,
         {
             provide: ForbiddenWordRepository,
