@@ -11,21 +11,28 @@ Date        Author      Status      Description
 
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsString, IsNotEmpty, IsBoolean } from 'class-validator';
+import { IsString, IsNotEmpty, IsBoolean, IsNumber } from 'class-validator';
 
 export class LikeFairytaleDto {
     @ApiProperty()
-    @IsString()
+    @IsNumber()
     @IsNotEmpty()
+    userId: number;
+
+    @ApiProperty()
+    @IsNumber()
+    @IsNotEmpty()
+    fairytaleId: number;
+
+    @ApiProperty()
+    @IsString()
     title: string;
 
     @ApiProperty()
     @IsString()
-    @IsNotEmpty()
     theme: '우화' | '환경' | '사랑' | '모험' | '추리' | '기타';
 
     @ApiProperty()
-    @IsNotEmpty()
     content: string;
 
     @ApiProperty()

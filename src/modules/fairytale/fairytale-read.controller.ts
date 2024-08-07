@@ -65,7 +65,7 @@ export class ReadFairytaleController {
     @Get(':fairytaleId')
     async getFairytaleContent(@Param('fairytaleId', ParseIntPipe) fairytaleId: number) {
         // 임시 유저
-        const userId = 1;
+        const userId = 2;
         const content = await this.readFairytaleService.getFairytaleContent(fairytaleId, userId);
         return content;
     }

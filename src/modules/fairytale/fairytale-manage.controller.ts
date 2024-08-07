@@ -24,8 +24,9 @@ import {
     ParseIntPipe,
     Param,
     Delete,
+    Get,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ManageFairytaleService } from 'src/modules/fairytale/fairytale-manage.service';
 import { CreateFairytaleDto } from 'src/modules/fairytale/dto/fairytale-create.dto';
 import { CreateFairytaleImgDto } from 'src/modules/fairytale/dto/fairytale-img.dto';
@@ -68,6 +69,18 @@ export class ManageFairytaleController {
         return { presignedURL };
     }
 
+    // 동화 스토리 좋아요
+    @ApiPostOperation({
+        summary: '좋아요 생성',
+        successMessage: '1개의 좋아요가 성공적으로 생성되었습니다.',
+    })
+    @Post('like')
+    async createFairytaleLike(@Body() likeFairytaleDto: LikeFairytaleDto) {
+        const createdLike = await this.manageFairytaleService.createFairytaleLike(likeFairytaleDto);
+
+        return { message: '1개의 좋아요가 성공적으로 생성되었습니다.', createdLike };
+    }
+
     // 동화 스토리 수정
     @ApiPutOperation({
         summary: '동화 스토리 수정',
@@ -101,16 +114,5 @@ export class ManageFairytaleController {
     async deleteFairytale(@Param('fairytaleId', ParseIntPipe) id: number): Promise<string> {
         await this.manageFairytaleService.deleteFairytale(id);
         return `${id} 번 동화를 삭제했습니다`;
-    }
-
-    // 동화 스토리 좋아요
-    @ApiPostOperation({
-        summary: '좋아요 생성',
-        successMessage: '1개의 좋아요가 성공적으로 생성되었습니다.',
-    })
-    @Post('like')
-    async createFairytaleLike(@Body() likeFairytaleDto: LikeFairytaleDto) {
-        // await this.manageFairytaleService.createFairytaleLike(likeFairytaleDto);
-        return { message: '1개의 좋아요가 성공적으로 생성되었습니다.' };
     }
 }

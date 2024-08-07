@@ -18,6 +18,7 @@ import { BadRequestException, Injectable, NotFoundException, UnauthorizedExcepti
 import { InjectRepository } from '@nestjs/typeorm';
 import { Fairytale } from 'src/modules/fairytale/entity/fairytale.entity';
 import { FairytaleImg } from 'src/modules/fairytale/entity/fairytale-img.entity';
+import { FairytaleLike } from './entity/fairytale-likes.entity';
 import { CreateFairytaleDto } from 'src/modules/fairytale/dto/fairytale-create.dto';
 import { CreateFairytaleImgDto } from 'src/modules/fairytale/dto/fairytale-img.dto';
 import { ManageFairytaleRepository } from 'src/modules/fairytale/repository/fairytale-manage.repository';
@@ -26,6 +27,7 @@ import { FairytaleImgRepository } from './repository/fairytale-img.repository';
 import { UserRepository } from 'src/modules/user/repository/user.repository';
 import { nanoid } from 'nanoid';
 import { UpdateFairytaleDto } from './dto/fairytale-update.dto';
+import { LikeFairytaleDto } from './dto/fairytale-like.dto';
 import { S3Service } from '../s3.service';
 
 @Injectable()
@@ -80,6 +82,21 @@ export class ManageFairytaleService {
         const savedFairytaleImg = await this.fairytaleImgRepository.save(fairytaleImg);
 
         return { savedFairytale, savedFairytaleImg };
+    }
+    // 좋아요 생성
+    async createFairytaleLike(createLikeDto: LikeFairytaleDto): Promise<{ message: string }> {
+        const { fairytaleId, userId } = createLikeDto;
+        // 동화 삭제 비공개 여부 확인
+        const fairytale = await this.manageFairytaleRepository.findOne({
+            where: { id: fairytaleId },
+        });
+
+        if (!fairytale) {
+            throw new NotFoundException(`동화 ${fairytaleId} 번은 비공개이거나 이미 삭제되었습니다.`);
+        }
+
+        // Call the repository method to handle like
+        return this.manageFairytaleRepository.createFairytaleLike(fairytaleId, userId);
     }
 
     // 동화 스토리 수정

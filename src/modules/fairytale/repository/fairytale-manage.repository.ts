@@ -10,10 +10,11 @@ Date        Author      Status      Description
 2024.08.03  박수정      Modified    Repository 분리 - 조회 / 생성, 수정, 삭제
 */
 
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { Repository, DataSource } from 'typeorm';
 import { Fairytale } from 'src/modules/fairytale/entity/fairytale.entity';
 import { FairytaleImg } from 'src/modules/fairytale/entity/fairytale-img.entity';
+import { FairytaleLike } from '../entity/fairytale-likes.entity';
 
 @Injectable()
 export class ManageFairytaleRepository extends Repository<Fairytale> {
@@ -25,6 +26,45 @@ export class ManageFairytaleRepository extends Repository<Fairytale> {
     async createFairytale(fairytaleData: Partial<Fairytale>): Promise<Fairytale> {
         const fairytale = this.create(fairytaleData);
         return this.save(fairytale);
+    }
+
+    // 좋아요 기록
+    async createFairytaleLike(fairytaleId: number, userId: number): Promise<{ message: string }> {
+        if (!userId || !fairytaleId) {
+            throw new BadRequestException('유저 번호와 동화 번호를 전부 비워둘 수 없습니다!');
+        }
+        const likeRepository = this.dataSource.getRepository(FairytaleLike);
+        const fairytale = await this.createQueryBuilder('fairytale')
+            .where('fairytale.id = :fairytaleId', { fairytaleId })
+            .andWhere('fairytale.privated_at is NULL')
+            .andWhere('fairytale.deleted_at is NULL')
+            .getOne();
+        if (!fairytale) {
+            throw new NotFoundException(`동화 ${fairytaleId} 번은 비공개이거나 이미 삭제되었습니다.`);
+        }
+        // 동일 유저의 좋아요 수 확인
+        const existingLike = await likeRepository.findOne({
+            where: { userId, fairytaleId },
+        });
+
+        if (existingLike) {
+            // 좋아요 기록이 있을 때 반복하면 기록 삭제 (짝수)
+            await likeRepository.delete({
+                userId,
+                fairytaleId,
+            });
+            console.log(`${userId} 유저가 동화 ${userId}번 좋아요 삭제`);
+            return { message: `좋아요가 성공적으로 제거되었습니다.` };
+        } else {
+            // 좋아요 기록이 없을 때 기록 생성 (홀수)
+            const newLike = likeRepository.create({
+                userId,
+                fairytaleId,
+            });
+            await likeRepository.save(newLike);
+            console.log(`${userId} 유저가 동화 ${userId}번 좋아요 추가`);
+            return { message: `좋아요가 성공적으로 추가되었습니다.` };
+        }
     }
 
     // 동화 수정
