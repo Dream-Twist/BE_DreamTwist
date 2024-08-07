@@ -10,6 +10,7 @@ Date        Author      Status      Description
 2024.08.03  이유민      Modified    포인트 기능 추가
 2024.08.03  원경혜      Modified    AI 동화 이미지 생성 기능 추가
 2024.08.05  이유민      Modified    포인트 기능 수정
+2024.08.08  이유민      Modified    금지어 확인 추가
 */
 
 import { Module } from '@nestjs/common';
@@ -25,6 +26,7 @@ import { PointHistoryRepository } from 'src/modules/billing/repository/point-his
 import { PointHistory } from 'src/modules/billing/entity/point-history.entity';
 import { S3Service } from 'src/modules/s3.service';
 import { PointHistoryService } from 'src/modules/billing/point-history.service';
+import { ForbiddenWordRepository } from 'src/modules/fairytale/repository/fairytale-forbidden-word.repository';
 import { UsersModule } from 'src/modules/user/user.module';
 import { UserRepository } from 'src/modules/user/repository/user.repository';
 
@@ -38,6 +40,7 @@ import { UserRepository } from 'src/modules/user/repository/user.repository';
         PointHistoryRepository,
         FairytaleImgRepository,
         PointHistoryService,
+        ForbiddenWordRepository,
     ],
 })
 export class AIFairytaleModule {}

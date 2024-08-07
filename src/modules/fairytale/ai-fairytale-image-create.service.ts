@@ -13,6 +13,7 @@ Date        Author      Status      Description
 2024.08.05  이유민      Modified    포인트 사용 추가
 2024.08.06  이유민      Modified    트랜잭션 관리 추가
 2024.08.08  이유민      Modified    userId 수정
+2024.08.08  이유민      Modified    금지어 확인 추가
 */
 
 import { ConfigService } from '@nestjs/config';
@@ -27,6 +28,7 @@ import { Readable } from 'stream';
 import * as deepl from 'deepl-node';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PointHistoryService } from 'src/modules/billing/point-history.service';
+import { AIFairytaleService } from 'src/modules/fairytale/ai-fairytale-create.service';
 import { DataSource, EntityManager } from 'typeorm';
 
 @Injectable()
@@ -44,6 +46,7 @@ export class AIFairytaleImageService {
         // @InjectRepository(UserRepository)
         // private readonly userRepository: UserRepository,
         private readonly pointHistoryService: PointHistoryService,
+        private readonly aiFairytaleService: AIFairytaleService,
         private readonly dataSource: DataSource,
     ) {
         this.aiImageEngineId = this.configService.get<string>('AI_IMAGE_ENGINE_ID') ?? 'stable-diffusion-v1-6';
@@ -89,12 +92,15 @@ export class AIFairytaleImageService {
         try {
             const entityManager: EntityManager = queryRunner.manager;
 
+            // 이미지 생성 시 사용될 포인트
+            const imagePoints = 10;
+
             if (!userId) {
                 throw new ForbiddenException('로그인 후 사용 가능합니다.');
             }
 
-            // 이미지 생성 시 사용될 포인트
-            const imagePoints = 10;
+            // 금지어 확인
+            await this.aiFairytaleService.checkForbiddenWords([createAIFairytaleDto.prompt]);
 
             // 포인트 확인 및 사용
             await this.pointHistoryService.usePoints(userId, imagePoints, 'AI 이미지 생성', entityManager);

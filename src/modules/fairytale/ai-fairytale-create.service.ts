@@ -12,17 +12,17 @@ Date        Author      Status      Description
 2024.08.05  이유민      Modified    포인트 사용 수정
 2024.08.06  이유민      Modified    트랜잭션 관리 추가
 2024.08.08  이유민      Modified    userId 수정
+2024.08.08  이유민      Modified    금지어 확인 추가
 */
 
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import { Injectable, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
-import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 import { CreateAIFairytaleDto } from 'src/modules/fairytale/dto/ai-fairytale-create.dto';
-import { PointHistoryRepository } from 'src/modules/billing/repository/point-history.repository';
 import { AIFairytaleType } from 'src/modules/fairytale/type/ai-fairytale-create.type';
 import { PointHistoryService } from 'src/modules/billing/point-history.service';
+import { ForbiddenWordRepository } from 'src/modules/fairytale/repository/fairytale-forbidden-word.repository';
 import { DataSource, EntityManager } from 'typeorm';
 
 @Injectable()
@@ -33,9 +33,8 @@ export class AIFairytaleService {
         private readonly httpService: HttpService,
         private configService: ConfigService,
         private readonly pointHistoryService: PointHistoryService,
-        @InjectRepository(PointHistoryRepository)
-        private readonly pointHistoryRepository: PointHistoryRepository,
         private readonly dataSource: DataSource,
+        private readonly forbiddenWordRepository: ForbiddenWordRepository,
     ) {
         this.aiUrl = this.configService.get('AI_SERVER_URL');
     }
@@ -55,6 +54,9 @@ export class AIFairytaleService {
                 throw new ForbiddenException('로그인 후 사용 가능합니다.');
             }
 
+            // 금지어 확인
+            await this.checkForbiddenWords([prompt]);
+
             // 포인트 확인 및 사용
             await this.pointHistoryService.usePoints(user_id, storyPoints, 'AI 스토리 생성', entityManager);
 
@@ -69,6 +71,24 @@ export class AIFairytaleService {
             throw e;
         } finally {
             await queryRunner.release();
+        }
+    }
+
+    // 금지어 설정
+    async checkForbiddenWords(texts: string[]): Promise<void> {
+        const forbiddenWords = await this.forbiddenWordRepository.getAllForbiddenWords();
+        const foundForbiddenWords: string[] = [];
+
+        for (const text of texts) {
+            for (const word of forbiddenWords) {
+                if (text.includes(word.forbiddenWord)) {
+                    foundForbiddenWords.push(word.forbiddenWord);
+                }
+            }
+        }
+
+        if (foundForbiddenWords.length > 0) {
+            throw new BadRequestException(`입력 불가한 금지어가 포함되어 있습니다: ${foundForbiddenWords.join(', ')}`);
         }
     }
 }
