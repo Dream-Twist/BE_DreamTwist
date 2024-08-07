@@ -23,6 +23,7 @@ import { Readable } from 'stream';
 export class S3Service {
     private s3Client: S3Client;
     private readonly defaultImgURL: string;
+    private readonly defaultProfileImgURL: string;
     private readonly bucketName: string;
     private readonly region: string;
 
@@ -39,6 +40,7 @@ export class S3Service {
         });
 
         this.defaultImgURL = `https://${this.bucketName}.s3.${this.region}.amazonaws.com/img/imgjpg.jpg`;
+        this.defaultProfileImgURL = `https://${this.bucketName}.s3.${this.region}.amazonaws.com/profileImg/defaultImg.jpg`;
     }
 
     // 서버가 S3에 이미지 직접 업로드
@@ -74,8 +76,14 @@ export class S3Service {
         }
     }
 
+    // 동화 기본 이미지
     getDefaultImgURL(): string {
         return this.defaultImgURL;
+    }
+
+    // 회원 기본 프로필 이미지
+    getDefaultProfileImgURL(): string {
+        return this.defaultProfileImgURL;
     }
 
     // S3에 AI 이미지 업로드

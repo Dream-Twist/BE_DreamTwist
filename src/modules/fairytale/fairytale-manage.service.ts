@@ -23,10 +23,10 @@ import { CreateFairytaleImgDto } from 'src/modules/fairytale/dto/fairytale-img.d
 import { ManageFairytaleRepository } from 'src/modules/fairytale/repository/fairytale-manage.repository';
 import { ForbiddenWordRepository } from 'src/modules/fairytale/repository/fairytale-forbidden-word.repository';
 import { FairytaleImgRepository } from './repository/fairytale-img.repository';
-import { UserRepository } from 'src/modules/user/user.repository';
-import { S3Service } from 'src/modules/s3.service';
+import { UserRepository } from 'src/modules/user/repository/user.repository';
 import { nanoid } from 'nanoid';
 import { UpdateFairytaleDto } from './dto/fairytale-update.dto';
+import { S3Service } from '../s3.service';
 
 @Injectable()
 export class ManageFairytaleService {
@@ -49,14 +49,9 @@ export class ManageFairytaleService {
     ): Promise<{ savedFairytale: Fairytale; savedFairytaleImg: FairytaleImg }> {
         // 임시 사용자
         const userId = 1;
-        const user = await this.userRepository.findOne({ where: { id: userId } });
-
-        if (!user) {
-            throw new NotFoundException('회원을 찾을 수 없습니다.');
-        }
 
         // 금지어 확인
-        await this.checkForbiddenWodrds([createFairytaleDto.title, createFairytaleDto.content]);
+        await this.checkForbiddenWords([createFairytaleDto.title, createFairytaleDto.content]);
 
         // 동화 스토리 공개 여부 확인
         const privatedAt = createFairytaleDto.privatedAt ? new Date() : null;
@@ -107,7 +102,7 @@ export class ManageFairytaleService {
         }
 
         // 금지어 확인
-        await this.checkForbiddenWodrds([updateFairytaleDto.title, updateFairytaleDto.content]);
+        await this.checkForbiddenWords([updateFairytaleDto.title, updateFairytaleDto.content]);
 
         // 동화 스토리 공개 여부 확인
         const privatedAt = updateFairytaleDto.privatedAt ? new Date() : null;
@@ -150,7 +145,7 @@ export class ManageFairytaleService {
     }
 
     // 금지어 설정
-    private async checkForbiddenWodrds(texts: string[]): Promise<void> {
+    private async checkForbiddenWords(texts: string[]): Promise<void> {
         const forbiddenWords = await this.forbiddenWordRepository.getAllForbiddenWords();
         const foundForbiddenWords: string[] = [];
 
