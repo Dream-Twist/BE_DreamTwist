@@ -34,6 +34,7 @@ import {
 } from 'shared/utils/swagger.decorators';
 import { Comments } from 'src/modules/fairytale/entity/fairytale-comments.entity';
 import { CommentsService } from 'src/modules/fairytale/fairytale-comments.service';
+// import { userService } from 'src/modules/user/user.service'
 
 @ApiTags('Comments')
 @Controller('comments')
@@ -100,6 +101,7 @@ export class CommentsController {
 
     // 동화 댓글 수정
     @Put(':fairytaleId/:commentId')
+    @UseGuards(JwtAuthGuard)
     @ApiPutOperation({
         summary: '동화 댓글 수정',
         successMessage: '동화 댓글이 성공적으로 수정되었습니다.',
@@ -129,6 +131,7 @@ export class CommentsController {
 
     // 동화 댓글 삭제
     @Delete(':fairytaleId/:commentId')
+    @UseGuards(JwtAuthGuard)
     @ApiDeleteOperation({
         summary: '동화 댓글 삭제',
         successMessage: 'id번 동화를 삭제했습니다',
@@ -142,7 +145,7 @@ export class CommentsController {
         if (!req.user || !req.user.sub) {
             throw new UnauthorizedException('요청에 사용자 정보가 없습니다.');
         }
-
+        console.log(req.user);
         const userId = req.user.id;
         return await this.commentsService.deleteComments(commentId, userId);
     }
