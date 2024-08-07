@@ -1,6 +1,6 @@
 /**
 File Name : user.entity
-Description : 회원 Entity
+Description : User Entity
 Author : 박수정
 
 History
@@ -20,12 +20,21 @@ export class User extends CommonEntity {
     @Column({ name: 'profile_image_id' })
     profileImageId: number;
 
+    @Column({ name: 'google_id' })
+    googleId: string;
+
     @Column({ unique: true })
     email: string;
+
+    @Column()
+    name: string;
 
     @Column({ unique: true })
     nickname: string;
 
-    @Column({ name: 'is_online' })
+    @Column({ name: 'is_online', default: false })
     isOnline: boolean;
+
+    @Column({ name: 'refresh_token', nullable: true })
+    refreshToken: string;
 }

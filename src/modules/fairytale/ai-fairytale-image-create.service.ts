@@ -18,7 +18,7 @@ import { Injectable, InternalServerErrorException, NotFoundException } from '@ne
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { CreateAIFairytaleDto } from 'src/modules/fairytale/dto/ai-fairytale-create.dto';
-import { UserRepository } from 'src/modules/user/user.repository';
+import { UserRepository } from 'src/modules/user/repository/user.repository';
 import { nanoid } from 'nanoid';
 import { S3Service } from 'src/modules/s3.service';
 import { Readable } from 'stream';
@@ -38,8 +38,8 @@ export class AIFairytaleImageService {
         private readonly httpService: HttpService,
         private configService: ConfigService,
         private readonly s3Service: S3Service,
-        @InjectRepository(UserRepository)
-        private readonly userRepository: UserRepository,
+        // @InjectRepository(UserRepository)
+        // private readonly userRepository: UserRepository,
         private readonly pointHistoryService: PointHistoryService,
     ) {
         this.aiImageEngineId = this.configService.get<string>('AI_IMAGE_ENGINE_ID') ?? 'stable-diffusion-v1-6';
@@ -60,12 +60,12 @@ export class AIFairytaleImageService {
     // 회원 기능이 추가되면 userId: number 추가
     private async translatePrompt(prompt: string): Promise<string> {
         // 유저 확인 - 임시 사용자
-        const userId = 1;
-        const user = await this.userRepository.findOne({ where: { id: userId } });
+        // const userId = 1;
+        // const user = await this.userRepository.findOne({ where: { id: userId } });
 
-        if (!user) {
-            throw new NotFoundException('회원을 찾을 수 없습니다.');
-        }
+        // if (!user) {
+        //     throw new NotFoundException('회원을 찾을 수 없습니다.');
+        // }
 
         try {
             const result = await this.deeplTranslator.translateText(prompt, 'ko', 'en-US');

@@ -1,5 +1,5 @@
 /**
-File Name : rel_fairytale_users.entity
+File Name : rel-fairytale-users.entity
 Description : 중간 테이블 Entity - 동화 스토리, 회원
 Author : 박수정
 
