@@ -23,19 +23,19 @@ import { FairytaleImgRepository } from 'src/modules/fairytale/repository/fairyta
 import { User } from 'src/modules/user/entity/user.entity';
 import { PointHistoryRepository } from 'src/modules/billing/repository/point-history.repository';
 import { PointHistory } from 'src/modules/billing/entity/point-history.entity';
-import { UserRepository } from 'src/modules/user/user.repository';
 import { S3Service } from 'src/modules/s3.service';
 import { PointHistoryService } from 'src/modules/billing/point-history.service';
+import { UsersModule } from 'src/modules/user/user.module';
+import { UserRepository } from 'src/modules/user/repository/user.repository';
 
 @Module({
-    imports: [HttpModule, TypeOrmModule.forFeature([PointHistory, User])],
+    imports: [UsersModule, HttpModule, TypeOrmModule.forFeature([PointHistory, User])],
     controllers: [AIFairytaleController, AIFairytaleImageController],
     providers: [
         AIFairytaleService,
         AIFairytaleImageService,
         S3Service,
         PointHistoryRepository,
-        UserRepository,
         FairytaleImgRepository,
         PointHistoryService,
     ],

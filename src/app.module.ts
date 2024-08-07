@@ -18,6 +18,8 @@ import { AIFairytaleModule } from 'src/modules/fairytale/ai-fairytale.module';
 import { BillingModule } from 'src/modules/billing/billing.module';
 import { AppController } from 'src/app.controller';
 import { AppService } from 'src/app.service';
+import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from './modules/user/user.module';
 
 @Module({
     imports: [
@@ -46,6 +48,8 @@ import { AppService } from 'src/app.service';
         FairytaleModule,
         AIFairytaleModule,
         BillingModule,
+        AuthModule,
+        UsersModule,
     ],
     controllers: [AppController],
     providers: [AppService],
