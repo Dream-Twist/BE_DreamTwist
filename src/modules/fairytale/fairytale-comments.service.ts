@@ -15,7 +15,7 @@ import { DataSource } from 'typeorm';
 import { Comments } from 'src/modules/fairytale/entity/fairytale-comments.entity';
 import { CommentsFairytaleDto } from 'src/modules/fairytale/dto/fairytale-comments.dto';
 import { CommentsRepository } from 'src/modules/fairytale/repository/fairytale-comments.repository';
-import { UserRepository } from 'src/modules/user/user.repository';
+import { UserRepository } from 'src/modules/user/repository/user.repository';
 
 // 특정 유저 태그하기 추가 기능 구현 해보기 - 대댓글
 
