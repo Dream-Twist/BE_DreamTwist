@@ -1,12 +1,13 @@
 /**
 File Name : fairytale-comments.repository
-Description : 동화 댓글 Repository
+Description : 동화 댓글 조회, 생성, 수정, 삭제 Repository
 Author : 원경혜
 
 History
 Date        Author      Status      Description
 2024.08.05  원경혜      Created
 2024.08.06  원경혜      Modified    동화 댓글 조회 기능 추가
+2024.08.07  원경혜      Modified    동화 댓글 CRUD 기능 추가
 */
 
 import { Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
@@ -19,8 +20,8 @@ export class CommentsRepository extends Repository<Comments> {
         super(Comments, entityManager);
     }
     /*
-    동화 댓글 조회 - 동화책 번호로 조회 & 특정 유저로 조회 (쿼리빌더 사용)
-    예외 및 에러 처리 추가
+    동화 댓글 조회
+    예외 및 에러 처리 추가 예정
     */
 
     // 댓글 조회 - fairytaleId 필터링
@@ -45,7 +46,7 @@ export class CommentsRepository extends Repository<Comments> {
         return comments;
     }
 
-    // 동화 댓글 생성 -> 2번 동화에서 댓글 생성
+    // 동화 댓글 생성
     // 대댓글 기능 추가 시, entityManager로 수정
     async createComments(newComments: Partial<Comments>): Promise<Comments> {
         const comments = await this.create(newComments);
@@ -53,7 +54,7 @@ export class CommentsRepository extends Repository<Comments> {
     }
 
     // 동화 댓글 수정
-    async updateComments(id: number, newComments: Partial<Comments | null>): Promise<Comments> {
+    async updateComments(id: number, newComments: Partial<Comments>): Promise<Comments> {
         const currentTime = new Date();
         const updateComments = {
             ...newComments,
@@ -65,12 +66,12 @@ export class CommentsRepository extends Repository<Comments> {
     }
 
     // 동화 댓글 삭제
-    async softDeleteComments(id: number): Promise<Comments | null> {
+    async softDeleteComments(id: number): Promise<Comments> {
         const currentTime = new Date();
         const comments = await this.findOne({
             where: {
                 id,
-                deletedAt: null, // 삭제되지 않은 댓글 조회
+                deletedAt: null,
             },
         });
         if (!comments) {
