@@ -7,36 +7,78 @@ History
 Date        Author      Status      Description
 2024.08.05  이유민      Created     
 2024.08.05  이유민      Modified    포인트 사용 기능 추가
+2024.08.06  이유민      Modified    트랜잭션 관리 추가
 */
 
 import { Injectable, ForbiddenException } from '@nestjs/common';
+import { DataSource, EntityManager } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { PointHistoryRepository } from 'src/modules/billing/repository/point-history.repository';
 
 @Injectable()
 export class PointHistoryService {
-    constructor(private readonly pointHistoryRepository: PointHistoryRepository) {}
+    constructor(
+        @InjectRepository(PointHistoryRepository)
+        private readonly pointHistoryRepository: PointHistoryRepository,
+        private readonly dataSource: DataSource,
+    ) {}
 
-    async usePoints(user_id: number, usePoints: number, usageType: string): Promise<void> {
-        // 사용자의 포인트 기록을 가져옵니다.
-        const pointHistories = await this.pointHistoryRepository.findPointHistoryByUserId(user_id);
+    async userPoints(): Promise<object> {
+        const queryRunner = this.dataSource.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
 
-        // 사용자의 현재 포인트를 계산합니다.
+        try {
+            const entityManager: EntityManager = queryRunner.manager;
+
+            // 임시
+            const user_id = 2;
+
+            // 포인트 기록 검색
+            const pointHistories = await this.pointHistoryRepository.findPointHistoryByUserId(user_id, entityManager);
+
+            // 포인트 계산
+            const userPoints = pointHistories.reduce((accumulator, current) => {
+                return accumulator + current.remaining_balance;
+            }, 0);
+
+            return { userPoints };
+        } catch (e) {
+            await queryRunner.rollbackTransaction();
+            throw e;
+        } finally {
+            await queryRunner.release();
+        }
+    }
+
+    async usePoints(
+        user_id: number,
+        usePoints: number,
+        usageType: string,
+        entityManager: EntityManager,
+    ): Promise<void> {
+        // 포인트 기록 검색
+        const pointHistories = await this.pointHistoryRepository.findPointHistoryByUserId(user_id, entityManager);
+
+        // 포인트 계산
         const userPoints = pointHistories.reduce((accumulator, current) => {
             return accumulator + current.remaining_balance;
         }, 0);
 
-        // 포인트 확인
         if (userPoints < usePoints || !userPoints) {
             throw new ForbiddenException('포인트가 부족합니다.');
         }
 
         // 포인트 사용 내역 추가
-        await this.pointHistoryRepository.createPointHistory({
-            user_id,
-            points: -1 * usePoints,
-            description: usageType,
-            remaining_balance: 0,
-        });
+        await this.pointHistoryRepository.createPointHistory(
+            {
+                user_id,
+                points: -1 * usePoints,
+                description: usageType,
+                remaining_balance: 0,
+            },
+            entityManager,
+        );
 
         // 포인트 사용
         let remainingPoints = usePoints;
@@ -47,7 +89,7 @@ export class PointHistoryService {
             history.remaining_balance -= pointsToDeduct;
             remainingPoints -= pointsToDeduct;
 
-            await this.pointHistoryRepository.updatePointHistoryById(history.id, -1 * pointsToDeduct);
+            await this.pointHistoryRepository.updatePointHistoryById(history.id, -1 * pointsToDeduct, entityManager);
         }
     }
 }
