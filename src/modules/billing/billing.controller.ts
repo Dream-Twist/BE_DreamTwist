@@ -16,13 +16,17 @@ Date        Author      Status      Description
 import { Controller, Post, Body, Get, Param } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { BillingService } from 'src/modules/billing/billing.service';
+import { PointHistoryService } from 'src/modules/billing/point-history.service';
 import { BillingDTO, CancelDTO } from 'src/modules/billing/billing.dto';
 import { ApiPostOperation, ApiGetOperation } from 'shared/utils/swagger.decorators';
 
 @ApiTags('Billing')
 @Controller('billing')
 export class BillingController {
-    constructor(private readonly billingService: BillingService) {}
+    constructor(
+        private readonly billingService: BillingService,
+        private readonly pointHistoryService: PointHistoryService,
+    ) {}
 
     @ApiPostOperation({
         summary: '결제 승인',
@@ -56,9 +60,10 @@ export class BillingController {
                     amount: { type: 'number', example: 1000 },
                     method: { type: 'string', example: '간편결제' },
                     status: { type: 'string', example: 'DONE' },
+                    description: { type: 'string', example: '꿈틀 700 포인트 충전' },
                     isRefundable: { type: 'string', example: 'F' },
                 },
-                required: ['id', 'createdAt', 'amount', 'method', 'status', 'isRefundable'],
+                required: ['id', 'createdAt', 'amount', 'method', 'status', 'description', 'isRefundable'],
             },
         },
         notFoundMessage: '해당 결제 내역이 없습니다.',
@@ -66,5 +71,20 @@ export class BillingController {
     @Get(':user_id')
     async getPointsByAmount(@Param('user_id') user_id: number): Promise<object> {
         return await this.billingService.findPaymentByUserId(user_id);
+    }
+
+    @ApiGetOperation({
+        summary: '사용자 포인트 조회',
+        successResponseSchema: {
+            type: 'object',
+            properties: {
+                userPoints: { type: 'number', example: '3280' },
+            },
+            required: ['userPoints'],
+        },
+    })
+    @Get('user/points')
+    async getPointsByUserId(): Promise<object> {
+        return await this.pointHistoryService.userPoints();
     }
 }
