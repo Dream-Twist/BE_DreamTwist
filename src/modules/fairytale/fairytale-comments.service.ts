@@ -11,9 +11,8 @@ Date        Author      Status      Description
 
 import { Injectable, NotFoundException, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, EntityManager } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { Comments } from 'src/modules/fairytale/entity/fairytale-comments.entity';
-import { CommentsFairytaleDto } from 'src/modules/fairytale/dto/fairytale-comments.dto';
 import { CommentsRepository } from 'src/modules/fairytale/repository/fairytale-comments.repository';
 import { UserRepository } from 'src/modules/user/repository/user.repository';
 

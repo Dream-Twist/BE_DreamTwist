@@ -13,16 +13,16 @@ Date        Author      Status      Description
 2024.08.07  원경혜      Modified    동화 댓글 기능 추가
 */
 
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { Fairytale } from 'src/modules/fairytale/entity/fairytale.entity';
 import { FairytaleImg } from 'src/modules/fairytale/entity/fairytale-img.entity';
 import { ForbiddenWord } from 'src/modules/fairytale/entity/fairytale-forbidden-word.entity';
 import { User } from 'src/modules/user/entity/user.entity';
-import { RelFairytaleUsers } from 'src/modules/user/entity/rel-fairytale-users.entity';
-import { Views } from 'src/modules/fairytale/entity/fairytale-views.entity';
 import { Comments } from 'src/modules/fairytale/entity/fairytale-comments.entity';
+import { Views } from './entity/fairytale-views.entity';
+import { FairytaleLike } from './entity/fairytale-likes.entity';
 import { ReadFairytaleController } from 'src/modules/fairytale/fairytale-read.controller';
 import { ManageFairytaleController } from 'src/modules/fairytale/fairytale-manage.controller';
 import { CommentsController } from 'src/modules/fairytale/fairytale-comments.controller';
@@ -40,17 +40,10 @@ import { S3Service } from 'src/modules/s3.service';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([
-            Fairytale,
-            User,
-            ForbiddenWord,
-            FairytaleImg,
-            RelFairytaleUsers,
-            UserRepository,
-            Views,
-            Comments,
-        ]),
+        TypeOrmModule.forFeature([Fairytale, User, ForbiddenWord, FairytaleImg, UserRepository, Views, Comments]),
         UsersModule,
+        TypeOrmModule.forFeature([Fairytale, User, ForbiddenWord, FairytaleImg, UserRepository, Views, FairytaleLike]),
+        forwardRef(() => UsersModule),
     ],
     controllers: [ReadFairytaleController, ManageFairytaleController, CommentsController],
     providers: [
@@ -71,5 +64,6 @@ import { S3Service } from 'src/modules/s3.service';
         FairytaleImgRepository,
         S3Service,
     ],
+    exports: [ReadFairytaleRepository],
 })
 export class FairytaleModule {}

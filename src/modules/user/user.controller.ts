@@ -8,9 +8,11 @@ Date        Author      Status      Description
 2024.07.30  박수정      Created     
 2024.07.30  박수정      Modified    회원정보 수정, 회원탈퇴, 로그아웃 기능 추가
 2024.08.01  박수정      Modified    프로필 이미지 업로드 기능 추가
+2024.08.05  박수정      Modified    나의 동화, 댓글, 좋아요, 결제 내역 기능 추가
+2024.08.07  박수정      Modified    회원정보 조회 기능 추가
 */
 
-import { Body, Controller, Delete, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'shared/guards/jwt-auth.guard';
 import { UpdateUserDTO } from 'src/modules/user/dto/update-user.dto';
@@ -22,6 +24,13 @@ import { UserService } from 'src/modules/user/user.service';
 @UseGuards(JwtAuthGuard)
 export class UserController {
     constructor(private readonly userService: UserService) {}
+
+    // 회원정보 조회
+    @Get()
+    async getUser(@Req() req): Promise<any> {
+        const user = await this.userService.getUser(req.user.userId);
+        return user;
+    }
 
     // 회원정보 수정
     @Patch('update')
@@ -52,5 +61,12 @@ export class UserController {
     async logout(@Req() req): Promise<{ message: string }> {
         await this.userService.logout(req.user.userId);
         return { message: '로그아웃 되었습니다.' };
+    }
+
+    // 나의 동화
+    @Get('my-fairytales')
+    async getMyFairytales(@Req() req): Promise<{ myFairytales: any }> {
+        const myFairytales = await this.userService.getMyFairytales(req.user.userId);
+        return { myFairytales };
     }
 }

@@ -8,12 +8,12 @@ Date        Author      Status      Description
 2024.07.30  박수정      Created     
 2024.07.30  박수정      Modified    Google 회원가입 및 로그인 기능 추가
 2024.08.01  박수정      Modified    RefreshToken 검증 및 AccessToken 재발급 기능 추가
+2024.08.07  박수정      Modified    Google Callback 관련 res
 */
 
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags } from '@nestjs/swagger';
-import { AuthTokens } from 'shared/types/auth.types';
 import { AuthService } from 'src/modules/auth/auth.service';
 
 @ApiTags('Auth')
@@ -30,14 +30,16 @@ export class AuthController {
     // Google Callback
     @Get('google/callback')
     @UseGuards(AuthGuard('google'))
-    async googleAuthCallback(@Req() req): Promise<AuthTokens> {
+    async googleAuthCallback(@Req() req, @Res() res): Promise<void> {
         const userDTO = {
             googleId: req.user.googleId,
             email: req.user.email,
             name: req.user.name,
         };
 
-        return this.authService.googleLogin(userDTO);
+        const tokens = await this.authService.googleLogin(userDTO);
+
+        res.redirect(`http://localhost:3000/#accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}`);
     }
 
     // RefreshToken 검증 및 AccessToken 재발급

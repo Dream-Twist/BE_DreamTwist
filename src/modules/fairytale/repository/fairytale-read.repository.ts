@@ -15,6 +15,8 @@ Date        Author      Status      Description
 2024.08.03  강민규      Modified    PUT: 동화 작성자가 수정
 2024.08.03  박수정      Modified    Repository 분리 - 조회 / 생성, 수정, 삭제
 2024.08.06  강민규      Modified    GET: 동화 제목 태그 조회 / 모든 목록 조회 최신순 정렬
+2024.08.05  박수정      Modified    나의 동화 기능 추가
+2024.08.07  강민규      Modified    GET: 세부 동화 조회: 좋아요 추가
 */
 
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
@@ -23,7 +25,7 @@ import { Fairytale } from 'src/modules/fairytale/entity/fairytale.entity';
 import { User } from 'src/modules/user/entity/user.entity';
 import { FairytaleImg } from 'src/modules/fairytale/entity/fairytale-img.entity';
 import { Views } from '../entity/fairytale-views.entity';
-import { NotFound } from '@aws-sdk/client-s3';
+import { FairytaleLike } from '../entity/fairytale-likes.entity';
 @Injectable()
 export class ReadFairytaleRepository extends Repository<Fairytale> {
     constructor(private dataSource: DataSource) {
@@ -77,6 +79,15 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
 
     //조회 수 기록
     async recordViews(fairytaleId: number, userId: number): Promise<void> {
+        const fairytale = await this.createQueryBuilder('fairytale')
+            .where('fairytale.id = :fairytaleId', { fairytaleId })
+            .andWhere('fairytale.deletedAt IS NULL')
+            .andWhere('fairytale.privatedAt IS NULL')
+            .select(['fairytale.userId'])
+            .getOne();
+        if (!fairytale) {
+            throw new NotFoundException(`동화 ${fairytaleId} 번은 비공개이거나 이미 삭제되었습니다.`);
+        }
         const viewRepository = this.dataSource.getRepository(Views);
 
         const newView = viewRepository.create({
@@ -110,6 +121,33 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
             .getCount();
         console.log(`동화 조회 ID: ${userId} `);
         return viewCount;
+    }
+
+    //해당 동화 좋아요 수 확인
+    async getLikeCount(fairytaleId: number, userId: number): Promise<number> {
+        // 동화 탐색
+        const fairytale = await this.createQueryBuilder('fairytale')
+            .where('fairytale.id = :fairytaleId', { fairytaleId })
+            .andWhere('fairytale.privated_at is NULL')
+            .andWhere('fairytale.deleted_at is NULL')
+            .select(['fairytale.userId'])
+            .getOne();
+        if (!fairytale) {
+            throw new NotFoundException(`동화 ${fairytaleId} 번은 비공개이거나 이미 삭제되었습니다.`);
+        }
+
+        // 작성자면 좋아요를 세지 않음
+        if (fairytale.userId === userId) {
+            console.log('동화 작성자입니다');
+        }
+        const likeCount = await this.dataSource
+            .getRepository(FairytaleLike)
+            .createQueryBuilder('fairytale_like')
+            .where('fairytale_like.fairytaleId = :fairytaleId', { fairytaleId })
+            // .andWhere('fairytale_like.userId != :userId', { userId })
+            .getCount();
+        console.log(likeCount);
+        return likeCount;
     }
 
     //동화 세부
@@ -147,7 +185,8 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
         //조회수
         await this.recordViews(fairytaleId, userId);
         const viewCount = await this.getViewCount(fairytaleId, userId);
-
+        // 좋아요 수
+        const likeCount = await this.getLikeCount(fairytaleId, userId);
         const formattedFairytales = fairytales.map(fairytale => {
             const images = fairytaleImageMap[fairytale.id] || []; //JSON이 아닌 오브젝트
             const paths = Object.values(images[0].path);
@@ -163,6 +202,8 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
                 coverImage: coverImage,
                 images: contentImages,
                 views: viewCount,
+                likes: likeCount,
+                privatedAt: fairytale.privatedAt,
             };
         });
         return formattedFairytales;
@@ -200,7 +241,10 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
         if (tagsArray.length > 0) {
             queryBuilder.andWhere('fairytale.theme IN (:...tags)', { tags: tagsArray });
         }
-        const filteredFairytales = await queryBuilder.orderBy('fairytale.createdAt', 'DESC').getMany();
+        const filteredFairytales = await queryBuilder
+            .orderBy('fairytale.createdAt', 'DESC')
+            .andWhere('fairytale.privatedAt IS NULL')
+            .getMany();
         if (filteredFairytales.length === 0) {
             throw new NotFoundException(`제목 ${title} 에 해당되는 동화가 없습니다.`);
         }
@@ -244,5 +288,13 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
         });
 
         return formattedFairytales;
+    }
+
+    // 나의 동화 조회
+    async getMyFairytales(userId: number): Promise<Fairytale[]> {
+        return this.createQueryBuilder('fairytale')
+            .select(['fairytale.id', 'fairytale.title', 'fairytale.createdAt'])
+            .where('fairytale.userId = :userId', { userId })
+            .getMany();
     }
 }
