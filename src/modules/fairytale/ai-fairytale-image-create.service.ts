@@ -11,6 +11,7 @@ Date        Author      Status      Description
 2024.08.04  원경혜      Modified    번역 기능 API 추가
 2024.08.04  원경혜      Modified    유저 확인(임시) 기능 추가 및 S3 업로드 경로, 파일명 수정
 2024.08.05  이유민      Modified    포인트 사용 추가
+2024.08.06  이유민      Modified    트랜잭션 관리 추가
 */
 
 import { ConfigService } from '@nestjs/config';
@@ -25,6 +26,7 @@ import { Readable } from 'stream';
 import * as deepl from 'deepl-node';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PointHistoryService } from 'src/modules/billing/point-history.service';
+import { DataSource, EntityManager } from 'typeorm';
 
 @Injectable()
 export class AIFairytaleImageService {
@@ -41,6 +43,7 @@ export class AIFairytaleImageService {
         // @InjectRepository(UserRepository)
         // private readonly userRepository: UserRepository,
         private readonly pointHistoryService: PointHistoryService,
+        private readonly dataSource: DataSource,
     ) {
         this.aiImageEngineId = this.configService.get<string>('AI_IMAGE_ENGINE_ID') ?? 'stable-diffusion-v1-6';
         this.aiImageApiHost = this.configService.get<string>('AI_IMAGE_API_HOST') ?? 'https://api.stability.ai';
@@ -69,10 +72,8 @@ export class AIFairytaleImageService {
 
         try {
             const result = await this.deeplTranslator.translateText(prompt, 'ko', 'en-US');
-            console.log(result.text);
             return result.text;
         } catch (err) {
-            console.error('번역 실패:', err);
             throw new InternalServerErrorException('번역에 실패하였습니다.');
         }
     }
@@ -80,55 +81,65 @@ export class AIFairytaleImageService {
     // AI 이미지 생성 - Stability.ai API 접속
     // 회원 기능이 추가되면 userId: number 추가
     async generateAndUploadAiImage(createAIFairytaleDto: CreateAIFairytaleDto): Promise<string> {
-        // 임시 사용자
-        const userId = 1;
-        // 이미지 생성 시 사용될 포인트
-        const imagePoints = 10;
+        const queryRunner = this.dataSource.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
 
-        // 포인트 확인 및 사용
-        await this.pointHistoryService.usePoints(userId, imagePoints, 'AI 이미지 생성');
+        try {
+            const entityManager: EntityManager = queryRunner.manager;
+            // 임시 사용자
+            const userId = 2;
+            // 이미지 생성 시 사용될 포인트
+            const imagePoints = 10;
 
-        const translatePrompt = await this.translatePrompt(createAIFairytaleDto.prompt);
-        const url = `${this.aiImageApiHost}/v1/generation/${this.aiImageEngineId}/text-to-image`;
-        const payload = {
-            cfg_scale: 35,
-            height: 448,
-            width: 448,
-            samples: 1,
-            steps: 50,
-            seed: 42,
-            style_preset: 'digital-art',
-            text_prompts: [
-                {
-                    text: translatePrompt,
-                },
-            ],
-        };
+            // 포인트 확인 및 사용
+            await this.pointHistoryService.usePoints(userId, imagePoints, 'AI 이미지 생성', entityManager);
 
-        console.log(this.aiImageApiKey);
-        console.log(url);
+            const translatePrompt = await this.translatePrompt(createAIFairytaleDto.prompt);
+            const url = `${this.aiImageApiHost}/v1/generation/${this.aiImageEngineId}/text-to-image`;
+            const payload = {
+                cfg_scale: 35,
+                height: 448,
+                width: 448,
+                samples: 1,
+                steps: 50,
+                seed: 42,
+                style_preset: 'digital-art',
+                text_prompts: [
+                    {
+                        text: translatePrompt,
+                    },
+                ],
+            };
 
-        const res = await firstValueFrom(
-            this.httpService.post(url, payload, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'image/png',
-                    Authorization: `Bearer ${this.aiImageApiKey}`,
-                },
-                responseType: 'stream',
-            }),
-        );
+            const res = await firstValueFrom(
+                this.httpService.post(url, payload, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'image/png',
+                        Authorization: `Bearer ${this.aiImageApiKey}`,
+                    },
+                    responseType: 'stream',
+                }),
+            );
 
-        if (!res || !res.data) {
-            throw new InternalServerErrorException('API 요청 실패 및 응답 데이터가 없습니다.');
+            if (!res || !res.data) {
+                throw new InternalServerErrorException('API 요청 실패 및 응답 데이터가 없습니다.');
+            }
+
+            // S3에 이미지 업로드
+            const folderId = nanoid(6);
+            const fileName = `ai_img/${userId}/${folderId}/${Date.now()}-ai-img.png`;
+            const imageUrl = await this.s3Service.uploadAiImage(fileName, res.data as Readable);
+
+            await queryRunner.commitTransaction();
+
+            return imageUrl;
+        } catch (e) {
+            await queryRunner.rollbackTransaction();
+            throw e;
+        } finally {
+            await queryRunner.release();
         }
-
-        console.log('api 요청 및 이미지 생성 성공');
-
-        // S3에 이미지 업로드
-        const folderId = nanoid(6);
-        const fileName = `ai_img/${userId}/${folderId}/${Date.now()}-ai-img.png`;
-        const imageUrl = await this.s3Service.uploadAiImage(fileName, res.data as Readable);
-        return imageUrl;
     }
 }
