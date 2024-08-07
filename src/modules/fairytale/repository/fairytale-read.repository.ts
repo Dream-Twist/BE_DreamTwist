@@ -15,6 +15,7 @@ Date        Author      Status      Description
 2024.08.03  강민규      Modified    PUT: 동화 작성자가 수정
 2024.08.03  박수정      Modified    Repository 분리 - 조회 / 생성, 수정, 삭제
 2024.08.06  강민규      Modified    GET: 동화 제목 태그 조회 / 모든 목록 조회 최신순 정렬
+2024.08.07  강민규      Modified    GET: 세부 동화 조회: 좋아요 추가
 */
 
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
@@ -127,6 +128,8 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
         // 동화 탐색
         const fairytale = await this.createQueryBuilder('fairytale')
             .where('fairytale.id = :fairytaleId', { fairytaleId })
+            .andWhere('fairytale.privated_at is NULL')
+            .andWhere('fairytale.deleted_at is NULL')
             .select(['fairytale.userId'])
             .getOne();
         if (!fairytale) {
@@ -141,8 +144,9 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
             .getRepository(FairytaleLike)
             .createQueryBuilder('fairytale_like')
             .where('fairytale_like.fairytaleId = :fairytaleId', { fairytaleId })
-            .andWhere('fairytale_like.userId != :userId', { userId })
+            // .andWhere('fairytale_like.userId != :userId', { userId })
             .getCount();
+        console.log(likeCount);
         return likeCount;
     }
 

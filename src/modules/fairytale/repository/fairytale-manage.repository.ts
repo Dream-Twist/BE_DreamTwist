@@ -8,6 +8,7 @@ Date        Author      Status      Description
 2024.07.19  박수정      Created
 2024.07.20  박수정      Modified    동화 스토리 생성 기능 추가
 2024.08.03  박수정      Modified    Repository 분리 - 조회 / 생성, 수정, 삭제
+2024.08.07  강민규      Modified    POST: 좋아요 기록
 */
 
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';

@@ -12,6 +12,7 @@ Date        Author      Status      Description
 2024.08.02  박수정      Modified    이미지 업로드 방식 변경 - Presigned URL
 2024.08.03  박수정      Modified    Controller 분리 - 조회 / 생성, 수정, 삭제
 2024.08.03  박수정      Modified    Swagger Decorator 적용
+2024.08.07  강민규      Modified    POST: 좋아요 기록
 */
 
 import {

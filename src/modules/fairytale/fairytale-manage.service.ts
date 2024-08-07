@@ -12,6 +12,7 @@ Date        Author      Status      Description
 2024.08.01  박수정      Modified    Entity 변경에 대한 Service 변경
 2024.08.02  박수정      Modified    이미지 업로드 방식 변경 - Presigned URL
 2024.08.03  박수정      Modified    Service 분리 - 조회 / 생성, 수정, 삭제
+2024.08.07  강민규      Modified    POST: 좋아요 기록
 */
 
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
