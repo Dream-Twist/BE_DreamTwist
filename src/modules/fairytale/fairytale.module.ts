@@ -19,19 +19,23 @@ import { Fairytale } from 'src/modules/fairytale/entity/fairytale.entity';
 import { FairytaleImg } from 'src/modules/fairytale/entity/fairytale-img.entity';
 import { ForbiddenWord } from 'src/modules/fairytale/entity/fairytale-forbidden-word.entity';
 import { User } from 'src/modules/user/entity/user.entity';
-import { RelFairytaleUsers } from 'src/modules/user/entity/rel-fairytale-users.entity';
+import { ProfileImage } from 'src/modules//user/entity/profile_image.entity';
+import { RelFairytaleUsers } from 'src/modules//user/entity/rel_fairytale_users.entity';
 import { Views } from './entity/fairytale-views.entity';
+import { Comments } from 'src/modules/fairytale/entity/fairytale-comments.entity';
 import { ReadFairytaleController } from 'src/modules/fairytale/fairytale-read.controller';
 import { ManageFairytaleController } from 'src/modules/fairytale/fairytale-manage.controller';
+import { CommentsController } from 'src/modules/fairytale/fairytale-comments.controller';
 import { ReadFairytaleService } from 'src/modules/fairytale/fairytale-read.service';
 import { ManageFairytaleService } from 'src/modules/fairytale/fairytale-manage.service';
+import { CommentsService } from 'src/modules/fairytale/fairytale-comments.service';
 import { ReadFairytaleRepository } from 'src/modules/fairytale/repository/fairytale-read.repository';
 import { ManageFairytaleRepository } from 'src/modules/fairytale/repository/fairytale-manage.repository';
 import { FairytaleImgRepository } from 'src/modules/fairytale/repository/fairytale-img.repository';
 import { ForbiddenWordRepository } from 'src/modules/fairytale/repository/fairytale-forbidden-word.repository';
-import { UserRepository } from 'src/modules/user/repository/user.repository';
-import { UsersModule } from '../user/user.module';
-import { S3Service } from '../s3.service';
+import { CommentsRepository } from 'src/modules/fairytale/repository/fairytale-comments.repository';
+import { UserRepository } from 'src/modules/user/user.repository';
+import { S3Service } from 'src/modules/s3.service';
 
 @Module({
     imports: [
@@ -40,20 +44,21 @@ import { S3Service } from '../s3.service';
             User,
             ForbiddenWord,
             FairytaleImg,
-
+            ProfileImage,
             RelFairytaleUsers,
-            UserRepository,
             Views,
+            Comments,
         ]),
-        UsersModule,
     ],
-    controllers: [ReadFairytaleController, ManageFairytaleController],
+    controllers: [ReadFairytaleController, ManageFairytaleController, CommentsController],
     providers: [
         ReadFairytaleRepository,
         ManageFairytaleRepository,
+        CommentsRepository,
         ReadFairytaleService,
         ManageFairytaleService,
         UserRepository,
+        CommentsService,
         {
             provide: ForbiddenWordRepository,
             useFactory: (dataSource: DataSource) => {
