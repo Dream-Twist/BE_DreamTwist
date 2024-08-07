@@ -11,9 +11,10 @@ Date        Author      Status      Description
 2024.08.03  이유민      Modified    타입 수정
 2024.08.05  이유민      Modified    포인트 사용 수정
 2024.08.06  이유민      Modified    트랜잭션 관리 추가
+2024.08.08  이유민      Modified    userId 수정
 */
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
@@ -39,7 +40,7 @@ export class AIFairytaleService {
         this.aiUrl = this.configService.get('AI_SERVER_URL');
     }
 
-    async generateFairytale(createAIFairytaleDto: CreateAIFairytaleDto): Promise<AIFairytaleType> {
+    async generateFairytale(user_id: number, createAIFairytaleDto: CreateAIFairytaleDto): Promise<AIFairytaleType> {
         const queryRunner = this.dataSource.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();
@@ -48,9 +49,11 @@ export class AIFairytaleService {
             const entityManager: EntityManager = queryRunner.manager;
             const { prompt } = createAIFairytaleDto;
 
-            // 임시
-            const user_id = 2; // 유저ID
             const storyPoints = 10; // 스토리 생성 시 사용되는 포인트
+
+            if (!user_id) {
+                throw new ForbiddenException('로그인 후 사용 가능합니다.');
+            }
 
             // 포인트 확인 및 사용
             await this.pointHistoryService.usePoints(user_id, storyPoints, 'AI 스토리 생성', entityManager);

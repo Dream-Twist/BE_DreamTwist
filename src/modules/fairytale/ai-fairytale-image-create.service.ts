@@ -12,10 +12,11 @@ Date        Author      Status      Description
 2024.08.04  원경혜      Modified    유저 확인(임시) 기능 추가 및 S3 업로드 경로, 파일명 수정
 2024.08.05  이유민      Modified    포인트 사용 추가
 2024.08.06  이유민      Modified    트랜잭션 관리 추가
+2024.08.08  이유민      Modified    userId 수정
 */
 
 import { ConfigService } from '@nestjs/config';
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { CreateAIFairytaleDto } from 'src/modules/fairytale/dto/ai-fairytale-create.dto';
@@ -80,15 +81,18 @@ export class AIFairytaleImageService {
 
     // AI 이미지 생성 - Stability.ai API 접속
     // 회원 기능이 추가되면 userId: number 추가
-    async generateAndUploadAiImage(createAIFairytaleDto: CreateAIFairytaleDto): Promise<string> {
+    async generateAndUploadAiImage(userId: number, createAIFairytaleDto: CreateAIFairytaleDto): Promise<string> {
         const queryRunner = this.dataSource.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();
 
         try {
             const entityManager: EntityManager = queryRunner.manager;
-            // 임시 사용자
-            const userId = 2;
+
+            if (!userId) {
+                throw new ForbiddenException('로그인 후 사용 가능합니다.');
+            }
+
             // 이미지 생성 시 사용될 포인트
             const imagePoints = 10;
 

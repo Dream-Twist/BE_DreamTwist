@@ -7,17 +7,20 @@ History
 Date        Author      Status      Description
 2024.08.02  원경혜      Created     
 2024.08.03  원경혜      Modified    AI 동화 이미지 생성 기능 추가
+2024.08.08  이유민      Modified    userId 수정
 */
 
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Req, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ApiPostOperation } from 'shared/utils/swagger.decorators';
 import { CreateAIFairytaleDto } from 'src/modules/fairytale/dto/ai-fairytale-create.dto';
 import { AIFairytaleImageService } from 'src/modules/fairytale/ai-fairytale-image-create.service';
+import { JwtAuthGuard } from 'shared/guards/jwt-auth.guard';
 // import { AIFairytaleType } from 'src/modules/fairytale/type/ai-fairytale-create.type';
 
 @ApiTags('AI-Fairytale')
 @Controller('ai-fairytale')
+@UseGuards(JwtAuthGuard)
 export class AIFairytaleImageController {
     constructor(private readonly aiFairytaleImageService: AIFairytaleImageService) {}
 
@@ -30,7 +33,7 @@ export class AIFairytaleImageController {
         },
     })
     @Post('image')
-    async createAiImage(@Body() createAIFairytaleDto: CreateAIFairytaleDto): Promise<string> {
-        return this.aiFairytaleImageService.generateAndUploadAiImage(createAIFairytaleDto);
+    async createAiImage(@Req() req, @Body() createAIFairytaleDto: CreateAIFairytaleDto): Promise<string> {
+        return this.aiFairytaleImageService.generateAndUploadAiImage(req.user.userId, createAIFairytaleDto);
     }
 }
