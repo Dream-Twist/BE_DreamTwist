@@ -19,8 +19,8 @@ import { Fairytale } from 'src/modules/fairytale/entity/fairytale.entity';
 import { FairytaleImg } from 'src/modules/fairytale/entity/fairytale-img.entity';
 import { ForbiddenWord } from 'src/modules/fairytale/entity/fairytale-forbidden-word.entity';
 import { User } from 'src/modules/user/entity/user.entity';
-import { Views } from './entity/fairytale-views.entity';
-import { FairytaleLike } from './entity/fairytale-likes.entity';
+import { Views } from 'src/modules/fairytale/entity/fairytale-views.entity';
+import { FairytaleLike } from 'src/modules/fairytale/entity/fairytale-likes.entity';
 import { ReadFairytaleController } from 'src/modules/fairytale/fairytale-read.controller';
 import { ManageFairytaleController } from 'src/modules/fairytale/fairytale-manage.controller';
 import { ReadFairytaleService } from 'src/modules/fairytale/fairytale-read.service';
@@ -30,8 +30,8 @@ import { ManageFairytaleRepository } from 'src/modules/fairytale/repository/fair
 import { FairytaleImgRepository } from 'src/modules/fairytale/repository/fairytale-img.repository';
 import { ForbiddenWordRepository } from 'src/modules/fairytale/repository/fairytale-forbidden-word.repository';
 import { UserRepository } from 'src/modules/user/repository/user.repository';
-import { UsersModule } from '../user/user.module';
-import { S3Service } from '../s3.service';
+import { UsersModule } from 'src/modules/user/user.module';
+import { S3Service } from 'src/modules/s3.service';
 
 @Module({
     imports: [

@@ -22,7 +22,6 @@ export class AuthController {
     constructor(private readonly authService: AuthService) {}
 
     // Google 회원가입 및 로그인
-    // http://localhost:4000/auth/google/login
     @Get('google/login')
     @UseGuards(AuthGuard('google'))
     async googleAuth() {}
