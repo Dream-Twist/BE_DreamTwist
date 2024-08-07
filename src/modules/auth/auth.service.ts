@@ -110,7 +110,7 @@ export class AuthService {
         try {
             return this.authRepository.verifyRefreshToken(refreshToken);
         } catch (error) {
-            throw new UnauthorizedException('Invalid refresh token');
+            throw new UnauthorizedException('RefreshToken이 유효하지 않습니다.');
         }
     }
 }
