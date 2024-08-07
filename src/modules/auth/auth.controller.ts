@@ -8,6 +8,7 @@ Date        Author      Status      Description
 2024.07.30  박수정      Created     
 2024.07.30  박수정      Modified    Google 회원가입 및 로그인 기능 추가
 2024.08.01  박수정      Modified    RefreshToken 검증 및 AccessToken 재발급 기능 추가
+2024.08.07  박수정      Modified    Google Callback 관련 res
 */
 
 import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
@@ -40,6 +41,7 @@ export class AuthController {
 
         res.redirect(`http://localhost:3000/#accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}`);
     }
+
     // RefreshToken 검증 및 AccessToken 재발급
     @Post('regenerate-accesstoken')
     async regenerateAccesstoken(@Body('refreshToken') refreshToken: string): Promise<{ accessToken: string }> {

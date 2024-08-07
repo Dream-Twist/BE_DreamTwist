@@ -10,7 +10,7 @@ Date        Author      Status      Description
 2024.08.01  박수정      Modified    프로필 이미지 업로드 기능 추가
 */
 
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { S3Service } from 'src/modules/s3.service';
 import { User } from 'src/modules/user/entity/user.entity';
@@ -19,11 +19,12 @@ import { UserController } from 'src/modules/user/user.controller';
 import { UserService } from 'src/modules/user/user.service';
 import { UserRepository } from 'src/modules/user/repository/user.repository';
 import { ProfileImageRepository } from 'src/modules/user/repository/profile-image.repository';
+import { FairytaleModule } from 'src/modules/fairytale/fairytale.module';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([User, ProfileImage])],
+    imports: [TypeOrmModule.forFeature([User, ProfileImage]), forwardRef(() => FairytaleModule)],
     controllers: [UserController],
     providers: [UserService, UserRepository, ProfileImageRepository, S3Service],
-    exports: [UserRepository, ProfileImageRepository],
+    exports: [UserService, UserRepository, ProfileImageRepository],
 })
 export class UsersModule {}

@@ -37,6 +37,7 @@ async function bootstrap() {
         .setTitle('꿈틀 (DreamTwist)')
         .setDescription('DreamTwist API 문서')
         .setVersion('1.0')
+        .addServer('http://kdt-ai-10-team01.elicecoding.com/api')
         .build();
 
     const document = SwaggerModule.createDocument(app, config);
