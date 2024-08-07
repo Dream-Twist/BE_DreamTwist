@@ -15,6 +15,7 @@ Date        Author      Status      Description
 2024.08.03  강민규      Modified    PUT: 동화 작성자가 수정
 2024.08.03  박수정      Modified    Repository 분리 - 조회 / 생성, 수정, 삭제
 2024.08.06  강민규      Modified    GET: 동화 제목 태그 조회 / 모든 목록 조회 최신순 정렬
+2024.08.05  박수정      Modified    나의 동화 기능 추가
 2024.08.07  강민규      Modified    GET: 세부 동화 조회: 좋아요 추가
 */
 
@@ -24,7 +25,6 @@ import { Fairytale } from 'src/modules/fairytale/entity/fairytale.entity';
 import { User } from 'src/modules/user/entity/user.entity';
 import { FairytaleImg } from 'src/modules/fairytale/entity/fairytale-img.entity';
 import { Views } from '../entity/fairytale-views.entity';
-import { NotFound } from '@aws-sdk/client-s3';
 import { FairytaleLike } from '../entity/fairytale-likes.entity';
 @Injectable()
 export class ReadFairytaleRepository extends Repository<Fairytale> {
@@ -288,5 +288,13 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
         });
 
         return formattedFairytales;
+    }
+
+    // 나의 동화 조회
+    async getMyFairytales(userId: number): Promise<Fairytale[]> {
+        return this.createQueryBuilder('fairytale')
+            .select(['fairytale.id', 'fairytale.title', 'fairytale.createdAt'])
+            .where('fairytale.userId = :userId', { userId })
+            .getMany();
     }
 }

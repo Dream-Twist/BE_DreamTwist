@@ -12,14 +12,13 @@ Date        Author      Status      Description
 2024.07.27  박수정      Modified    동화 이미지 업로드 기능 추가
 */
 
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { Fairytale } from 'src/modules/fairytale/entity/fairytale.entity';
 import { FairytaleImg } from 'src/modules/fairytale/entity/fairytale-img.entity';
 import { ForbiddenWord } from 'src/modules/fairytale/entity/fairytale-forbidden-word.entity';
 import { User } from 'src/modules/user/entity/user.entity';
-import { RelFairytaleUsers } from 'src/modules/user/entity/rel-fairytale-users.entity';
 import { Views } from './entity/fairytale-views.entity';
 import { FairytaleLike } from './entity/fairytale-likes.entity';
 import { ReadFairytaleController } from 'src/modules/fairytale/fairytale-read.controller';
@@ -36,18 +35,8 @@ import { S3Service } from '../s3.service';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([
-            Fairytale,
-            User,
-            ForbiddenWord,
-            FairytaleImg,
-
-            RelFairytaleUsers,
-            UserRepository,
-            Views,
-            FairytaleLike,
-        ]),
-        UsersModule,
+        TypeOrmModule.forFeature([Fairytale, User, ForbiddenWord, FairytaleImg, UserRepository, Views, FairytaleLike]),
+        forwardRef(() => UsersModule),
     ],
     controllers: [ReadFairytaleController, ManageFairytaleController],
     providers: [
@@ -66,5 +55,6 @@ import { S3Service } from '../s3.service';
         FairytaleImgRepository,
         S3Service,
     ],
+    exports: [ReadFairytaleRepository],
 })
 export class FairytaleModule {}
