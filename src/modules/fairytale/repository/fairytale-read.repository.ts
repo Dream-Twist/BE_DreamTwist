@@ -146,7 +146,6 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
             .where('fairytale_like.fairytaleId = :fairytaleId', { fairytaleId })
             // .andWhere('fairytale_like.userId != :userId', { userId })
             .getCount();
-        console.log(likeCount);
         return likeCount;
     }
 

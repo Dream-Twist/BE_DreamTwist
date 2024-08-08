@@ -16,17 +16,30 @@ Date        Author      Status      Description
 2024.08.03  박수정      Modified    Controller 분리 - 조회 / 생성, 수정, 삭제
 2024.08.03  박수정      Modified    Swagger Decorator 적용
 2024.08.06  강민규      Modified    GET: 동화 제목 태그 조회 / 모든 목록 조회 최신순 정렬
+2024.08.08  강민규      Modified    동화 상세 조회 회원 연동
 
 */
 
 // import { Controller, Post, Body, Request } from '@nestjs/common';
-import { BadRequestException, Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
+import {
+    BadRequestException,
+    Controller,
+    Get,
+    Param,
+    ParseIntPipe,
+    Query,
+    Req,
+    UnauthorizedException,
+    UseGuards,
+} from '@nestjs/common';
 import { ReadFairytaleService } from 'src/modules/fairytale/fairytale-read.service';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ApiGetOperation } from 'shared/utils/swagger.decorators';
+import { JwtAuthGuard } from 'shared/guards/jwt-auth.guard';
 
 @ApiTags('Fairytale')
 @Controller('fairytale')
+@UseGuards(JwtAuthGuard)
 export class ReadFairytaleController {
     constructor(private readonly readFairytaleService: ReadFairytaleService) {}
 
@@ -63,10 +76,8 @@ export class ReadFairytaleController {
         notFoundMessage: '{id}번 동화 줄거리를 찾을 수 없습니다.',
     })
     @Get(':fairytaleId')
-    async getFairytaleContent(@Param('fairytaleId', ParseIntPipe) fairytaleId: number) {
-        // 임시 유저
-        const userId = 1;
-        const content = await this.readFairytaleService.getFairytaleContent(fairytaleId, userId);
+    async getFairytaleContent(@Req() req, @Param('fairytaleId', ParseIntPipe) fairytaleId: number) {
+        const content = await this.readFairytaleService.getFairytaleContent(fairytaleId, req.user.userId);
         return content;
     }
 }

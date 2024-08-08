@@ -15,6 +15,7 @@ Date        Author      Status      Description
 2024.08.03  강민규      Modified    PUT: 동화 작성자가 수정
 2024.08.03  박수정      Modified    Service 분리 - 조회 / 생성, 수정, 삭제
 2024.08.06  강민규      Modified    GET: 동화 제목 태그 조회 / 모든 목록 조회 최신순 정렬
+2024.08.08  강민규      Modified    동화 상세 조회 회원 연동
 */
 
 import { Injectable, NotFoundException } from '@nestjs/common';
@@ -52,9 +53,4 @@ export class ReadFairytaleService {
         const filteredFairytales = await this.readFairytaleRepository.getAllbyFilter(title, tags);
         return filteredFairytales;
     }
-
-    //동화 좋아요
-    //   async createFairytaleLike(userId: number) {
-    //     return this.manageFairytaleRepository.incrementLikes(userId);
-    // }
 }

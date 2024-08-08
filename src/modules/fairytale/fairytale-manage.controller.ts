@@ -14,6 +14,7 @@ Date        Author      Status      Description
 2024.08.03  박수정      Modified    Swagger Decorator 적용
 2024.08.07  강민규      Modified    POST: 좋아요 기록
 2024.08.08  박수정      Modified    동화 스토리 생성 회원 연동
+2024.08.08  강민규      Modified    동화 수정 삭제 회원 연동
 */
 
 import {
@@ -99,11 +100,13 @@ export class ManageFairytaleController {
     @Put(':fairytaleId')
     @UseInterceptors(FileInterceptor('image'))
     async updateFairytale(
+        @Req() req,
         @Body(new ValidationPipe({ transform: true })) updateFairytaleDto: UpdateFairytaleDto,
         @Body() createFairytaleImgDto: CreateFairytaleImgDto,
         @Param('fairytaleId', ParseIntPipe) fairytaleId: number,
     ) {
         const result = await this.manageFairytaleService.editUserFairytale(
+            req.user.userId,
             fairytaleId,
             updateFairytaleDto,
             createFairytaleImgDto,
@@ -121,8 +124,8 @@ export class ManageFairytaleController {
         notFoundMessage: '{id}번 동화를 찾을 수 없습니다',
     })
     @Delete(':fairytaleId')
-    async deleteFairytale(@Param('fairytaleId', ParseIntPipe) id: number): Promise<string> {
-        await this.manageFairytaleService.deleteFairytale(id);
+    async deleteFairytale(@Req() req, @Param('fairytaleId', ParseIntPipe) id: number): Promise<string> {
+        await this.manageFairytaleService.deleteFairytale(id, req.user.userId);
         return `${id} 번 동화를 삭제했습니다`;
     }
 }
