@@ -8,6 +8,7 @@ Date        Author      Status      Description
 2024.07.30  박수정      Created     
 2024.07.30  박수정      Modified    Google 회원가입 및 로그인 기능 추가
 2024.08.01  박수정      Modified    RefreshToken 검증 및 AccessToken 재발급 기능 추가
+2024.08.08  이유민      Modified    회원가입 이벤트 추가
 */
 
 import { Injectable, UnauthorizedException } from '@nestjs/common';
@@ -19,6 +20,7 @@ import { CreateUserDTO } from 'src/modules/user/dto/create-user.dto';
 import { AuthRepository } from 'src/modules/auth/auth.repository';
 import { UserRepository } from 'src/modules/user/repository/user.repository';
 import { ProfileImageRepository } from 'src/modules/user/repository/profile-image.repository';
+import { PointHistoryService } from 'src/modules/billing/point-history.service';
 
 @Injectable()
 export class AuthService {
@@ -27,6 +29,7 @@ export class AuthService {
         private readonly userRepository: UserRepository,
         private readonly s3Service: S3Service,
         private readonly profileImageRepository: ProfileImageRepository,
+        private readonly pointHistoryService: PointHistoryService,
     ) {}
 
     // 구글 회원가입 및 로그인
@@ -69,6 +72,8 @@ export class AuthService {
 
         profileImage.userId = user.id;
         await this.profileImageRepository.saveProfileImage(profileImage);
+
+        await this.pointHistoryService.eventPoints(user.id);
 
         return user;
     }
