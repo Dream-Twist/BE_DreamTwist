@@ -293,8 +293,14 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
     // 나의 동화 조회
     async getMyFairytales(userId: number): Promise<Fairytale[]> {
         return this.createQueryBuilder('fairytale')
-            .select(['fairytale.id', 'fairytale.title', 'fairytale.createdAt'])
+            .leftJoin('fairytale_img', 'fi', 'fi.fairytale_id = fairytale.id')
+            .select([
+                'fairytale.id AS id',
+                'fairytale.title AS title',
+                'fairytale.created_at AS createdAt',
+                'JSON_EXTRACT(fi.path, "$.\\"0\\"") AS coverImage',
+            ])
             .where('fairytale.userId = :userId', { userId })
-            .getMany();
+            .getRawMany();
     }
 }

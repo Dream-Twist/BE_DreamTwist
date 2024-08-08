@@ -29,9 +29,19 @@ export class UserRepository {
     async getUser(userId: number): Promise<any> {
         return this.userRepository
             .createQueryBuilder('users')
-            .select(['users.profileImageId', 'users.email', 'users.nickname'])
+            .leftJoin('points_history', 'ph', 'ph.user_id = users.id')
+            .leftJoin('profile_image', 'pi', 'pi.user_id = users.id')
+            .select([
+                'users.email AS email',
+                'users.nickname AS nickname',
+                'pi.path AS profileImage',
+                'SUM(ph.remaining_balance) AS points',
+            ])
             .where('users.id = :userId', { userId })
-            .getMany();
+            .andWhere('ph.remaining_balance != 0')
+            .groupBy('users.id')
+            .addGroupBy('pi.path')
+            .getRawOne();
     }
 
     // Google Id로 회원 조회

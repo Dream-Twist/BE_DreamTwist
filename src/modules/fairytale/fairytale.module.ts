@@ -21,8 +21,8 @@ import { FairytaleImg } from 'src/modules/fairytale/entity/fairytale-img.entity'
 import { ForbiddenWord } from 'src/modules/fairytale/entity/fairytale-forbidden-word.entity';
 import { User } from 'src/modules/user/entity/user.entity';
 import { Comments } from 'src/modules/fairytale/entity/fairytale-comments.entity';
-import { Views } from './entity/fairytale-views.entity';
-import { FairytaleLike } from './entity/fairytale-likes.entity';
+import { Views } from 'src/modules/fairytale/entity/fairytale-views.entity';
+import { FairytaleLike } from 'src/modules/fairytale/entity/fairytale-likes.entity';
 import { ReadFairytaleController } from 'src/modules/fairytale/fairytale-read.controller';
 import { ManageFairytaleController } from 'src/modules/fairytale/fairytale-manage.controller';
 import { CommentsController } from 'src/modules/fairytale/fairytale-comments.controller';
