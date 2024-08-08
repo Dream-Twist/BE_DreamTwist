@@ -89,9 +89,12 @@ export class CommentsRepository extends Repository<Comments> {
     async getMyComments(userId: number): Promise<Comments[]> {
         return this.createQueryBuilder('c')
             .leftJoin('fairytale', 'f', 'f.id = c.fairytale_id')
-            .select(['f.title AS title', 'f.deleted_at', 'c.content AS content', 'c.created_at AS createdAt'])
+            .select([
+                'CASE WHEN f.title IS NULL THEN "삭제된 동화입니다." ELSE f.title END AS title',
+                'c.content AS content',
+                'c.created_at AS createdAt',
+            ])
             .where('c.user_id = :userId', { userId })
-            .andWhere('f.title IS NOT NULL')
             .getRawMany();
     }
 }

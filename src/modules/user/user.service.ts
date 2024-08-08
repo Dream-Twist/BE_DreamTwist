@@ -150,7 +150,12 @@ export class UserService {
             throw new NotFoundException('회원을 찾을 수 없습니다.');
         }
 
-        return this.fairytaleRepository.getMyFairytales(userId);
+        const myFairytales = await this.fairytaleRepository.getMyFairytales(userId);
+        if (myFairytales.length === 0) {
+            throw new NotFoundException('작성한 동화가 없습니다.');
+        }
+
+        return myFairytales;
     }
 
     // 나의 댓글
@@ -160,7 +165,12 @@ export class UserService {
             throw new NotFoundException('회원을 찾을 수 없습니다.');
         }
 
-        return this.commentsRepository.getMyComments(userId);
+        const myComments = await this.commentsRepository.getMyComments(userId);
+        if (myComments.length === 0) {
+            throw new NotFoundException('작성한 댓글이 없습니다.');
+        }
+
+        return myComments;
     }
 
     // 나의 좋아요
@@ -170,6 +180,11 @@ export class UserService {
             throw new NotFoundException('회원을 찾을 수 없습니다.');
         }
 
-        return this.fairytaleLikeRepository.getMyLikes(userId);
+        const myLikes = await this.fairytaleLikeRepository.getMyLikes(userId);
+        if (myLikes.length === 0) {
+            throw new NotFoundException('좋아요한 동화가 없습니다.');
+        }
+
+        return myLikes;
     }
 }
