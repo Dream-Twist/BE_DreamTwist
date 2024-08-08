@@ -41,7 +41,7 @@ export class CommentsService {
         const newComment = new Comments();
         newComment.fairytaleId = fairytaleId;
         newComment.content = content;
-        newComment.userId = userId; // userId가 제공되지 않는다면 undefined로 설정
+        newComment.userId = userId;
 
         return await this.commentsRepository.save(newComment);
     }
