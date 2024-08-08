@@ -8,6 +8,7 @@ Date        Author      Status      Description
 2024.08.05  이유민      Created     
 2024.08.05  이유민      Modified    포인트 사용 기능 추가
 2024.08.06  이유민      Modified    트랜잭션 관리 추가
+2024.08.08  이유민      Modified    회원가입 이벤트 추가
 */
 
 import { Injectable, ForbiddenException } from '@nestjs/common';
@@ -41,6 +42,8 @@ export class PointHistoryService {
             const userPoints = pointHistories.reduce((accumulator, current) => {
                 return accumulator + current.remaining_balance;
             }, 0);
+
+            await queryRunner.commitTransaction();
 
             return { userPoints };
         } catch (e) {
@@ -90,6 +93,34 @@ export class PointHistoryService {
             remainingPoints -= pointsToDeduct;
 
             await this.pointHistoryRepository.updatePointHistoryById(history.id, -1 * pointsToDeduct, entityManager);
+        }
+    }
+
+    async eventPoints(user_id: number): Promise<void> {
+        const queryRunner = this.dataSource.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+
+        try {
+            const entityManager: EntityManager = queryRunner.manager;
+
+            await this.pointHistoryRepository.createPointHistory(
+                {
+                    user_id,
+                    points: 100,
+                    description: '회원가입 이벤트 코인',
+                    remaining_balance: 100,
+                },
+                entityManager,
+            );
+
+            await queryRunner.commitTransaction();
+            return;
+        } catch (e) {
+            await queryRunner.rollbackTransaction();
+            throw e;
+        } finally {
+            await queryRunner.release();
         }
     }
 }
