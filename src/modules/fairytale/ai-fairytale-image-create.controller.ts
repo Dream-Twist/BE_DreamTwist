@@ -10,7 +10,7 @@ Date        Author      Status      Description
 2024.08.08  이유민      Modified    userId 수정
 */
 
-import { Controller, Post, Body, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Req, UseGuards, UnauthorizedException } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ApiPostOperation } from 'shared/utils/swagger.decorators';
 import { CreateAIFairytaleDto } from 'src/modules/fairytale/dto/ai-fairytale-create.dto';
@@ -34,6 +34,11 @@ export class AIFairytaleImageController {
     })
     @Post('image')
     async createAiImage(@Req() req, @Body() createAIFairytaleDto: CreateAIFairytaleDto): Promise<string> {
-        return this.aiFairytaleImageService.generateAndUploadAiImage(req.user.userId, createAIFairytaleDto);
+        if (!req.user) {
+            throw new UnauthorizedException('요청에 사용자 정보가 없습니다.');
+        }
+
+        const userId = req.user.userId;
+        return this.aiFairytaleImageService.generateAndUploadAiImage(userId, createAIFairytaleDto);
     }
 }

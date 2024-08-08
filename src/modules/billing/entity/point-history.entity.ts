@@ -26,7 +26,7 @@ export class PointHistory extends CommonEntity {
     @Column()
     description: string;
 
-    @Column()
+    @Column({ name: 'payment_id', nullable: true })
     payment_id: string;
 
     @Column()
