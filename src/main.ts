@@ -9,6 +9,7 @@ Date        Author      Status      Description
 2024.07.22  박수정      Modified     Swagger 설정
 2024.07.23  박수정      Modified     Hot Reload 설정
 2024.07.31  이유민      Modified     CORS 관련 코드 수정
+2024.08.08  이유민      Modified     전체 경로 수정
 */
 
 import { NestFactory } from '@nestjs/core';
@@ -20,6 +21,8 @@ declare const module: any; // Hot Reload 설정
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
+
+    // app.setGlobalPrefix('api'); // 전체 경로에 api 추가
 
     // CORS 관련 코드
     app.enableCors({

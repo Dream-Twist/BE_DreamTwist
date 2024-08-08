@@ -38,10 +38,9 @@ export class UserRepository {
                 'pi.path AS profileImage',
                 'COUNT(DISTINCT f.id) AS fairytaleCount',
                 'COUNT(fl.id) AS getLikesCount',
-                'SUM(ph.remaining_balance) AS points',
+                'SUM(CASE WHEN ph.remaining_balance != 0 THEN ph.remaining_balance ELSE 0 END) AS points',
             ])
             .where('users.id = :userId', { userId })
-            .andWhere('ph.remaining_balance != 0')
             .groupBy('users.id')
             .addGroupBy('pi.path')
             .getRawOne();
