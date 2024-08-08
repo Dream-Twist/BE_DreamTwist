@@ -14,6 +14,8 @@ Date        Author      Status      Description
 2024.08.03  박수정      Modified    Service 분리 - 조회 / 생성, 수정, 삭제
 2024.08.07  강민규      Modified    POST: 좋아요 기록
 2024.08.08  박수정      Modified    동화 스토리 생성 회원 연동
+2024.08.08  강민규      Modified    동화 수정 삭제 회원 연동 
+
 */
 
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
@@ -100,13 +102,12 @@ export class ManageFairytaleService {
 
     // 동화 스토리 수정
     async editUserFairytale(
+        userId: number,
         fairytaleId: number,
         updateFairytaleDto: Partial<UpdateFairytaleDto>,
         updateFairytaleImgDto: Partial<CreateFairytaleImgDto>,
     ): Promise<{ updatedFairytale: Fairytale; updatedFairytaleImg: FairytaleImg }> {
         const existingFairytale = await this.manageFairytaleRepository.findOneBy({ id: fairytaleId });
-        // 임시 유저
-        const userId = 1;
 
         // 동화가가 삭제되었는지 확인
         if (!existingFairytale) {
@@ -147,8 +148,16 @@ export class ManageFairytaleService {
     }
 
     // 동화 스토리 삭제
-    async deleteFairytale(id: number): Promise<void> {
-        const softDelete = await this.manageFairytaleRepository.softDeleteFairytale(id);
+    async deleteFairytale(fairytaleId: number, userId: number): Promise<void> {
+        const existingFairytale = await this.manageFairytaleRepository.findOneBy({ id: fairytaleId });
+        if (!existingFairytale) {
+            throw new BadRequestException(`${fairytaleId}번 동화를 찾을 수 없습니다`);
+        }
+
+        if (existingFairytale.userId !== userId) {
+            throw new UnauthorizedException('동화를 삭제할 권한이 없습니다.');
+        }
+        const softDelete = await this.manageFairytaleRepository.softDeleteFairytale(fairytaleId);
         return softDelete;
     }
 
