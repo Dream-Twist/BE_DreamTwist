@@ -51,17 +51,17 @@ export class CommentsService {
         if (!userId) {
             throw new NotFoundException('회원을 찾을 수 없습니다.');
         }
+
         const existingComments = await this.commentsRepository.findOne({
             where: { fairytaleId: fairytaleId, id: commentId },
         });
 
-        // 댓글이 수정되었는지 확인
-        if (!existingComments) {
-            throw new BadRequestException(`${commentId}번 댓글을 찾을 수 없습니다`);
+        if (existingComments.userId != userId) {
+            throw new UnauthorizedException('댓글을 수정할 권한이 없습니다.');
         }
 
-        if (existingComments.userId !== userId) {
-            throw new UnauthorizedException('댓글을 수정할 권한이 없습니다.');
+        if (!existingComments) {
+            throw new BadRequestException(`${commentId}번 댓글을 찾을 수 없습니다`);
         }
 
         const updatedCommentsData = { content };
