@@ -82,6 +82,19 @@ export class ManageFairytaleController {
         return { presignedURL };
     }
 
+    // 동화 스토리 조회
+    @ApiPostOperation({
+        summary: '조회 생성',
+        successMessage: `동화 {fairytaleId} 번을 성공적으로 조회했습니다.`,
+    })
+    @Post('view')
+    async createFairytaleView(@Req() req, @Body('fairytaleId') fairytaleId: number) {
+        if (!req.user.userId) {
+            throw new BadRequestException('조회 기록을 생성할 수 없습니다.');
+        }
+        return await this.manageFairytaleService.createFairytaleView(req.user.userId, fairytaleId);
+    }
+
     // 동화 스토리 좋아요
     @ApiPostOperation({
         summary: '좋아요 생성',
@@ -92,8 +105,7 @@ export class ManageFairytaleController {
         if (!req.user.userId) {
             throw new BadRequestException('좋아요를 생성할 수 없습니다.');
         }
-        const createdLike = await this.manageFairytaleService.createFairytaleLike(req.user.userId, likeFairytaleDto);
-        return { createdLike };
+        return await this.manageFairytaleService.createFairytaleLike(req.user.userId, likeFairytaleDto);
     }
 
     // 동화 스토리 수정

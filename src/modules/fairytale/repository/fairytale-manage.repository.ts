@@ -16,6 +16,7 @@ import { BadRequestException, Injectable, InternalServerErrorException, NotFound
 import { Repository, DataSource } from 'typeorm';
 import { Fairytale } from 'src/modules/fairytale/entity/fairytale.entity';
 import { FairytaleImg } from 'src/modules/fairytale/entity/fairytale-img.entity';
+import { Views } from '../entity/fairytale-views.entity';
 import { FairytaleLike } from '../entity/fairytale-likes.entity';
 
 @Injectable()
@@ -28,6 +29,27 @@ export class ManageFairytaleRepository extends Repository<Fairytale> {
     async createFairytale(fairytaleData: Partial<Fairytale>): Promise<Fairytale> {
         const fairytale = this.create(fairytaleData);
         return this.save(fairytale);
+    }
+    //조회 수 기록
+    async recordViews(fairytaleId: number, userId: number): Promise<{ message: string }> {
+        const fairytale = await this.createQueryBuilder('fairytale')
+            .where('fairytale.id = :fairytaleId', { fairytaleId })
+            .andWhere('fairytale.deletedAt IS NULL')
+            .andWhere('fairytale.privatedAt IS NULL')
+            .select(['fairytale.userId'])
+            .getOne();
+        if (!fairytale) {
+            throw new NotFoundException(`동화 ${fairytaleId} 번은 비공개이거나 이미 삭제되었습니다.`);
+        }
+        const viewRepository = this.dataSource.getRepository(Views);
+
+        const newView = viewRepository.create({
+            userId: userId,
+            fairytaleId: fairytaleId,
+        });
+
+        await viewRepository.save(newView);
+        return { message: `동화 ${fairytaleId}번을 성공적으로 조회했습니다.` };
     }
 
     // 좋아요 기록
