@@ -15,6 +15,7 @@ Date        Author      Status      Description
 2024.08.07  강민규      Modified    POST: 좋아요 기록
 2024.08.08  박수정      Modified    동화 스토리 생성 회원 연동
 2024.08.08  강민규      Modified    동화 수정 삭제 회원 연동
+2024.08.08  강민규      Modified    POST: 동화 좋아요 회원 연결 
 */
 
 import {
@@ -29,6 +30,7 @@ import {
     Delete,
     Req,
     UseGuards,
+    BadRequestException,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ManageFairytaleService } from 'src/modules/fairytale/fairytale-manage.service';
@@ -83,13 +85,15 @@ export class ManageFairytaleController {
     // 동화 스토리 좋아요
     @ApiPostOperation({
         summary: '좋아요 생성',
-        successMessage: '1개의 좋아요가 성공적으로 생성되었습니다.',
+        successMessage: '`좋아요가 성공적으로 생성되었습니다.`',
     })
     @Post('like')
-    async createFairytaleLike(@Body() likeFairytaleDto: LikeFairytaleDto) {
-        const createdLike = await this.manageFairytaleService.createFairytaleLike(likeFairytaleDto);
-
-        return { message: '1개의 좋아요가 성공적으로 생성되었습니다.', createdLike };
+    async createFairytaleLike(@Req() req, @Body() likeFairytaleDto: LikeFairytaleDto) {
+        if (!req.user.userId) {
+            throw new BadRequestException('좋아요를 생성할 수 없습니다.');
+        }
+        const createdLike = await this.manageFairytaleService.createFairytaleLike(req.user.userId, likeFairytaleDto);
+        return { createdLike };
     }
 
     // 동화 스토리 수정

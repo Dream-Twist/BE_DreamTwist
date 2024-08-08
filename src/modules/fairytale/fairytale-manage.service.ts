@@ -14,7 +14,8 @@ Date        Author      Status      Description
 2024.08.03  박수정      Modified    Service 분리 - 조회 / 생성, 수정, 삭제
 2024.08.07  강민규      Modified    POST: 좋아요 기록
 2024.08.08  박수정      Modified    동화 스토리 생성 회원 연동
-2024.08.08  강민규      Modified    동화 수정 삭제 회원 연동 
+2024.08.08  강민규      Modified    동화 수정 삭제 회원 연동
+2024.08.08  강민규      Modified    POST: 동화 좋아요 회원 연결 
 
 */
 
@@ -85,8 +86,8 @@ export class ManageFairytaleService {
     }
 
     // 좋아요 생성
-    async createFairytaleLike(createLikeDto: LikeFairytaleDto): Promise<{ message: string }> {
-        const { fairytaleId, userId } = createLikeDto;
+    async createFairytaleLike(userId: number, createLikeDto: LikeFairytaleDto): Promise<{ message: string }> {
+        const { fairytaleId } = createLikeDto;
         // 동화 삭제 비공개 여부 확인
         const fairytale = await this.manageFairytaleRepository.findOne({
             where: { id: fairytaleId },
@@ -96,7 +97,6 @@ export class ManageFairytaleService {
             throw new NotFoundException(`동화 ${fairytaleId} 번은 비공개이거나 이미 삭제되었습니다.`);
         }
 
-        // Call the repository method to handle like
         return this.manageFairytaleRepository.createFairytaleLike(fairytaleId, userId);
     }
 
