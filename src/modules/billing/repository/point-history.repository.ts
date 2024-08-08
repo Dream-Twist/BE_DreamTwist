@@ -41,7 +41,7 @@ export class PointHistoryRepository extends Repository<PointHistory> {
         const res = await entityManager
             .getRepository(PointHistory)
             .createQueryBuilder('ph')
-            .select(['ph.id', 'ph.payment_id', 'ph.points', 'ph.remaining_balance', 'ph.description'])
+            .select(['ph.id', 'ph.payment_id', 'ph.points', 'ph.remaining_balance', 'ph.description', 'ph.createdAt'])
             .where('ph.payment_id = :payment_id', { payment_id })
             .orderBy('ph.id', 'ASC')
             .getMany();

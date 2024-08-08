@@ -13,6 +13,7 @@ Date        Author      Status      Description
 2024.08.05  이유민      Modified    결제 전체 수정
 2024.08.06  이유민      Modified    트랜잭션 관리 추가
 2024.08.08  이유민      Modified    userId 수정
+2024.08.08  이유민      Modified    결제 취소 기준 추가
 */
 
 import {
@@ -160,7 +161,16 @@ export class BillingService {
 
             const history = await this.pointHistoryRepository.findPointHistoryByPaymentId(id, entityManager);
 
-            if (payment.status !== 'DONE' || history[0].points !== history[0].remaining_balance) {
+            // 결제 날짜로부터 얼마나 지났는지 계산
+            const createdAtDate = new Date(history[0].createdAt);
+            const now = new Date();
+            const daysDifference = (now.getTime() - createdAtDate.getTime()) / (1000 * 60 * 60 * 24);
+
+            if (
+                payment.status !== 'DONE' ||
+                history[0].points !== history[0].remaining_balance ||
+                daysDifference >= 15 // 기준 15일
+            ) {
                 throw new UnprocessableEntityException('결제 취소가 불가능한 결제 내역입니다.');
             }
 
@@ -234,11 +244,19 @@ export class BillingService {
                 const refundInfo = refundMap[payment.id];
                 const updateDescription = refundInfo?.description.replace('취소', '').trim(); // 취소 제거
 
+                // 결제 날짜로부터 얼마나 지났는지 계산
+                const createdAtDate = new Date(payment.createdAt);
+                const now = new Date();
+                const daysDifference = (now.getTime() - createdAtDate.getTime()) / (1000 * 60 * 60 * 24); // 기준 15일
+
                 return {
                     ...payment,
                     createdAt: payment.createdAt.toISOString().substring(0, 10),
                     description: updateDescription,
-                    isRefundable: refundInfo?.isRefundable === 'T' && payment.status === 'DONE' ? 'T' : 'F',
+                    isRefundable:
+                        refundInfo?.isRefundable === 'T' && payment.status === 'DONE' && daysDifference <= 15
+                            ? 'T'
+                            : 'F',
                 };
             });
 
