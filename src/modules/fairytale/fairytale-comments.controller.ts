@@ -106,6 +106,11 @@ export class CommentsController {
         summary: '동화 댓글 수정',
         successMessage: '동화 댓글이 성공적으로 수정되었습니다.',
     })
+    @ApiHeader({
+        name: 'Authorization',
+        description: '인증을 위한 Bearer 토큰',
+        required: true,
+    })
     @ApiBody({
         schema: {
             type: 'object',
@@ -132,6 +137,11 @@ export class CommentsController {
     // 동화 댓글 삭제
     @Delete(':fairytaleId/:commentId')
     @UseGuards(JwtAuthGuard)
+    @ApiHeader({
+        name: 'Authorization',
+        description: '인증을 위한 Bearer 토큰',
+        required: true,
+    })
     @ApiDeleteOperation({
         summary: '동화 댓글 삭제',
         successMessage: 'id번 동화를 삭제했습니다',
