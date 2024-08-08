@@ -37,16 +37,26 @@ import { UserRepository } from 'src/modules/user/repository/user.repository';
 import { CommentsRepository } from 'src/modules/fairytale/repository/fairytale-comments.repository';
 import { UsersModule } from 'src/modules/user/user.module';
 import { S3Service } from 'src/modules/s3.service';
+import { FairytaleLikeRepository } from 'src/modules/fairytale/repository/fairytale-like.repository';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([Fairytale, User, ForbiddenWord, FairytaleImg, UserRepository, Views, Comments]),
-        UsersModule,
-        TypeOrmModule.forFeature([Fairytale, User, ForbiddenWord, FairytaleImg, UserRepository, Views, FairytaleLike]),
+        TypeOrmModule.forFeature([
+            Fairytale,
+            User,
+            ForbiddenWord,
+            FairytaleImg,
+            UserRepository,
+            Views,
+            FairytaleLike,
+            Comments,
+        ]),
         forwardRef(() => UsersModule),
     ],
     controllers: [ReadFairytaleController, ManageFairytaleController, CommentsController],
     providers: [
+        ReadFairytaleService,
+        ManageFairytaleService,
         ReadFairytaleRepository,
         ManageFairytaleRepository,
         ReadFairytaleService,
@@ -62,8 +72,11 @@ import { S3Service } from 'src/modules/s3.service';
             inject: [DataSource],
         },
         FairytaleImgRepository,
+        FairytaleLikeRepository,
+        CommentsRepository,
+        UserRepository,
         S3Service,
     ],
-    exports: [ReadFairytaleRepository],
+    exports: [ReadFairytaleRepository, FairytaleLikeRepository, CommentsRepository],
 })
 export class FairytaleModule {}

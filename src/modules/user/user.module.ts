@@ -25,7 +25,7 @@ import { PointHistory } from 'src/modules/billing/entity/point-history.entity';
 @Module({
     imports: [TypeOrmModule.forFeature([User, ProfileImage, PointHistory]), forwardRef(() => FairytaleModule)],
     controllers: [UserController],
-    providers: [UserService, UserRepository, ProfileImageRepository, S3Service],
+    providers: [UserService, UserRepository, S3Service, ProfileImageRepository],
     exports: [UserService, UserRepository, ProfileImageRepository],
 })
 export class UsersModule {}

@@ -13,23 +13,23 @@ Date        Author      Status      Description
 2024.08.02  박수정      Modified    이미지 업로드 방식 변경 - Presigned URL
 2024.08.03  박수정      Modified    Service 분리 - 조회 / 생성, 수정, 삭제
 2024.08.07  강민규      Modified    POST: 좋아요 기록
+2024.08.08  박수정      Modified    동화 스토리 생성 회원 연동
 */
 
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Fairytale } from 'src/modules/fairytale/entity/fairytale.entity';
 import { FairytaleImg } from 'src/modules/fairytale/entity/fairytale-img.entity';
-import { FairytaleLike } from './entity/fairytale-likes.entity';
 import { CreateFairytaleDto } from 'src/modules/fairytale/dto/fairytale-create.dto';
 import { CreateFairytaleImgDto } from 'src/modules/fairytale/dto/fairytale-img.dto';
 import { ManageFairytaleRepository } from 'src/modules/fairytale/repository/fairytale-manage.repository';
 import { ForbiddenWordRepository } from 'src/modules/fairytale/repository/fairytale-forbidden-word.repository';
-import { FairytaleImgRepository } from './repository/fairytale-img.repository';
+import { FairytaleImgRepository } from 'src/modules/fairytale/repository/fairytale-img.repository';
 import { UserRepository } from 'src/modules/user/repository/user.repository';
 import { nanoid } from 'nanoid';
-import { UpdateFairytaleDto } from './dto/fairytale-update.dto';
-import { LikeFairytaleDto } from './dto/fairytale-like.dto';
-import { S3Service } from '../s3.service';
+import { UpdateFairytaleDto } from 'src/modules/fairytale/dto/fairytale-update.dto';
+import { LikeFairytaleDto } from 'src/modules/fairytale/dto/fairytale-like.dto';
+import { S3Service } from 'src/modules/s3.service';
 
 @Injectable()
 export class ManageFairytaleService {
@@ -45,14 +45,11 @@ export class ManageFairytaleService {
     ) {}
 
     // 동화 스토리 생성
-    // async createFairytale(createFairytaleDto: CreateFairytaleDto, user: User) {
     async createFairytale(
+        userId: number,
         createFairytaleDto: CreateFairytaleDto,
         createFairytaleImgDto: CreateFairytaleImgDto,
     ): Promise<{ savedFairytale: Fairytale; savedFairytaleImg: FairytaleImg }> {
-        // 임시 사용자
-        const userId = 1;
-
         // 금지어 확인
         await this.checkForbiddenWords([createFairytaleDto.title, createFairytaleDto.content]);
 
@@ -84,6 +81,7 @@ export class ManageFairytaleService {
 
         return { savedFairytale, savedFairytaleImg };
     }
+
     // 좋아요 생성
     async createFairytaleLike(createLikeDto: LikeFairytaleDto): Promise<{ message: string }> {
         const { fairytaleId, userId } = createLikeDto;

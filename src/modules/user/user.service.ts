@@ -8,7 +8,7 @@ Date        Author      Status      Description
 2024.07.30  박수정      Created     
 2024.07.30  박수정      Modified    회원정보 수정, 회원탈퇴, 로그아웃 기능 추가
 2024.08.01  박수정      Modified    프로필 이미지 업로드 기능 추가
-2024.08.05  박수정      Modified    나의 동화, 댓글, 좋아요, 결제 내역 기능 추가
+2024.08.05  박수정      Modified    나의 동화, 댓글, 좋아요 기능 추가
 2024.08.07  박수정      Modified    회원정보 조회 기능 추가
 */
 
@@ -17,11 +17,12 @@ import { nanoid } from 'nanoid';
 import { S3Service } from 'src/modules/s3.service';
 import { UpdateUserDTO } from 'src/modules/user/dto/update-user.dto';
 import { DeleteUserDTO } from 'src/modules/user/dto/delete-user.dto';
+import { User } from 'src/modules/user/entity/user.entity';
 import { UserRepository } from 'src/modules/user/repository/user.repository';
 import { ProfileImageRepository } from 'src/modules/user/repository/profile-image.repository';
-import { User } from './entity/user.entity';
-import { ReadFairytaleRepository } from '../fairytale/repository/fairytale-read.repository';
-import { InjectRepository } from '@nestjs/typeorm';
+import { ReadFairytaleRepository } from 'src/modules/fairytale/repository/fairytale-read.repository';
+import { FairytaleLikeRepository } from 'src/modules/fairytale/repository/fairytale-like.repository';
+import { CommentsRepository } from 'src/modules/fairytale/repository/fairytale-comments.repository';
 
 @Injectable()
 export class UserService {
@@ -29,14 +30,14 @@ export class UserService {
         private readonly userRepository: UserRepository,
         private readonly profileImageRepository: ProfileImageRepository,
         private readonly s3Service: S3Service,
-        @InjectRepository(ReadFairytaleRepository)
         private readonly fairytaleRepository: ReadFairytaleRepository,
+        private readonly fairytaleLikeRepository: FairytaleLikeRepository,
+        private readonly commentsRepository: CommentsRepository,
     ) {}
 
     // 회원정보 조회
     async getUser(userId: number): Promise<any> {
         const user = await this.userRepository.getUser(userId);
-
         return user;
     }
 
@@ -150,5 +151,25 @@ export class UserService {
         }
 
         return this.fairytaleRepository.getMyFairytales(userId);
+    }
+
+    // 나의 댓글
+    async getMyComments(userId: number): Promise<any> {
+        const user = await this.userRepository.findUserById(userId);
+        if (!user) {
+            throw new NotFoundException('회원을 찾을 수 없습니다.');
+        }
+
+        return this.commentsRepository.getMyComments(userId);
+    }
+
+    // 나의 좋아요
+    async getMyLikes(userId: number): Promise<any> {
+        const user = await this.userRepository.findUserById(userId);
+        if (!user) {
+            throw new NotFoundException('회원을 찾을 수 없습니다.');
+        }
+
+        return this.fairytaleLikeRepository.getMyLikes(userId);
     }
 }

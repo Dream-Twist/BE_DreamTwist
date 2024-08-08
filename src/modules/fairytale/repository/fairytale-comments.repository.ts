@@ -8,9 +8,10 @@ Date        Author      Status      Description
 2024.08.05  원경혜      Created
 2024.08.06  원경혜      Modified    동화 댓글 조회 기능 추가
 2024.08.07  원경혜      Modified    동화 댓글 CRUD 기능 추가
+2024.08.07  박수정      Modified    나의 동화 댓글 기능 추가
 */
 
-import { Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Repository, EntityManager } from 'typeorm';
 import { Comments } from 'src/modules/fairytale/entity/fairytale-comments.entity';
 
@@ -82,5 +83,15 @@ export class CommentsRepository extends Repository<Comments> {
         comments.updatedAt = currentTime;
         await this.save(comments);
         return comments;
+    }
+
+    // 나의 동화 댓글 조회
+    async getMyComments(userId: number): Promise<Comments[]> {
+        return this.createQueryBuilder('c')
+            .leftJoin('fairytale', 'f', 'f.id = c.fairytale_id')
+            .select(['f.title AS title', 'f.deleted_at', 'c.content AS content', 'c.created_at AS createdAt'])
+            .where('c.user_id = :userId', { userId })
+            .andWhere('f.title IS NOT NULL')
+            .getRawMany();
     }
 }

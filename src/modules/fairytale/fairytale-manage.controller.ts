@@ -13,6 +13,7 @@ Date        Author      Status      Description
 2024.08.03  박수정      Modified    Controller 분리 - 조회 / 생성, 수정, 삭제
 2024.08.03  박수정      Modified    Swagger Decorator 적용
 2024.08.07  강민규      Modified    POST: 좋아요 기록
+2024.08.08  박수정      Modified    동화 스토리 생성 회원 연동
 */
 
 import {
@@ -25,19 +26,22 @@ import {
     ParseIntPipe,
     Param,
     Delete,
-    Get,
+    Req,
+    UseGuards,
 } from '@nestjs/common';
-import { ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { ManageFairytaleService } from 'src/modules/fairytale/fairytale-manage.service';
 import { CreateFairytaleDto } from 'src/modules/fairytale/dto/fairytale-create.dto';
 import { CreateFairytaleImgDto } from 'src/modules/fairytale/dto/fairytale-img.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { UpdateFairytaleDto } from './dto/fairytale-update.dto';
+import { UpdateFairytaleDto } from 'src/modules/fairytale/dto/fairytale-update.dto';
 import { ApiDeleteOperation, ApiPostOperation, ApiPutOperation } from 'shared/utils/swagger.decorators';
-import { LikeFairytaleDto } from './dto/fairytale-like.dto';
+import { LikeFairytaleDto } from 'src/modules/fairytale/dto/fairytale-like.dto';
+import { JwtAuthGuard } from 'shared/guards/jwt-auth.guard';
 
 @ApiTags('Fairytale')
 @Controller('fairytale')
+@UseGuards(JwtAuthGuard)
 export class ManageFairytaleController {
     constructor(private readonly manageFairytaleService: ManageFairytaleService) {}
 
@@ -49,10 +53,15 @@ export class ManageFairytaleController {
     @Post()
     @UseInterceptors(FileInterceptor('image'))
     async createFairytale(
+        @Req() req,
         @Body(new ValidationPipe({ transform: true })) createFairytaleDto: CreateFairytaleDto,
         @Body() createFairytaleImgDto: CreateFairytaleImgDto,
     ) {
-        const result = await this.manageFairytaleService.createFairytale(createFairytaleDto, createFairytaleImgDto);
+        const result = await this.manageFairytaleService.createFairytale(
+            req.user.userId,
+            createFairytaleDto,
+            createFairytaleImgDto,
+        );
         return {
             message: '동화 스토리가 성공적으로 생성되었습니다.',
             result,
@@ -65,8 +74,8 @@ export class ManageFairytaleController {
         successMessage: 'Presigned URL이 성공적으로 생성되었습니다.',
     })
     @Post('presigned-url')
-    async getPresignedURL(@Body() body: { userId: number; fileName: string }) {
-        const presignedURL = await this.manageFairytaleService.getPresignedURL(body.userId, body.fileName);
+    async getPresignedURL(@Req() req, @Body() body: { fileName: string }) {
+        const presignedURL = await this.manageFairytaleService.getPresignedURL(req.user.userId, body.fileName);
         return { presignedURL };
     }
 
