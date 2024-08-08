@@ -30,10 +30,14 @@ export class UserRepository {
             .createQueryBuilder('users')
             .leftJoin('points_history', 'ph', 'ph.user_id = users.id')
             .leftJoin('profile_image', 'pi', 'pi.user_id = users.id')
+            .leftJoin('fairytale', 'f', 'f.user_id = users.id')
+            .leftJoin('fairytale_like', 'fl', 'fl.fairytale_id = f.id')
             .select([
                 'users.email AS email',
                 'users.nickname AS nickname',
                 'pi.path AS profileImage',
+                'COUNT(DISTINCT f.id) AS fairytaleCount',
+                'COUNT(fl.id) AS getLikesCount',
                 'SUM(ph.remaining_balance) AS points',
             ])
             .where('users.id = :userId', { userId })
