@@ -11,7 +11,7 @@ Date        Author      Status      Description
 */
 
 import { CommonEntity } from 'shared/entities/base.entity';
-import { Entity, Column, CreateDateColumn, DeleteDateColumn } from 'typeorm';
+import { Entity, Column } from 'typeorm';
 
 @Entity('fairytale_like')
 export class FairytaleLike extends CommonEntity {

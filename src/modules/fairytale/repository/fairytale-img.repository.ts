@@ -1,5 +1,5 @@
 /**
-File Name : fairytale-img-upload.repository
+File Name : fairytale-img.repository
 Description : 동화 이미지 업로드 Repository
 Author : 박수정
 
@@ -20,10 +20,12 @@ export class FairytaleImgRepository extends Repository<FairytaleImg> {
         super(FairytaleImg, dataSource.createEntityManager());
     }
 
+    // 동화 이미지 업로드
     async createFairytaleImg(fairytaleImgData: Partial<FairytaleImg>): Promise<FairytaleImg> {
         const fairytaleImg = this.create(fairytaleImgData);
         return this.save(fairytaleImg);
     }
+
     // 동화 이미지 수정
     async updateFairytaleImg(fairytaleId: number, imagesData: Partial<FairytaleImg>): Promise<FairytaleImg> {
         const currentTime = new Date();
