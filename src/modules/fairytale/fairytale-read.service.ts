@@ -39,8 +39,8 @@ export class ReadFairytaleService {
     }
 
     //동화 상세 조회
-    async getFairytaleContent(fairytaleId: number, userId: number) {
-        const fairytales = await this.readFairytaleRepository.findByIdWithContent(fairytaleId, userId);
+    async getFairytaleContent(fairytaleId: number) {
+        const fairytales = await this.readFairytaleRepository.findByIdWithContent(fairytaleId);
 
         if (!fairytales) {
             throw new NotFoundException(`해당되는 동화를 찾을 수 없습니다`);

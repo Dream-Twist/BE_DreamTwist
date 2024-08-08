@@ -17,6 +17,7 @@ Date        Author      Status      Description
 2024.08.06  강민규      Modified    GET: 동화 제목 태그 조회 / 모든 목록 조회 최신순 정렬
 2024.08.05  박수정      Modified    나의 동화 기능 추가
 2024.08.07  강민규      Modified    GET: 세부 동화 조회: 좋아요 추가
+2024.08.07  강민규      Modified    GET: 조회 기록 생성 옮김 -> fairytale-manage
 */
 
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
@@ -77,29 +78,8 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
         return formattedFairytales;
     }
 
-    //조회 수 기록
-    async recordViews(fairytaleId: number, userId: number): Promise<void> {
-        const fairytale = await this.createQueryBuilder('fairytale')
-            .where('fairytale.id = :fairytaleId', { fairytaleId })
-            .andWhere('fairytale.deletedAt IS NULL')
-            .andWhere('fairytale.privatedAt IS NULL')
-            .select(['fairytale.userId'])
-            .getOne();
-        if (!fairytale) {
-            throw new NotFoundException(`동화 ${fairytaleId} 번은 비공개이거나 이미 삭제되었습니다.`);
-        }
-        const viewRepository = this.dataSource.getRepository(Views);
-
-        const newView = viewRepository.create({
-            userId: userId,
-            fairytaleId: fairytaleId,
-        });
-
-        await viewRepository.save(newView);
-    }
-
     //해당 동화 조회 수 확인
-    async getViewCount(fairytaleId: number, userId: number): Promise<number> {
+    async getViewCount(fairytaleId: number): Promise<number> {
         // 동화 탐색
         const fairytale = await this.createQueryBuilder('fairytale')
             .where('fairytale.id = :fairytaleId', { fairytaleId })
@@ -108,23 +88,16 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
         if (!fairytale) {
             throw new NotFoundException(`동화 ${fairytaleId} 번은 비공개이거나 이미 삭제되었습니다.`);
         }
-
-        // 작성자면 조회를 세지 않음
-        if (fairytale.userId === userId) {
-            console.log('동화 작성자입니다');
-        }
         const viewCount = await this.dataSource
             .getRepository(Views)
             .createQueryBuilder('views')
             .where('views.fairytale_id = :fairytaleId', { fairytaleId })
-            .andWhere('views.user_id != :userId', { userId })
             .getCount();
-        console.log(`동화 조회 ID: ${userId} `);
         return viewCount;
     }
 
     //해당 동화 좋아요 수 확인
-    async getLikeCount(fairytaleId: number, userId: number): Promise<number> {
+    async getLikeCount(fairytaleId: number): Promise<number> {
         // 동화 탐색
         const fairytale = await this.createQueryBuilder('fairytale')
             .where('fairytale.id = :fairytaleId', { fairytaleId })
@@ -136,34 +109,30 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
             throw new NotFoundException(`동화 ${fairytaleId} 번은 비공개이거나 이미 삭제되었습니다.`);
         }
 
-        // 작성자면 좋아요를 세지 않음
-        if (fairytale.userId === userId) {
-            console.log('동화 작성자입니다');
-        }
         const likeCount = await this.dataSource
             .getRepository(FairytaleLike)
             .createQueryBuilder('fairytale_like')
             .where('fairytale_like.fairytaleId = :fairytaleId', { fairytaleId })
-            // .andWhere('fairytale_like.userId != :userId', { userId })
             .getCount();
         return likeCount;
     }
 
     //동화 세부
-    async findByIdWithContent(fairytaleId: number, userId: number) {
-        // 유저 닉네임 id만
-        const users = await this.dataSource
-            .getRepository(User)
-            .createQueryBuilder('users')
-            .select(['users.id', 'users.nickname'])
-            .where('users.id = id', { userId })
-            .getOne();
-        // 매핑
-        const userNickname = users ? users.nickname : 'Unknown';
+    async findByIdWithContent(fairytaleId: number) {
         // 동화 줄거리
         const fairytales = await this.createQueryBuilder('fairytale')
             .andWhere('fairytale.id = :fairytaleId', { fairytaleId })
             .getMany();
+        // 유저 닉네임 id만
+        const userIds = fairytales.map(fairytale => fairytale.userId);
+        const users = await this.dataSource
+            .getRepository(User)
+            .createQueryBuilder('users')
+            .select(['users.id', 'users.nickname'])
+            .whereInIds(userIds)
+            .getOne();
+        // 매핑
+        const userNickname = users ? users.nickname : 'Unknown';
         // 동화 삽화
         const images = await this.dataSource
             .getRepository(FairytaleImg)
@@ -182,10 +151,10 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
             {} as Record<number, FairytaleImg[]>,
         );
         //조회수
-        await this.recordViews(fairytaleId, userId);
-        const viewCount = await this.getViewCount(fairytaleId, userId);
+        const viewCount = await this.getViewCount(fairytaleId);
         // 좋아요 수
-        const likeCount = await this.getLikeCount(fairytaleId, userId);
+        const likeCount = await this.getLikeCount(fairytaleId);
+
         const formattedFairytales = fairytales.map(fairytale => {
             const images = fairytaleImageMap[fairytale.id] || []; //JSON이 아닌 오브젝트
             const paths = Object.values(images[0].path);

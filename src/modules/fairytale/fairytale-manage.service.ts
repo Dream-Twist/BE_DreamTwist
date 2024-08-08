@@ -84,6 +84,19 @@ export class ManageFairytaleService {
 
         return { savedFairytale, savedFairytaleImg };
     }
+    // 조회 생성
+    async createFairytaleView(userId: number, fairytaleId: number): Promise<{ message: string }> {
+        // 동화 삭제 비공개 여부 확인
+        const fairytale = await this.manageFairytaleRepository.findOne({
+            where: { id: fairytaleId },
+        });
+
+        if (!fairytale) {
+            throw new NotFoundException(`동화 ${fairytaleId} 번은 비공개이거나 이미 삭제되었습니다.`);
+        }
+
+        return this.manageFairytaleRepository.recordViews(fairytaleId, userId);
+    }
 
     // 좋아요 생성
     async createFairytaleLike(userId: number, createLikeDto: LikeFairytaleDto): Promise<{ message: string }> {

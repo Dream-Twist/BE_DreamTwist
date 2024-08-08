@@ -35,11 +35,9 @@ import {
 import { ReadFairytaleService } from 'src/modules/fairytale/fairytale-read.service';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ApiGetOperation } from 'shared/utils/swagger.decorators';
-import { JwtAuthGuard } from 'shared/guards/jwt-auth.guard';
 
 @ApiTags('Fairytale')
 @Controller('fairytale')
-@UseGuards(JwtAuthGuard)
 export class ReadFairytaleController {
     constructor(private readonly readFairytaleService: ReadFairytaleService) {}
 
@@ -76,8 +74,8 @@ export class ReadFairytaleController {
         notFoundMessage: '{id}번 동화 줄거리를 찾을 수 없습니다.',
     })
     @Get(':fairytaleId')
-    async getFairytaleContent(@Req() req, @Param('fairytaleId', ParseIntPipe) fairytaleId: number) {
-        const content = await this.readFairytaleService.getFairytaleContent(fairytaleId, req.user.userId);
+    async getFairytaleContent(@Param('fairytaleId', ParseIntPipe) fairytaleId: number) {
+        const content = await this.readFairytaleService.getFairytaleContent(fairytaleId);
         return content;
     }
 }
