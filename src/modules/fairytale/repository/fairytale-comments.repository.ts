@@ -22,7 +22,6 @@ export class CommentsRepository extends Repository<Comments> {
     }
     /*
     동화 댓글 조회
-    예외 및 에러 처리 추가 예정
     */
 
     // 댓글 조회 - fairytaleId 필터링
