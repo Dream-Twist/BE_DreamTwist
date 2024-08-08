@@ -147,11 +147,7 @@ export class CommentsController {
         successMessage: 'id번 동화를 삭제했습니다',
         notFoundMessage: 'id번 동화를 찾을 수 없습니다',
     })
-    async deleteComments(
-        // @Param('fairytaleId', ParseIntPipe) fairytaleId: number,
-        @Param('commentId', ParseIntPipe) commentId: number,
-        @Req() req,
-    ): Promise<Comments> {
+    async deleteComments(@Param('commentId', ParseIntPipe) commentId: number, @Req() req): Promise<Comments> {
         if (!req.user) {
             throw new UnauthorizedException('요청에 사용자 정보가 없습니다.');
         }
