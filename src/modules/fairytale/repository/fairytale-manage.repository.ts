@@ -9,6 +9,7 @@ Date        Author      Status      Description
 2024.07.20  박수정      Modified    동화 스토리 생성 기능 추가
 2024.08.03  박수정      Modified    Repository 분리 - 조회 / 생성, 수정, 삭제
 2024.08.07  강민규      Modified    POST: 좋아요 기록
+2024.08.08  강민규      Modified    POST: 동화 좋아요 회원 연결 
 */
 
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
@@ -31,9 +32,6 @@ export class ManageFairytaleRepository extends Repository<Fairytale> {
 
     // 좋아요 기록
     async createFairytaleLike(fairytaleId: number, userId: number): Promise<{ message: string }> {
-        if (!userId || !fairytaleId) {
-            throw new BadRequestException('유저 번호와 동화 번호를 전부 비워둘 수 없습니다!');
-        }
         const likeRepository = this.dataSource.getRepository(FairytaleLike);
         const fairytale = await this.createQueryBuilder('fairytale')
             .where('fairytale.id = :fairytaleId', { fairytaleId })
@@ -55,7 +53,7 @@ export class ManageFairytaleRepository extends Repository<Fairytale> {
                 fairytaleId,
             });
             console.log(`${userId} 유저가 동화 ${userId}번 좋아요 삭제`);
-            return { message: `좋아요가 성공적으로 제거되었습니다.` };
+            return { message: `좋아요가 성공적으로 해제되었습니다.` };
         } else {
             // 좋아요 기록이 없을 때 기록 생성 (홀수)
             const newLike = likeRepository.create({
