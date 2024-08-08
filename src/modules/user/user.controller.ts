@@ -8,7 +8,7 @@ Date        Author      Status      Description
 2024.07.30  박수정      Created     
 2024.07.30  박수정      Modified    회원정보 수정, 회원탈퇴, 로그아웃 기능 추가
 2024.08.01  박수정      Modified    프로필 이미지 업로드 기능 추가
-2024.08.05  박수정      Modified    나의 동화, 댓글, 좋아요, 결제 내역 기능 추가
+2024.08.05  박수정      Modified    나의 동화, 댓글, 좋아요 기능 추가
 2024.08.07  박수정      Modified    회원정보 조회 기능 추가
 */
 
@@ -68,5 +68,19 @@ export class UserController {
     async getMyFairytales(@Req() req): Promise<{ myFairytales: any }> {
         const myFairytales = await this.userService.getMyFairytales(req.user.userId);
         return { myFairytales };
+    }
+
+    // 나의 댓글
+    @Get('my-comments')
+    async getMyComments(@Req() req): Promise<{ myComments: any }> {
+        const myComments = await this.userService.getMyComments(req.user.userId);
+        return { myComments };
+    }
+
+    // 나의 좋아요
+    @Get('my-likes')
+    async getMyLikes(@Req() req): Promise<{ myLikes: any }> {
+        const myLikes = await this.userService.getMyLikes(req.user.userId);
+        return { myLikes };
     }
 }

@@ -74,7 +74,7 @@ export class ManageFairytaleController {
         successMessage: 'Presigned URL이 성공적으로 생성되었습니다.',
     })
     @Post('presigned-url')
-    async getPresignedURL(@Req() req, @Body() body: { userId: number; fileName: string }) {
+    async getPresignedURL(@Req() req, @Body() body: { fileName: string }) {
         const presignedURL = await this.manageFairytaleService.getPresignedURL(req.user.userId, body.fileName);
         return { presignedURL };
     }
