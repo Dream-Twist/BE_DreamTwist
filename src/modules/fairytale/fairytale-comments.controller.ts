@@ -64,7 +64,7 @@ export class CommentsController {
         },
     })
     async createComments(@Body() body: { fairytaleId: number; content: string }, @Req() req): Promise<Comments> {
-        if (!req.user || !req.user.sub) {
+        if (!req.user) {
             throw new UnauthorizedException('요청에 사용자 정보가 없습니다.');
         }
 
@@ -126,16 +126,16 @@ export class CommentsController {
         @Param('commentId', ParseIntPipe) commentId: number,
         @Req() req,
     ): Promise<Comments> {
-        if (!req.user || !req.user.sub) {
+        if (!req.user) {
             throw new UnauthorizedException('요청에 사용자 정보가 없습니다.');
         }
 
-        const userId = req.user.id;
+        const userId = req.user.userId;
         return await this.commentsService.editComments(fairytaleId, commentId, body.content, userId);
     }
 
     // 동화 댓글 삭제
-    @Delete(':fairytaleId/:commentId')
+    @Delete(':commentId')
     @UseGuards(JwtAuthGuard)
     @ApiHeader({
         name: 'Authorization',
@@ -148,15 +148,15 @@ export class CommentsController {
         notFoundMessage: 'id번 동화를 찾을 수 없습니다',
     })
     async deleteComments(
-        @Param('fairytaleId', ParseIntPipe) fairytaleId: number,
+        // @Param('fairytaleId', ParseIntPipe) fairytaleId: number,
         @Param('commentId', ParseIntPipe) commentId: number,
         @Req() req,
     ): Promise<Comments> {
-        if (!req.user || !req.user.sub) {
+        if (!req.user) {
             throw new UnauthorizedException('요청에 사용자 정보가 없습니다.');
         }
-        console.log(req.user);
-        const userId = req.user.id;
+
+        const userId = req.user.userId;
         return await this.commentsService.deleteComments(commentId, userId);
     }
 }
