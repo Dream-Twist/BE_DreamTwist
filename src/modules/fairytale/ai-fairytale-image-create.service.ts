@@ -17,16 +17,14 @@ Date        Author      Status      Description
 */
 
 import { ConfigService } from '@nestjs/config';
-import { Injectable, InternalServerErrorException, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, ForbiddenException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { CreateAIFairytaleDto } from 'src/modules/fairytale/dto/ai-fairytale-create.dto';
-import { UserRepository } from 'src/modules/user/repository/user.repository';
 import { nanoid } from 'nanoid';
 import { S3Service } from 'src/modules/s3.service';
 import { Readable } from 'stream';
 import * as deepl from 'deepl-node';
-import { InjectRepository } from '@nestjs/typeorm';
 import { PointHistoryService } from 'src/modules/billing/point-history.service';
 import { AIFairytaleService } from 'src/modules/fairytale/ai-fairytale-create.service';
 import { DataSource, EntityManager } from 'typeorm';
@@ -43,8 +41,6 @@ export class AIFairytaleImageService {
         private readonly httpService: HttpService,
         private configService: ConfigService,
         private readonly s3Service: S3Service,
-        // @InjectRepository(UserRepository)
-        // private readonly userRepository: UserRepository,
         private readonly pointHistoryService: PointHistoryService,
         private readonly aiFairytaleService: AIFairytaleService,
         private readonly dataSource: DataSource,
@@ -64,16 +60,7 @@ export class AIFairytaleImageService {
     }
 
     // AI 이미지 생성 전, 프롬프트 번역
-    // 회원 기능이 추가되면 userId: number 추가
     private async translatePrompt(prompt: string): Promise<string> {
-        // 유저 확인 - 임시 사용자
-        // const userId = 1;
-        // const user = await this.userRepository.findOne({ where: { id: userId } });
-
-        // if (!user) {
-        //     throw new NotFoundException('회원을 찾을 수 없습니다.');
-        // }
-
         try {
             const result = await this.deeplTranslator.translateText(prompt, 'ko', 'en-US');
             return result.text;
@@ -83,7 +70,6 @@ export class AIFairytaleImageService {
     }
 
     // AI 이미지 생성 - Stability.ai API 접속
-    // 회원 기능이 추가되면 userId: number 추가
     async generateAndUploadAiImage(userId: number, createAIFairytaleDto: CreateAIFairytaleDto): Promise<string> {
         const queryRunner = this.dataSource.createQueryRunner();
         await queryRunner.connect();
