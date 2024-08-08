@@ -11,17 +11,20 @@ Date        Author      Status      Description
 2024.08.03  이유민      Modified    타입 수정
 2024.08.03  박수정      Modified    Swagger Decorator 적용
 2024.08.05  이유민      Modified    Swagger 수정
+2024.08.08  이유민      Modified    userId 수정
 */
 
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Req, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateAIFairytaleDto } from 'src/modules/fairytale/dto/ai-fairytale-create.dto';
 import { AIFairytaleService } from 'src/modules/fairytale/ai-fairytale-create.service';
 import { AIFairytaleType } from 'src/modules/fairytale/type/ai-fairytale-create.type';
 import { ApiPostOperation } from 'shared/utils/swagger.decorators';
+import { JwtAuthGuard } from 'shared/guards/jwt-auth.guard';
 
 @ApiTags('AI-Fairytale')
 @Controller('ai-fairytale')
+@UseGuards(JwtAuthGuard)
 export class AIFairytaleController {
     constructor(private readonly aiFairytaleService: AIFairytaleService) {}
 
@@ -50,7 +53,7 @@ export class AIFairytaleController {
         },
     })
     @Post('story')
-    async createAIStory(@Body() createAIFairytaleDto: CreateAIFairytaleDto): Promise<AIFairytaleType> {
-        return await this.aiFairytaleService.generateFairytale(createAIFairytaleDto);
+    async createAIStory(@Req() req, @Body() createAIFairytaleDto: CreateAIFairytaleDto): Promise<AIFairytaleType> {
+        return await this.aiFairytaleService.generateFairytale(req.user.userId, createAIFairytaleDto);
     }
 }

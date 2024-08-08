@@ -23,7 +23,7 @@ async function bootstrap() {
 
     // CORS 관련 코드
     app.enableCors({
-        origin: 'http://localhost:3000',
+        origin: ['http://localhost:3000', 'http://kdt-ai-10-team01.elicecoding.com', 'http://34.22.84.223'],
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
         allowedHeaders: 'Content-Type, Accept, Authorization',
         credentials: true,

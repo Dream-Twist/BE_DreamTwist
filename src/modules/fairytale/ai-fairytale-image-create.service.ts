@@ -12,10 +12,12 @@ Date        Author      Status      Description
 2024.08.04  원경혜      Modified    유저 확인(임시) 기능 추가 및 S3 업로드 경로, 파일명 수정
 2024.08.05  이유민      Modified    포인트 사용 추가
 2024.08.06  이유민      Modified    트랜잭션 관리 추가
+2024.08.08  이유민      Modified    userId 수정
+2024.08.08  이유민      Modified    금지어 확인 추가
 */
 
 import { ConfigService } from '@nestjs/config';
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { CreateAIFairytaleDto } from 'src/modules/fairytale/dto/ai-fairytale-create.dto';
@@ -26,6 +28,7 @@ import { Readable } from 'stream';
 import * as deepl from 'deepl-node';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PointHistoryService } from 'src/modules/billing/point-history.service';
+import { AIFairytaleService } from 'src/modules/fairytale/ai-fairytale-create.service';
 import { DataSource, EntityManager } from 'typeorm';
 
 @Injectable()
@@ -43,6 +46,7 @@ export class AIFairytaleImageService {
         // @InjectRepository(UserRepository)
         // private readonly userRepository: UserRepository,
         private readonly pointHistoryService: PointHistoryService,
+        private readonly aiFairytaleService: AIFairytaleService,
         private readonly dataSource: DataSource,
     ) {
         this.aiImageEngineId = this.configService.get<string>('AI_IMAGE_ENGINE_ID') ?? 'stable-diffusion-v1-6';
@@ -80,17 +84,23 @@ export class AIFairytaleImageService {
 
     // AI 이미지 생성 - Stability.ai API 접속
     // 회원 기능이 추가되면 userId: number 추가
-    async generateAndUploadAiImage(createAIFairytaleDto: CreateAIFairytaleDto): Promise<string> {
+    async generateAndUploadAiImage(userId: number, createAIFairytaleDto: CreateAIFairytaleDto): Promise<string> {
         const queryRunner = this.dataSource.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();
 
         try {
             const entityManager: EntityManager = queryRunner.manager;
-            // 임시 사용자
-            const userId = 2;
+
             // 이미지 생성 시 사용될 포인트
             const imagePoints = 10;
+
+            if (!userId) {
+                throw new ForbiddenException('로그인 후 사용 가능합니다.');
+            }
+
+            // 금지어 확인
+            await this.aiFairytaleService.checkForbiddenWords([createAIFairytaleDto.prompt]);
 
             // 포인트 확인 및 사용
             await this.pointHistoryService.usePoints(userId, imagePoints, 'AI 이미지 생성', entityManager);

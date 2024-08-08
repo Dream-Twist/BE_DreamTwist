@@ -12,6 +12,7 @@ Date        Author      Status      Description
 2024.08.04  이유민      Modified    결제 내역 조회 추가
 2024.08.05  이유민      Modified    결제 전체 수정
 2024.08.06  이유민      Modified    트랜잭션 관리 추가
+2024.08.08  이유민      Modified    userId 수정
 */
 
 import {
@@ -52,7 +53,7 @@ export class BillingService {
     }
 
     // 결제
-    async tossPayment(billingDTO: BillingDTO) {
+    async tossPayment(user_id: number, billingDTO: BillingDTO) {
         const queryRunner = this.dataSource.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();
@@ -60,6 +61,10 @@ export class BillingService {
         try {
             const entityManager: EntityManager = queryRunner.manager;
             const { orderId, amount, paymentKey, addPoint } = billingDTO;
+
+            if (!user_id) {
+                throw new ForbiddenException('로그인 후 사용 가능합니다.');
+            }
 
             // 결제 승인
             const response = await firstValueFrom(
@@ -78,8 +83,6 @@ export class BillingService {
                     },
                 ),
             );
-
-            const user_id = 1; // 임시
 
             // DB 저장
             // 결제 테이블 저장
@@ -131,7 +134,7 @@ export class BillingService {
     }
 
     // 결제 취소
-    async cancelPayment(cancelDTO: CancelDTO): Promise<object> {
+    async cancelPayment(user_id: number, cancelDTO: CancelDTO): Promise<object> {
         const queryRunner = this.dataSource.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();
@@ -140,7 +143,10 @@ export class BillingService {
             const entityManager: EntityManager = queryRunner.manager;
 
             const { id, cancelReason } = cancelDTO;
-            const user_id = 2; // 임시
+
+            if (!user_id) {
+                throw new ForbiddenException('로그인 후 사용 가능합니다.');
+            }
 
             const payment = await this.paymentRepository.findPaymentById(id, entityManager);
 
@@ -200,6 +206,10 @@ export class BillingService {
         try {
             const entityManager: EntityManager = queryRunner.manager;
 
+            if (!user_id) {
+                throw new ForbiddenException('로그인 후 사용 가능합니다.');
+            }
+
             const payments = await this.paymentRepository.findPaymentByUserId(user_id, entityManager);
 
             const historyRecords = [];
@@ -237,7 +247,7 @@ export class BillingService {
             return updatedPayments;
         } catch (e) {
             await queryRunner.rollbackTransaction();
-            throw new InternalServerErrorException('결제 취소 처리 중 오류가 발생했습니다.');
+            throw e;
         } finally {
             await queryRunner.release();
         }
