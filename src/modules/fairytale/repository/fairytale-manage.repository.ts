@@ -43,6 +43,16 @@ export class ManageFairytaleRepository extends Repository<Fairytale> {
         }
         const viewRepository = this.dataSource.getRepository(Views);
 
+        // 해당 유저가 이미 조회했는지 확인
+        const existingView = await viewRepository
+            .createQueryBuilder('views')
+            .where('views.fairytaleId = :fairytaleId', { fairytaleId })
+            .andWhere('views.userId = :userId', { userId })
+            .getOne();
+
+        if (existingView) {
+            throw new BadRequestException('이 동화는 이미 조회했습니다.');
+        }
         const newView = viewRepository.create({
             userId: userId,
             fairytaleId: fairytaleId,
