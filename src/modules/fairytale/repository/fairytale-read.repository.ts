@@ -101,8 +101,8 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
         // 동화 탐색
         const fairytale = await this.createQueryBuilder('fairytale')
             .where('fairytale.id = :fairytaleId', { fairytaleId })
-            .andWhere('fairytale.privated_at is NULL')
-            .andWhere('fairytale.deleted_at is NULL')
+            // .andWhere('fairytale.privated_at is NULL')
+            // .andWhere('fairytale.deleted_at is NULL')
             .select(['fairytale.userId'])
             .getOne();
         if (!fairytale) {
@@ -154,10 +154,9 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
         const viewCount = await this.getViewCount(fairytaleId);
         // 좋아요 수
         const likeCount = await this.getLikeCount(fairytaleId);
-
         const formattedFairytales = fairytales.map(fairytale => {
             const images = fairytaleImageMap[fairytale.id] || []; //JSON이 아닌 오브젝트
-            const paths = Object.values(images[0].path);
+            const paths = images.length > 0 && images[0].path ? Object.values(images[0].path) : [];
             const coverImage = paths.length > 0 ? paths[0] : null;
             const contentImages = paths.length > 1 ? paths.slice(1) : [];
             return {
