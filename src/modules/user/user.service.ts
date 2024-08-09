@@ -23,6 +23,7 @@ import { ProfileImageRepository } from 'src/modules/user/repository/profile-imag
 import { ReadFairytaleRepository } from 'src/modules/fairytale/repository/fairytale-read.repository';
 import { FairytaleLikeRepository } from 'src/modules/fairytale/repository/fairytale-like.repository';
 import { CommentsRepository } from 'src/modules/fairytale/repository/fairytale-comments.repository';
+import { PointHistoryService } from 'src/modules/billing/point-history.service';
 
 @Injectable()
 export class UserService {
@@ -33,11 +34,17 @@ export class UserService {
         private readonly fairytaleRepository: ReadFairytaleRepository,
         private readonly fairytaleLikeRepository: FairytaleLikeRepository,
         private readonly commentsRepository: CommentsRepository,
+        private readonly pointHistoryService: PointHistoryService,
     ) {}
 
     // 회원정보 조회
     async getUser(userId: number): Promise<any> {
         const user = await this.userRepository.getUser(userId);
+
+        // 포인트
+        const points = await this.pointHistoryService.userPoints(userId);
+        user.points = points;
+
         return user;
     }
 
