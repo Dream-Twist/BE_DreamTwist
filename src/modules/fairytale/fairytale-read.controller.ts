@@ -21,17 +21,7 @@ Date        Author      Status      Description
 */
 
 // import { Controller, Post, Body, Request } from '@nestjs/common';
-import {
-    BadRequestException,
-    Controller,
-    Get,
-    Param,
-    ParseIntPipe,
-    Query,
-    Req,
-    UnauthorizedException,
-    UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { ReadFairytaleService } from 'src/modules/fairytale/fairytale-read.service';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ApiGetOperation } from 'shared/utils/swagger.decorators';

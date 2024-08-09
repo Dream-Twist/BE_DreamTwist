@@ -20,7 +20,7 @@ Date        Author      Status      Description
 2024.08.07  강민규      Modified    GET: 조회 기록 생성 옮김 -> fairytale-manage
 */
 
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Repository, DataSource } from 'typeorm';
 import { Fairytale } from 'src/modules/fairytale/entity/fairytale.entity';
 import { User } from 'src/modules/user/entity/user.entity';
