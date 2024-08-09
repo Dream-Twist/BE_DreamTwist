@@ -59,9 +59,7 @@
   <tr>
     <td>협업툴</td>
     <td> 
-        <a href = "https://www.notion.so/UrbanOasis-1c60ad804a404c90be8f61756057e46c#8146753b80b24b9f9dfa73e39b5aa77a">
-            <img src="https://img.shields.io/badge/Notion-FFFFFF?style=flat&logo=notion&logoColor=black" /> 
-        </a>
+        <img src="https://img.shields.io/badge/Notion-FFFFFF?style=flat&logo=notion&logoColor=black" /> 
         <img src="https://img.shields.io/badge/Discord-5865F2?style=flat&logo=discord&logoColor=white" />
         <img src="https://img.shields.io/badge/Figma-F24E1E?style=flat&logo=figma&logoColor=white" /> 
         <img src="https://img.shields.io/badge/Gitlab-FC6D26?style=flat&logo=gitlab&logoColor=white" />
@@ -201,7 +199,7 @@
 | 박수정 | 팀장/백엔드 개발/동화 스토리 직접 생성/금지어 크롤링 및 설정/동화 이미지 업로드/회원 기능/PPT 작성 및 발표 |
 | 강민규 | 백엔드 개발/동화 스토리 조회,수정,삭제/동화 좋아요,동화 조회수/전체 동화 정렬/동화 검색 기능 |
 | 원경혜 | 백엔드 개발/AI 학습/동화 생성 모델 학습 및 api 작성/프롬프트 번역 및 이미지 생성/이미지 생성 AI api 연동/댓글 생성,조회,수정,삭제 |
-| 이유민 | 백엔드 개발/ AI 학습/동화 생성 모델 학습 및 api 작성/주제 및 제목 생성/동화 생성 AI api 연동/결제 및 포인트 기능/백엔드, AI 배포                   |
+| 이유민 | 백엔드 개발/AI 학습/동화 생성 모델 학습 및 api 작성/주제 및 제목 생성/동화 생성 AI api 연동/결제 및 포인트 기능/백엔드, AI 배포                   |
 | 임도헌 | 프론트엔드 개발/동화 생성 기능/동화 편집 기능/그림판 기능/프론트엔드 배포 |
 | 나경윤 | 프론트엔드 개발/동화 검색/동화 게시판 및 동화 삭제/회원 기능/댓글 생성,조회,수정,삭제 |
 | 김민규 | 프론트엔드 개발/AI 학습/동화 AI 생성 기능/결제 및 포인트 기능 |
