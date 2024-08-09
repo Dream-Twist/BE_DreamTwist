@@ -51,10 +51,7 @@ export class UserRepository {
 
     // 이메일로 회원 조회
     async findUserByEmail(email: string): Promise<User | undefined> {
-        console.log(email);
-        const result = await this.userRepository.findOne({ where: { email } });
-        console.log(result);
-        return result;
+        return await this.userRepository.findOne({ where: { email } });
     }
 
     // UserId로 회원 조회
@@ -64,7 +61,10 @@ export class UserRepository {
 
     // 닉네임으로 회원 조회
     async findUserByNickname(nickname: string): Promise<User | undefined> {
-        return this.userRepository.findOne({ where: { nickname } });
+        return await this.userRepository
+            .createQueryBuilder('users')
+            .where('users.nickname LIKE :nickname', { nickname: `%${nickname}%` })
+            .getOne();
     }
 
     // 회원가입
