@@ -9,6 +9,7 @@ Date        Author      Status      Description
 2024.08.06  원경혜      Modified    동화 댓글 조회 기능 추가
 2024.08.07  원경혜      Modified    동화 댓글 CRUD 기능 추가
 2024.08.08  원경혜      Modified    회원 연동
+2024.08.09  원경혜      Modified    댓글 조회 페이지네이션 추가, Swagger수정
 */
 
 import {
@@ -22,6 +23,7 @@ import {
     Body,
     ParseIntPipe,
     Param,
+    Query,
     UnauthorizedException,
 } from '@nestjs/common';
 import { ApiTags, ApiBody, ApiHeader } from '@nestjs/swagger';
@@ -34,7 +36,6 @@ import {
 } from 'shared/utils/swagger.decorators';
 import { Comments } from 'src/modules/fairytale/entity/fairytale-comments.entity';
 import { CommentsService } from 'src/modules/fairytale/fairytale-comments.service';
-// import { userService } from 'src/modules/user/user.service'
 
 @ApiTags('Comments')
 @Controller('comments')
@@ -74,29 +75,59 @@ export class CommentsController {
 
     // 동화 댓글 조회
     @ApiGetOperation({
-        summary: '동화 댓글 조회',
+        summary: '동화 댓글 조회 - 페이지네이션',
+        description:
+            '/fairytaleId - 특정 동화책에 대한 전체 댓글 조회, /fairytaleId?page=1&limit=3 - 페이지네이션 조회',
         successResponseSchema: {
-            type: 'array',
-            items: {
-                type: 'object',
-                properties: {
-                    id: { type: 'number', example: '1' },
-                    createdAt: { type: 'string', example: '2024-08-05' },
-                    updatedAt: { type: 'string', example: '2024-08-07' || null },
-                    deletedAt: { type: null },
-                    userId: { type: 'number', example: '1' },
-                    fairytaleId: { type: 'number', example: '2' },
-                    content: { type: 'text', example: '동화가 참 재밌네요!' },
+            type: 'object',
+            properties: {
+                data: {
+                    type: 'array',
+                    items: {
+                        type: 'object',
+                        properties: {
+                            id: { type: 'number', example: 1 },
+                            createdAt: { type: 'string', format: 'date', example: '2024-08-05' },
+                            updatedAt: { type: 'string', format: 'date', example: '2024-08-07' },
+                            deletedAt: { type: 'string', format: 'date', example: null },
+                            userId: { type: 'number', example: 1 },
+                            fairytaleId: { type: 'number', example: 2 },
+                            content: { type: 'string', example: '동화가 참 재밌네요!' },
+                            name: { type: 'string', example: '김동화' },
+                            nickname: { type: 'string', example: '4ABCdE' },
+                            profileImgURL: { type: 'string', example: 'https://dreamtwist-bucket.s3...' },
+                        },
+                        required: [
+                            'id',
+                            'createdAt',
+                            'userId',
+                            'fairytaleId',
+                            'content',
+                            'name',
+                            'nickname',
+                            'profileImgURL',
+                        ],
+                    },
                 },
-                required: ['userId', 'fairytaleId'],
+                totalCount: { type: 'number', example: 20 },
+                currentPage: { type: 'number', example: 1 },
+                totalPages: { type: 'number', example: 7 },
             },
+            required: ['data', 'totalCount', 'currentPage', 'totalPages'],
         },
         successMessage: '동화 댓글을 성공적으로 조회했습니다.',
         notFoundMessage: '요청한 유저의 동화 댓글을 찾을 수 없습니다',
     })
     @Get(':fairytaleId')
-    async getComments(@Param('fairytaleId', ParseIntPipe) fairytaleId: number) {
-        return this.commentsService.getComments(fairytaleId);
+    async getComments(
+        @Param('fairytaleId', ParseIntPipe) fairytaleId: number,
+        @Query('page') page?: number,
+        @Query('limit') limit?: number,
+    ) {
+        if (!page || !limit) {
+            return this.commentsService.getTotalComments(fairytaleId);
+        }
+        return this.commentsService.getPageComments(fairytaleId, page, limit);
     }
 
     // 동화 댓글 수정

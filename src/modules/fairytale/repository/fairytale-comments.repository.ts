@@ -9,11 +9,26 @@ Date        Author      Status      Description
 2024.08.06  원경혜      Modified    동화 댓글 조회 기능 추가
 2024.08.07  원경혜      Modified    동화 댓글 CRUD 기능 추가
 2024.08.07  박수정      Modified    나의 동화 댓글 기능 추가
+2024.08.08  원경혜      Modified    동화 댓글 조회 - 유저 닉네임, 유저 네임, 프로필 이미지 불러오기 연결
+2024.08.09  원경혜      Modified    동화 댓글 전체 조회 분리 및 페이지네이션 추가 
 */
 
 import { Injectable } from '@nestjs/common';
 import { Repository, EntityManager } from 'typeorm';
 import { Comments } from 'src/modules/fairytale/entity/fairytale-comments.entity';
+
+interface rawCommentsType {
+    comments_id: number;
+    comments_content: string;
+    comments_created_at: Date;
+    comments_updated_at: Date;
+    comments_deleted_at?: Date;
+    comments_userId: number;
+    comments_fairytale_id: number;
+    user_name: string;
+    nickName: string;
+    profileImgURL?: string;
+}
 @Injectable()
 export class CommentsRepository extends Repository<Comments> {
     constructor(private readonly entityManager: EntityManager) {
@@ -23,9 +38,9 @@ export class CommentsRepository extends Repository<Comments> {
     동화 댓글 조회
     */
 
-    // 댓글 조회 - fairytaleId 필터링
-    async getCommentsByFairytaleId(fairytaleId: number): Promise<Comments[]> {
-        const rawComments = await this.createQueryBuilder('comments')
+    // 전체 댓글 정보 조회
+    async getTotalComments(fairytaleId: number): Promise<Comments[]> {
+        const rawTotalComments = await this.createQueryBuilder('comments')
             .leftJoin('users', 'user', 'user.id = comments.user_id')
             .leftJoin('profile_image', 'img', 'img.user_id = comments.user_id')
             .select([
@@ -38,7 +53,7 @@ export class CommentsRepository extends Repository<Comments> {
             .orderBy('comments.created_at', 'DESC')
             .getRawMany();
 
-        const comments = rawComments.map(rawComments => ({
+        const comments = rawTotalComments.map((rawComments: rawCommentsType) => ({
             id: rawComments.comments_id,
             createdAt: rawComments.comments_created_at,
             updatedAt: rawComments.comments_updated_at,
@@ -53,38 +68,59 @@ export class CommentsRepository extends Repository<Comments> {
         return comments;
     }
 
+    // 페이지네이션 댓글 조회
+    async getPageComments(
+        fairytaleId: number,
+        page: number,
+        limit: number,
+    ): Promise<{ data: Comments[]; totalCount: number; currentPage: number; totalPages: number }> {
+        // 전체 데이터 갯수 조회
+        const totalCommentsCount = await this.createQueryBuilder('comments')
+            .where('comments.fairytale_id = :fairytaleId', { fairytaleId })
+            .getCount();
+
+        // 페이지네이션 조회
+        const offset = (page - 1) * limit;
+        const rawPageComments = await this.createQueryBuilder('comments')
+            .leftJoin('users', 'user', 'user.id = comments.user_id')
+            .leftJoin('profile_image', 'img', 'img.user_id = comments.user_id')
+            .select([
+                'comments',
+                'CASE WHEN user.deleted_at IS NULL THEN user.nickname ELSE "삭제된 회원입니다." END AS nickName',
+                'user.name',
+                'CASE WHEN img.deleted_at IS NULL THEN img.path ELSE "삭제된 프로필 사진입니다." END AS profileImgURL',
+            ])
+            .where('comments.fairytale_id = :fairytaleId', { fairytaleId })
+            .orderBy('comments.created_at', 'DESC')
+            .limit(limit)
+            .offset(offset)
+            .getRawMany();
+
+        const comments = rawPageComments.map((rawComments: rawCommentsType) => ({
+            id: rawComments.comments_id,
+            createdAt: rawComments.comments_created_at,
+            updatedAt: rawComments.comments_updated_at,
+            deletedAt: rawComments.comments_deleted_at,
+            userId: rawComments.comments_userId,
+            fairytaleId: rawComments.comments_fairytale_id,
+            content: rawComments.comments_content,
+            name: rawComments.user_name,
+            nickname: rawComments.nickName,
+            profileImgURL: rawComments.profileImgURL,
+        }));
+        return {
+            data: comments,
+            totalCount: totalCommentsCount,
+            currentPage: page,
+            totalPages: Math.ceil(totalCommentsCount / limit),
+        };
+    }
+
     // 동화 댓글 생성
     // 대댓글 기능 추가 시, entityManager로 수정
     async createComments(newComments: Partial<Comments>): Promise<Comments> {
         const comments = await this.create(newComments);
         return await this.save(comments);
-
-        // const commentId = comments.id;
-        // const rawComments = await this.createQueryBuilder('comments')
-        //     .leftJoin('users', 'user', 'user.id = comments.user_id')
-        //     .leftJoin('profile_image', 'img', 'img.user_id = comments.user_id')
-        //     .select([
-        //         'comments',
-        //         'CASE WHEN user.deleted_at IS NULL THEN user.nickname ELSE "삭제된 회원입니다." END AS nickName',
-        //         'user.name',
-        //         'CASE WHEN img.deleted_at IS NULL THEN img.path ELSE "삭제된 프로필 사진입니다." END AS profileImgURL',
-        //     ])
-        //     .where('comments.id = :commentId', { commentId })
-        //     .getRawOne();
-
-        // const finalComments = {
-        //     id: rawComments.comments_id,
-        //     createdAt: rawComments.comments_created_at,
-        //     updatedAt: rawComments.comments_updated_at,
-        //     deletedAt: rawComments.comments_deleted_at,
-        //     userId: rawComments.comments_userId,
-        //     fairytaleId: rawComments.comments_fairytale_id,
-        //     content: rawComments.comments_content,
-        //     name: rawComments.user_name,
-        //     nickname: rawComments.nickName,
-        //     profileImgURL: rawComments.profileImgURL,
-        // };
-        // return finalComments;
     }
 
     // 동화 댓글 수정
@@ -98,32 +134,6 @@ export class CommentsRepository extends Repository<Comments> {
         await this.update(commentId, updateComments);
         return this.findOneBy({ id: commentId });
     }
-
-    // const rawComments = await this.createQueryBuilder('comments')
-    //     .leftJoin('users', 'user', 'user.id = comments.user_id')
-    //     .leftJoin('profile_image', 'img', 'img.user_id = comments.user_id')
-    //     .select([
-    //         'comments',
-    //         'CASE WHEN user.deleted_at IS NULL THEN user.nickname ELSE "삭제된 회원입니다." END AS nickName',
-    //         'user.name',
-    //         'CASE WHEN img.deleted_at IS NULL THEN img.path ELSE "삭제된 프로필 사진입니다." END AS profileImgURL',
-    //     ])
-    //     .where('comments.id = :commentId', { commentId })
-    //     .getRawOne();
-
-    // const comments = {
-    //     id: rawComments.comments_id,
-    //     createdAt: rawComments.comments_created_at,
-    //     updatedAt: rawComments.comments_updated_at,
-    //     deletedAt: rawComments.comments_deleted_at,
-    //     userId: rawComments.comments_userId,
-    //     fairytaleId: rawComments.comments_fairytale_id,
-    //     content: rawComments.comments_content,
-    //     name: rawComments.user_name,
-    //     nickname: rawComments.nickName,
-    //     profileImgURL: rawComments.profileImgURL,
-    // };
-    // return comments;
 
     // 동화 댓글 삭제
     async softDeleteComments(commentId: number): Promise<Comments> {
@@ -141,34 +151,6 @@ export class CommentsRepository extends Repository<Comments> {
         comments.deletedAt = currentTime;
         comments.updatedAt = currentTime;
         return await this.save(comments);
-
-        // const rawComments = await this.createQueryBuilder('comments')
-        //     .leftJoin('users', 'user', 'user.id = comments.user_id')
-        //     .leftJoin('profile_image', 'img', 'img.user_id = comments.user_id')
-        //     .select([
-        //         'comments',
-        //         'CASE WHEN user.deleted_at IS NULL THEN user.nickname ELSE "삭제된 회원입니다." END AS nickName',
-        //         'user.name',
-        //         'CASE WHEN img.deleted_at IS NULL THEN img.path ELSE "삭제된 프로필 사진입니다." END AS profileImgURL',
-        //     ])
-        //     .where('comments.id = :commentId', { commentId })
-        //     .getRawOne();
-
-        // console.log(rawComments);
-
-        // const finalComments = {
-        //     id: rawComments.comments_id,
-        //     createdAt: rawComments.comments_created_at,
-        //     updatedAt: rawComments.comments_updated_at,
-        //     deletedAt: rawComments.comments_deleted_at,
-        //     userId: rawComments.comments_userId,
-        //     fairytaleId: rawComments.comments_fairytale_id,
-        //     content: rawComments.comments_content,
-        //     name: rawComments.user_name,
-        //     nickname: rawComments.nickName,
-        //     profileImgURL: rawComments.profileImgURL,
-        // };
-        // return finalComments;
     }
 
     // 나의 동화 댓글 조회
