@@ -194,12 +194,20 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
         }
 
         // 태그는 복수로 추가 가능
-        const tagList = ['우화', '환경', '사랑', '모험', '추리', '기타'];
+        const tagList = ['우화', '환경', '사랑', '모험', '추리', '기타', '모든 주제'];
         let tagsArray: string[] = [];
         if (typeof tags === 'string') {
-            tagsArray = [tags];
+            if (tags === '모든 주제') {
+                tagsArray = tagList.filter(tag => tag !== '모든 주제');
+            } else {
+                tagsArray = [tags];
+            }
         } else if (Array.isArray(tags)) {
-            tagsArray = tags;
+            if (tags.includes('모든 주제')) {
+                tagsArray = tagList.filter(tag => tag !== '모든 주제');
+            } else {
+                tagsArray = tags;
+            }
         }
         for (const tag of tagsArray) {
             if (!tagList.includes(tag)) {
