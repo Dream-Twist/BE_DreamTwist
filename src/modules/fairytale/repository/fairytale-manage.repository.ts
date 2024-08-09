@@ -84,7 +84,6 @@ export class ManageFairytaleRepository extends Repository<Fairytale> {
                 userId,
                 fairytaleId,
             });
-            console.log(`${userId} 유저가 동화 ${userId}번 좋아요 삭제`);
             return { message: `좋아요가 성공적으로 해제되었습니다.` };
         } else {
             // 좋아요 기록이 없을 때 기록 생성 (홀수)
@@ -93,7 +92,6 @@ export class ManageFairytaleRepository extends Repository<Fairytale> {
                 fairytaleId,
             });
             await likeRepository.save(newLike);
-            console.log(`${userId} 유저가 동화 ${userId}번 좋아요 추가`);
             return { message: `좋아요가 성공적으로 추가되었습니다.` };
         }
     }
