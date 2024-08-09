@@ -14,12 +14,15 @@ import { Injectable, NotFoundException, BadRequestException, UnauthorizedExcepti
 import { InjectRepository } from '@nestjs/typeorm';
 import { Comments } from 'src/modules/fairytale/entity/fairytale-comments.entity';
 import { CommentsRepository } from 'src/modules/fairytale/repository/fairytale-comments.repository';
+import { UserRepository } from '../user/repository/user.repository';
 
 @Injectable()
 export class CommentsService {
     constructor(
         @InjectRepository(CommentsRepository)
         private readonly commentsRepository: CommentsRepository,
+        @InjectRepository(UserRepository)
+        private readonly userRepository: UserRepository,
     ) {}
 
     // 동화 댓글 조회 - 페이지네이션 고려 - 조회는 굳이 트랜잭션 안해도 됨
@@ -38,12 +41,13 @@ export class CommentsService {
             throw new NotFoundException('회원을 찾을 수 없습니다.');
         }
 
+        // 만약 userId로 content의 갯수를 카운트했는데 3개 이하면 댓글 생성 가능
         const newComment = new Comments();
         newComment.fairytaleId = fairytaleId;
         newComment.content = content;
         newComment.userId = userId;
 
-        return await this.commentsRepository.save(newComment);
+        return await this.commentsRepository.createComments(newComment);
     }
 
     // 동화 댓글 수정
@@ -56,12 +60,12 @@ export class CommentsService {
             where: { fairytaleId: fairytaleId, id: commentId },
         });
 
-        if (existingComments.userId != userId) {
-            throw new UnauthorizedException('댓글을 수정할 권한이 없습니다.');
-        }
-
         if (!existingComments) {
             throw new BadRequestException(`${commentId}번 댓글을 찾을 수 없습니다`);
+        }
+
+        if (existingComments.userId !== userId) {
+            throw new UnauthorizedException('댓글을 수정할 권한이 없습니다.');
         }
 
         const updatedCommentsData = { content };
