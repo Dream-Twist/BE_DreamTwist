@@ -28,7 +28,6 @@ export class UserRepository {
     async getUser(userId: number): Promise<any> {
         return this.userRepository
             .createQueryBuilder('users')
-            .leftJoin('points_history', 'ph', 'ph.user_id = users.id')
             .leftJoin('profile_image', 'pi', 'pi.user_id = users.id')
             .leftJoin('fairytale', 'f', 'f.user_id = users.id')
             .leftJoin('fairytale_like', 'fl', 'fl.fairytale_id = f.id')
@@ -38,7 +37,6 @@ export class UserRepository {
                 'pi.path AS profileImage',
                 'COUNT(DISTINCT f.id) AS fairytaleCount',
                 'COUNT(fl.id) AS getLikesCount',
-                'SUM(DISTINCT CASE WHEN ph.remaining_balance != 0 THEN ph.remaining_balance ELSE 0 END) AS points',
             ])
             .where('users.id = :userId', { userId })
             .groupBy('users.id')

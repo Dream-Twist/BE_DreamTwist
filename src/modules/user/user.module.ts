@@ -21,11 +21,20 @@ import { UserRepository } from 'src/modules/user/repository/user.repository';
 import { ProfileImageRepository } from 'src/modules/user/repository/profile-image.repository';
 import { FairytaleModule } from 'src/modules/fairytale/fairytale.module';
 import { PointHistory } from 'src/modules/billing/entity/point-history.entity';
+import { PointHistoryService } from 'src/modules/billing/point-history.service';
+import { PointHistoryRepository } from 'src/modules/billing/repository/point-history.repository';
 
 @Module({
     imports: [TypeOrmModule.forFeature([User, ProfileImage, PointHistory]), forwardRef(() => FairytaleModule)],
     controllers: [UserController],
-    providers: [UserService, UserRepository, S3Service, ProfileImageRepository],
-    exports: [UserService, UserRepository, ProfileImageRepository],
+    providers: [
+        UserService,
+        UserRepository,
+        S3Service,
+        ProfileImageRepository,
+        PointHistoryService,
+        PointHistoryRepository,
+    ],
+    exports: [UserService, UserRepository, ProfileImageRepository, PointHistoryService, PointHistoryRepository],
 })
 export class UsersModule {}

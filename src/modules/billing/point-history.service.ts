@@ -24,16 +24,13 @@ export class PointHistoryService {
         private readonly dataSource: DataSource,
     ) {}
 
-    async userPoints(): Promise<object> {
+    async userPoints(user_id: number): Promise<number> {
         const queryRunner = this.dataSource.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();
 
         try {
             const entityManager: EntityManager = queryRunner.manager;
-
-            // 임시
-            const user_id = 2;
 
             // 포인트 기록 검색
             const pointHistories = await this.pointHistoryRepository.findPointHistoryByUserId(user_id, entityManager);
@@ -45,7 +42,7 @@ export class PointHistoryService {
 
             await queryRunner.commitTransaction();
 
-            return { userPoints };
+            return userPoints;
         } catch (e) {
             await queryRunner.rollbackTransaction();
             throw e;
