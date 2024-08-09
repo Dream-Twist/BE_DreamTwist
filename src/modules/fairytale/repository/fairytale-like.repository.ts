@@ -26,10 +26,13 @@ export class FairytaleLikeRepository {
             .createQueryBuilder('fl')
             .leftJoin('fairytale', 'f', 'f.id = fl.fairytale_id')
             .leftJoin('fairytale_img', 'fi', 'fi.fairytale_id = f.id')
+            .leftJoin('users', 'users', 'f.user_id = users.id')
             .select([
                 'f.id AS id',
                 'f.title AS title',
                 'f.created_at AS createdAt',
+                'f.privated_at AS privatedAt',
+                'users.nickname AS nickname',
                 'JSON_EXTRACT(fi.path, "$.\\"0\\"") AS coverImage',
             ])
             .where('fl.userId = :userId', { userId })
