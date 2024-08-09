@@ -179,6 +179,8 @@ export class CommentsRepository extends Repository<Comments> {
                 'CASE WHEN f.title IS NULL THEN "삭제된 동화입니다." ELSE f.title END AS title',
                 'c.content AS content',
                 'c.created_at AS createdAt',
+                'f.id AS fairytaleId',
+                'f.privated_at AS privatedAt',
             ])
             .where('c.user_id = :userId', { userId })
             .getRawMany();
