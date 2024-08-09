@@ -28,7 +28,6 @@ import { S3Service } from 'src/modules/s3.service';
 import { PointHistoryService } from 'src/modules/billing/point-history.service';
 import { ForbiddenWordRepository } from 'src/modules/fairytale/repository/fairytale-forbidden-word.repository';
 import { UsersModule } from 'src/modules/user/user.module';
-import { UserRepository } from 'src/modules/user/repository/user.repository';
 
 @Module({
     imports: [UsersModule, HttpModule, TypeOrmModule.forFeature([PointHistory, User])],

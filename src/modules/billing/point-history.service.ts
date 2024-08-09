@@ -32,6 +32,11 @@ export class PointHistoryService {
         try {
             const entityManager: EntityManager = queryRunner.manager;
 
+            // 비로그인 상태일 경우 포인트 0
+            if (!user_id) {
+                return 0;
+            }
+
             // 포인트 기록 검색
             const pointHistories = await this.pointHistoryRepository.findPointHistoryByUserId(user_id, entityManager);
 

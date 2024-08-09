@@ -75,19 +75,4 @@ export class BillingController {
     async getPointsByAmount(@Req() req): Promise<object> {
         return await this.billingService.findPaymentByUserId(req.user.userId);
     }
-
-    // @ApiGetOperation({
-    //     summary: '사용자 포인트 조회',
-    //     successResponseSchema: {
-    //         type: 'object',
-    //         properties: {
-    //             userPoints: { type: 'number', example: '3280' },
-    //         },
-    //         required: ['userPoints'],
-    //     },
-    // })
-    // @Get('user/points')
-    // async getPointsByUserId(@Req() req): Promise<object> {
-    //     return await this.pointHistoryService.userPoints(req.user.userId);
-    // }
 }
