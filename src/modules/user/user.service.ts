@@ -18,6 +18,7 @@ import {
     NotFoundException,
     UnauthorizedException,
     ForbiddenException,
+    ConflictException,
 } from '@nestjs/common';
 import { nanoid } from 'nanoid';
 import { S3Service } from 'src/modules/s3.service';
@@ -71,6 +72,17 @@ export class UserService {
 
         // 닉네임 수정
         if (updateUserDTO.nickname !== '') {
+            // 기존 닉네임과 동일 유무 확인
+            if (user.nickname === updateUserDTO.nickname) {
+                throw new BadRequestException('동일한 닉네임으로 변경할 수 없습니다.');
+            }
+
+            // 닉네임 중복 여부 확인
+            const existingUser = await this.userRepository.findUserByNickname(updateUserDTO.nickname);
+            if (existingUser && existingUser.id === userId) {
+                throw new ConflictException('이미 사용 중인 닉네임입니다.');
+            }
+
             await this.validateNickname(updateUserDTO.nickname, user);
             user.nickname = updateUserDTO.nickname;
         }
