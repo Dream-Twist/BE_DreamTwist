@@ -12,7 +12,13 @@ Date        Author      Status      Description
 2024.08.07  박수정      Modified    회원정보 조회 기능 추가
 */
 
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+    BadRequestException,
+    Injectable,
+    NotFoundException,
+    UnauthorizedException,
+    ForbiddenException,
+} from '@nestjs/common';
 import { nanoid } from 'nanoid';
 import { S3Service } from 'src/modules/s3.service';
 import { UpdateUserDTO } from 'src/modules/user/dto/update-user.dto';
@@ -39,13 +45,21 @@ export class UserService {
 
     // 회원정보 조회
     async getUser(userId: number): Promise<any> {
-        const user = await this.userRepository.getUser(userId);
+        try {
+            if (!userId) {
+                throw new ForbiddenException('로그인 후 사용 가능합니다.');
+            }
 
-        // 포인트
-        const points = await this.pointHistoryService.userPoints(userId);
-        user.points = points;
+            const user = await this.userRepository.getUser(userId);
 
-        return user;
+            // 포인트
+            const points = await this.pointHistoryService.userPoints(userId);
+            user.points = points;
+
+            return user;
+        } catch (e) {
+            throw e;
+        }
     }
 
     // 회원정보 수정
