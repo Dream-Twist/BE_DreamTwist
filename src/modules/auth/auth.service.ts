@@ -34,7 +34,7 @@ export class AuthService {
 
     // 구글 회원가입 및 로그인
     async googleLogin(createUserDTO: CreateUserDTO): Promise<AuthTokens> {
-        let user = await this.authRepository.findUserByGoogleId(createUserDTO.googleId);
+        let user = await this.userRepository.findUserByEmail(createUserDTO.email);
 
         // 꿈틀에 회원가입 되지 않은 경우
         if (!user || user.deletedAt) {

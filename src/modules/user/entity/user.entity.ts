@@ -23,7 +23,7 @@ export class User extends CommonEntity {
     @Column({ name: 'google_id' })
     googleId: string;
 
-    @Column({ unique: true })
+    @Column()
     email: string;
 
     @Column()

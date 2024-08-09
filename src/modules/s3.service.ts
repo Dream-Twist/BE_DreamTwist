@@ -39,7 +39,7 @@ export class S3Service {
             },
         });
 
-        this.defaultImgURL = `https://${this.bucketName}.s3.${this.region}.amazonaws.com/img/imgjpg.jpg`;
+        this.defaultImgURL = `https://${this.bucketName}.s3.${this.region}.amazonaws.com/img/defaultImg.jpg`;
         this.defaultProfileImgURL = `https://${this.bucketName}.s3.${this.region}.amazonaws.com/profileImg/defaultImg.jpg`;
     }
 
