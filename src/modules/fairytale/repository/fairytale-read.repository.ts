@@ -212,33 +212,27 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
 
         // 정렬: 좋아요순, 조회순, 최신순
         if (sortOrder === '인기순') {
-            // SELECT likes FROM getLikeCount
+            // get count of fairytale_like table for each fairytale_like.fairytaleId as likeCount
             queryBuilder
-                .leftJoin(
-                    qb =>
-                        qb
-                            .select('fairytale_like.fairytaleId', 'fairytaleId')
-                            .addSelect('COUNT(fairytale_like.userId)', 'likeCount')
-                            .from(Views, 'fairytale_like')
-                            .groupBy('fairytale_like.fairytaleId'),
-                    'like_rel',
-                    'like_rel.fairytaleId = fairytale.id',
-                )
-                .orderBy('like_rel.likeCount', 'DESC');
+                .addSelect(subQuery => {
+                    return subQuery
+                        .select('COUNT(fairytale_like.id)', 'likeCount')
+                        .from('fairytale_like', 'fairytale_like')
+                        .where('fairytale_like.fairytaleId = fairytale.id')
+                        .groupBy('fairytale_like.fairytaleId');
+                }, 'likeCount')
+                .orderBy('likeCount', 'DESC');
         } else if (sortOrder === '조회순') {
-            // SELECT views FROM getViewCount
+            // get count of views table for each views.fairytaleId as viewCount
             queryBuilder
-                .leftJoin(
-                    qb =>
-                        qb
-                            .select('views.fairytaleId', 'fairytaleId')
-                            .addSelect('COUNT(views.userId)', 'viewCount')
-                            .from(Views, 'views')
-                            .groupBy('views.fairytaleId'),
-                    'view_rel',
-                    'view_rel.fairytaleId = fairytale.id',
-                )
-                .orderBy('view_rel.viewCount', 'DESC');
+                .addSelect(subQuery => {
+                    return subQuery
+                        .select('COUNT(views.id)', 'viewCount')
+                        .from('views', 'views')
+                        .where('views.fairytaleId = fairytale.id')
+                        .groupBy('views.fairytaleId');
+                }, 'viewCount')
+                .orderBy('viewCount', 'DESC');
         } else {
             queryBuilder.orderBy('fairytale.createdAt', 'DESC');
         }
@@ -280,14 +274,52 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
             },
             {} as Record<number, string>,
         );
+        // 조회, 좋아요 반환, getOne으로 못 받아서 getViewCount, getLikeCount 사용 안 됨
+        const fairytaleIds = filteredFairytales.map(fairytale => fairytale.id);
+
+        const viewCounts = await this.dataSource
+            .getRepository(Views)
+            .createQueryBuilder('views')
+            .select('views.fairytaleId', 'fairytaleId')
+            .addSelect('COUNT(views.id)', 'viewCount')
+            .where('views.fairytaleId IN (:...ids)', { ids: fairytaleIds })
+            .groupBy('views.fairytaleId')
+            .getRawMany();
+
+        const likeCounts = await this.dataSource
+            .getRepository(FairytaleLike)
+            .createQueryBuilder('fairytale_like')
+            .select('fairytale_like.fairytaleId', 'fairytaleId')
+            .addSelect('COUNT(fairytale_like.id)', 'likeCount')
+            .where('fairytale_like.fairytaleId IN (:...ids)', { ids: fairytaleIds })
+            .groupBy('fairytale_like.fairytaleId')
+            .getRawMany();
+
+        // Map counts
+        const viewCountMap = viewCounts.reduce(
+            (map, row) => {
+                map[row.fairytaleId] = parseInt(row.viewCount, 10);
+                return map;
+            },
+            {} as Record<number, number>,
+        );
+
+        const likeCountMap = likeCounts.reduce(
+            (map, row) => {
+                map[row.fairytaleId] = parseInt(row.likeCount, 10);
+                return map;
+            },
+            {} as Record<number, number>,
+        );
 
         const formattedFairytalePromises = filteredFairytales.map(fairytale => {
             const nickname = userNicknameMap[fairytale.userId] || 'Unknown';
             const imgs = fairytaleImageMap[fairytale.id] || [];
             const paths = imgs.length > 0 ? Object.values(imgs[0].path) : [];
             const coverImage = paths.length > 0 ? paths[0] : null;
-            const viewCount = this.getViewCount(fairytale.id);
-            const likeCount = this.getLikeCount(fairytale.id);
+            const viewCount = viewCountMap[fairytale.id] || 0;
+            const likeCount = likeCountMap[fairytale.id] || 0;
+
             return {
                 fairytaleId: fairytale.id,
                 title: fairytale.title,
