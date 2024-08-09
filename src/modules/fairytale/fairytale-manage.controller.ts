@@ -89,6 +89,7 @@ export class ManageFairytaleController {
     })
     @Post('view')
     async createFairytaleView(@Req() req, @Body('fairytaleId') fairytaleId: number) {
+        // 유저가 로그인을 안 함, 리퀘스트 헤더가 빈 값을 줬음
         if (!req.user.userId) {
             throw new BadRequestException('조회 기록을 생성할 수 없습니다.');
         }

@@ -58,12 +58,18 @@ export class ReadFairytaleController {
         successMessage: '해당되는 동화를 성공적으로 조회했습니다.',
         notFoundMessage: '제목 {title}에 해당되는 동화 줄거리를 찾을 수 없습니다.',
     })
+    @ApiQuery({ name: 'sortOrder', required: true, type: String })
     @ApiQuery({ name: 'title', required: false, type: String })
     @ApiQuery({ name: 'tags', required: false, type: [String] })
     @Get('byTitle')
-    async getFairytalebyTitle(@Query('title') title?: string, @Query('tags') tags?: string[]) {
+    // 정렬: 최신순, 조회순, 좋아요순
+    async getFairytalebyTitle(
+        @Query('sortOrder') sortOrder: string,
+        @Query('title') title?: string,
+        @Query('tags') tags?: string[],
+    ) {
         const parsedTags = Array.isArray(tags) ? tags : tags ? [tags] : [];
-        const content = await this.readFairytaleService.getAllbyTitle(title, parsedTags);
+        const content = await this.readFairytaleService.getAllbyTitle(sortOrder, title, parsedTags);
         return content;
     }
 

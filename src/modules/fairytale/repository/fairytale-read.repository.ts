@@ -20,7 +20,7 @@ Date        Author      Status      Description
 2024.08.07  강민규      Modified    GET: 조회 기록 생성 옮김 -> fairytale-manage
 */
 
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { Repository, DataSource } from 'typeorm';
 import { Fairytale } from 'src/modules/fairytale/entity/fairytale.entity';
 import { User } from 'src/modules/user/entity/user.entity';
@@ -178,7 +178,7 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
     }
 
     // 동화 제목, 태그 검색
-    async getAllbyFilter(title?: string, tags?: string | string[]) {
+    async getAllbyFilter(sortOrder: string, title?: string, tags?: string | string[]) {
         // 제목 태그 둘 중 하나는 없을 수 있음
         const titleIsValid = title && title.length > 0;
         const tagsIsValid =
@@ -209,9 +209,42 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
         if (tagsArray.length > 0) {
             queryBuilder.andWhere('fairytale.theme IN (:...tags)', { tags: tagsArray });
         }
+
+        // 정렬: 좋아요순, 조회순, 최신순
+        if (sortOrder === '인기순') {
+            // SELECT likes FROM getLikeCount
+            queryBuilder
+                .leftJoin(
+                    qb =>
+                        qb
+                            .select('fairytale_like.fairytaleId', 'fairytaleId')
+                            .addSelect('COUNT(fairytale_like.userId)', 'likeCount')
+                            .from(Views, 'fairytale_like')
+                            .groupBy('fairytale_like.fairytaleId'),
+                    'like_rel',
+                    'like_rel.fairytaleId = fairytale.id',
+                )
+                .orderBy('like_rel.likeCount', 'DESC');
+        } else if (sortOrder === '조회순') {
+            // SELECT views FROM getViewCount
+            queryBuilder
+                .leftJoin(
+                    qb =>
+                        qb
+                            .select('views.fairytaleId', 'fairytaleId')
+                            .addSelect('COUNT(views.userId)', 'viewCount')
+                            .from(Views, 'views')
+                            .groupBy('views.fairytaleId'),
+                    'view_rel',
+                    'view_rel.fairytaleId = fairytale.id',
+                )
+                .orderBy('view_rel.viewCount', 'DESC');
+        } else {
+            queryBuilder.orderBy('fairytale.createdAt', 'DESC');
+        }
         const filteredFairytales = await queryBuilder
-            .orderBy('fairytale.createdAt', 'DESC')
             .andWhere('fairytale.privatedAt IS NULL')
+            .andWhere('fairytale.deletedAt IS NULL')
             .getMany();
         if (filteredFairytales.length === 0) {
             throw new NotFoundException(`제목 ${title} 에 해당되는 동화가 없습니다.`);
@@ -232,28 +265,41 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
         );
 
         // 작가명
+        const userIds = filteredFairytales.map(filteredFairytales => filteredFairytales.userId);
         const users = await this.dataSource
             .getRepository(User)
             .createQueryBuilder('users')
             .select(['users.id', 'users.nickname'])
+            .whereInIds(userIds)
             .getMany();
         // 매핑
-        const userNicknameMap = new Map<number, string>(users.map(user => [user.id, user.nickname]));
+        const userNicknameMap = users.reduce(
+            (map, user) => {
+                map[user.id] = user.nickname;
+                return map;
+            },
+            {} as Record<number, string>,
+        );
 
-        const formattedFairytales = filteredFairytales.map(fairytale => {
+        const formattedFairytalePromises = filteredFairytales.map(fairytale => {
+            const nickname = userNicknameMap[fairytale.userId] || 'Unknown';
             const imgs = fairytaleImageMap[fairytale.id] || [];
             const paths = imgs.length > 0 ? Object.values(imgs[0].path) : [];
             const coverImage = paths.length > 0 ? paths[0] : null;
-
+            const viewCount = this.getViewCount(fairytale.id);
+            const likeCount = this.getLikeCount(fairytale.id);
             return {
                 fairytaleId: fairytale.id,
                 title: fairytale.title,
                 theme: fairytale.theme,
-                nickname: userNicknameMap.get(fairytale.userId) || 'Unknown',
+                nickname: nickname,
                 coverImage: coverImage,
                 createdAt: fairytale.createdAt || 'unknown',
+                views: viewCount,
+                likes: likeCount,
             };
         });
+        const formattedFairytales = await Promise.all(formattedFairytalePromises);
 
         return formattedFairytales;
     }

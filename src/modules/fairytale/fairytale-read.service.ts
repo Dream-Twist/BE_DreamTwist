@@ -49,8 +49,8 @@ export class ReadFairytaleService {
     }
 
     //동화 제목 검색
-    async getAllbyTitle(title?: string, tags?: string | string[]) {
-        const filteredFairytales = await this.readFairytaleRepository.getAllbyFilter(title, tags);
+    async getAllbyTitle(sortOrder: string, title?: string, tags?: string | string[]) {
+        const filteredFairytales = await this.readFairytaleRepository.getAllbyFilter(sortOrder, title, tags);
         return filteredFairytales;
     }
 }
