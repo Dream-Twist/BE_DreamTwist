@@ -56,8 +56,10 @@ export class UserService {
         }
 
         // 닉네임 수정
-        await this.validateNickname(updateUserDTO.nickname, user);
-        user.nickname = updateUserDTO.nickname;
+        if (updateUserDTO.nickname !== '') {
+            await this.validateNickname(updateUserDTO.nickname, user);
+            user.nickname = updateUserDTO.nickname;
+        }
 
         // 프로필 이미지 업로드
         if (updateUserDTO.profileImageURL !== undefined) {
@@ -131,6 +133,16 @@ export class UserService {
         }
 
         await this.userRepository.deleteUser(userId);
+    }
+
+    // 회원 복구
+    async restoreUser(userId: number): Promise<void> {
+        const user = await this.userRepository.findUserById(userId);
+        if (!user) {
+            throw new NotFoundException('회원을 찾을 수 없습니다.');
+        }
+
+        await this.userRepository.restoreUser(userId);
     }
 
     // 로그아웃

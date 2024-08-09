@@ -69,10 +69,20 @@ export class ManageFairytaleService {
         });
         const savedFairytale = await this.manageFairytaleRepository.save(fairytale);
 
-        // let imgUrl = this.s3Service.getDefaultImgUrl();
+        // 이미지가 null인 경우 기본 이미지로 대체
+        if (createFairytaleImgDto.coverImage === 'null') {
+            createFairytaleImgDto.coverImage = this.s3Service.getDefaultImgURL();
+        }
+
+        const images = JSON.parse(createFairytaleImgDto.images);
+
+        for (const key in images) {
+            if (images[key] === 'null' || images[key] === null) {
+                images[key] = this.s3Service.getDefaultImgURL();
+            }
+        }
 
         // 동화 이미지 저장
-        const images = JSON.parse(createFairytaleImgDto.images);
         const combinedImages = { '0': createFairytaleImgDto.coverImage, ...images };
 
         const fairytaleImg = await this.fairytaleImgRepository.createFairytaleImg({

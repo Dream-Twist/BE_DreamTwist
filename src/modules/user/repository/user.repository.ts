@@ -49,6 +49,14 @@ export class UserRepository {
         return this.userRepository.findOne({ where: { googleId } });
     }
 
+    // 이메일로 회원 조회
+    async findUserByEmail(email: string): Promise<User | undefined> {
+        console.log(email);
+        const result = await this.userRepository.findOne({ where: { email } });
+        console.log(result);
+        return result;
+    }
+
     // UserId로 회원 조회
     async findUserById(id: number): Promise<User | undefined> {
         return this.userRepository.findOne({ where: { id } });
@@ -88,6 +96,11 @@ export class UserRepository {
     // 회원 탈퇴
     async deleteUser(id: number): Promise<void> {
         await this.userRepository.softDelete(id);
+    }
+
+    // 회원 복구
+    async restoreUser(id: number): Promise<void> {
+        await this.userRepository.restore(id);
     }
 
     // 로그아웃
