@@ -116,7 +116,7 @@ export class CommentsController {
             required: ['data', 'totalCount', 'currentPage', 'totalPages'],
         },
         successMessage: '동화 댓글을 성공적으로 조회했습니다.',
-        notFoundMessage: '요청한 유저의 동화 댓글을 찾을 수 없습니다',
+        notFoundMessage: '요청한 동화의 댓글을 찾을 수 없습니다',
     })
     @Get(':fairytaleId')
     async getComments(

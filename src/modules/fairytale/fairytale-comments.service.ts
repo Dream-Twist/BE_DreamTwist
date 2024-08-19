@@ -10,36 +10,46 @@ Date        Author      Status      Description
 2024.08.07  원경혜      Modified    동화 댓글 CRUD 기능 추가
 2024.08.09  원경혜      Modified    동화 댓글 조회 - 전체, 페이지네이션 추가 및 구분
 2024.08.09  원경혜      Modified    동화 댓글 생성 갯수 제한 기능 추가
+2024.08.19  원경혜      Modified    동화 댓글 조회 - repository층의 CASE문 로직 추가
 */
 
 import { Injectable, NotFoundException, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Comments } from 'src/modules/fairytale/entity/fairytale-comments.entity';
-import { CommentsRepository } from 'src/modules/fairytale/repository/fairytale-comments.repository';
-import { UserRepository } from '../user/repository/user.repository';
+import { CommentsRepository, newComments } from 'src/modules/fairytale/repository/fairytale-comments.repository';
 
 export interface PaginatedComments {
-    data: Comments[];
+    data: newComments[];
     totalCount: number;
     currentPage: number;
     totalPages: number;
 }
+
 @Injectable()
 export class CommentsService {
     constructor(
         @InjectRepository(CommentsRepository)
         private readonly commentsRepository: CommentsRepository,
-        @InjectRepository(UserRepository)
-        private readonly userRepository: UserRepository,
     ) {}
 
     // 동화 댓글 전체 조회
-    async getTotalComments(fairytaleId): Promise<Comments[]> {
+    async getTotalComments(fairytaleId: number): Promise<newComments[]> {
         const comments = await this.commentsRepository.getTotalComments(fairytaleId);
 
         if (!comments || comments.length === 0) {
-            throw new NotFoundException(`요청한 유저의 동화 댓글을 찾을 수 없습니다.`);
+            throw new NotFoundException(`요청한 동화의 댓글을 찾을 수 없습니다.`);
         }
+
+        comments.map(comment => {
+            if (comment.userDeletedAt != undefined) {
+                throw new NotFoundException(`요청에 해당하는 유저를 찾을 수 없습니다.`);
+            }
+
+            if (comment.profileImgDeletedAt != undefined) {
+                throw new NotFoundException(`요청에 해당하는 프로필 사진을 찾을 수 없습니다.`);
+            }
+        });
+
         return comments;
     }
 
@@ -48,8 +58,19 @@ export class CommentsService {
         const comments = await this.commentsRepository.getPageComments(fairytaleId, page, limit);
 
         if (!comments || comments.data.length === 0) {
-            throw new NotFoundException(`요청한 유저의 동화 댓글을 찾을 수 없습니다.`);
+            throw new NotFoundException(`요청한 동화의 댓글을 찾을 수 없습니다.`);
         }
+
+        comments.data.map(comment => {
+            if (comment.userDeletedAt != undefined) {
+                throw new NotFoundException(`요청에 해당하는 유저를 찾을 수 없습니다.`);
+            }
+
+            if (comment.profileImgDeletedAt != undefined) {
+                throw new NotFoundException(`요청에 해당하는 프로필 사진을 찾을 수 없습니다.`);
+            }
+        });
+
         return comments;
     }
 
