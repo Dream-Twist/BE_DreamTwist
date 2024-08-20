@@ -137,7 +137,7 @@
  ┃ ┃ ┣ 📜 special_tokens_map.json
  ┃ ┃ ┣ 📜 tokenizer_config.json
  ┃ ┃ ┗ 📜 tokenizer.json
- ┃ ┗ 📜 py_hanspell   
+ ┃ ┗ 📂 py_hanspell   
  ┣ 📂 notebooks
  ┃ ┃ ┣ 📜 total_code.ipynb
  ┃ ┃ ┗ 📜 story_generator.ipynb
@@ -152,11 +152,12 @@
  ┃ ┃ ┣ 📜 __init__.py
  ┃ ┃ ┣ 📜 story_train.py
  ┃ ┃ ┗ 📜 story_generator.py
- ┃ ┗ 📜 utils
+ ┃ ┗ 📂 utils
  ┣ 📂 app
  ┃ ┃ ┣ 📂 api
  ┃ ┃ ┗ 📂 templates
- ┣ 📜 app.py 
+ ┣ 📜 app.py
+ ┣ 📜 .env
  ┣ 📜 requirements.txt 
  ┣ 📜 .gitattributes
  ┣ 📜 .gitignore
@@ -223,16 +224,19 @@
  ┃ ┃ ┃ ┗ 📜 ...
  ┃ ┃ ┃ ┗ 📂 dto
  ┃ ┃ ┣ 📜 app.module.ts
+ ┃ ┃ ┣ 📜 app.controller.ts
+ ┃ ┃ ┣ 📜 app.service.ts
  ┃ ┃ ┗ 📜 main.ts
  ┣ 📂 test
  ┣ 📂 shared
+ ┃ ┣ 📂 entities
  ┃ ┣ 📂 filters
  ┃ ┣ 📂 guards
  ┃ ┣ 📂 interceptors
  ┃ ┣ 📂 pipes
+ ┃ ┣ 📂 types
  ┃ ┗ 📂 utils
- ┣ 📂 config
- ┃ ┣ 📜 configuration.ts
+ ┣ 📜 .env 
  ┣ 📜 nest-cli.json
  ┣ 📜 tsconfig.json
  ┣ 📜 tsconfig.build.json
