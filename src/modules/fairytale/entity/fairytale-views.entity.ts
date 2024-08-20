@@ -12,7 +12,7 @@ Date        Author      Status      Description
 import { CommonEntity } from 'shared/entities/base.entity';
 import { Entity, Column, CreateDateColumn, DeleteDateColumn } from 'typeorm';
 
-@Entity('views')
+@Entity('fairytale_views')
 export class Views extends CommonEntity {
     @Column({ name: 'user_id' })
     userId: number;

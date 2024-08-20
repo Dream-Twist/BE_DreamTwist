@@ -111,8 +111,8 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
 
         const likeCount = await this.dataSource
             .getRepository(FairytaleLike)
-            .createQueryBuilder('fairytale_like')
-            .where('fairytale_like.fairytaleId = :fairytaleId', { fairytaleId })
+            .createQueryBuilder('fairytale_likes')
+            .where('fairytale_likes.fairytaleId = :fairytaleId', { fairytaleId })
             .getCount();
         return likeCount;
     }
@@ -219,14 +219,14 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
 
         // 정렬: 좋아요순, 조회순, 최신순
         if (sortOrder === '인기순') {
-            // get count of fairytale_like table for each fairytale_like.fairytaleId as likeCount
+            // get count of fairytale_likes table for each fairytale_likes.fairytaleId as likeCount
             queryBuilder
                 .addSelect(subQuery => {
                     return subQuery
-                        .select('COUNT(fairytale_like.id)', 'likeCount')
-                        .from('fairytale_like', 'fairytale_like')
-                        .where('fairytale_like.fairytaleId = fairytale.id')
-                        .groupBy('fairytale_like.fairytaleId');
+                        .select('COUNT(fairytale_likes.id)', 'likeCount')
+                        .from('fairytale_likes', 'fairytale_likes')
+                        .where('fairytale_likes.fairytaleId = fairytale.id')
+                        .groupBy('fairytale_likes.fairytaleId');
                 }, 'likeCount')
                 .orderBy('likeCount', 'DESC');
         } else if (sortOrder === '조회순') {
@@ -295,11 +295,11 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
 
         const likeCounts = await this.dataSource
             .getRepository(FairytaleLike)
-            .createQueryBuilder('fairytale_like')
-            .select('fairytale_like.fairytaleId', 'fairytaleId')
-            .addSelect('COUNT(fairytale_like.id)', 'likeCount')
-            .where('fairytale_like.fairytaleId IN (:...ids)', { ids: fairytaleIds })
-            .groupBy('fairytale_like.fairytaleId')
+            .createQueryBuilder('fairytale_likes')
+            .select('fairytale_likes.fairytaleId', 'fairytaleId')
+            .addSelect('COUNT(fairytale_likes.id)', 'likeCount')
+            .where('fairytale_likes.fairytaleId IN (:...ids)', { ids: fairytaleIds })
+            .groupBy('fairytale_likes.fairytaleId')
             .getRawMany();
 
         // Map counts

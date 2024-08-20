@@ -30,7 +30,7 @@ export class UserRepository {
             .createQueryBuilder('users')
             .leftJoin('profile_image', 'pi', 'pi.user_id = users.id')
             .leftJoin('fairytale', 'f', 'f.user_id = users.id')
-            .leftJoin('fairytale_like', 'fl', 'fl.fairytale_id = f.id')
+            .leftJoin('fairytale_likes', 'fl', 'fl.fairytale_id = f.id')
             .select([
                 'users.email AS email',
                 'users.nickname AS nickname',

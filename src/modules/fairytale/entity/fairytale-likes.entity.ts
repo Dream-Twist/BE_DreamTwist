@@ -13,7 +13,7 @@ Date        Author      Status      Description
 import { CommonEntity } from 'shared/entities/base.entity';
 import { Entity, Column } from 'typeorm';
 
-@Entity('fairytale_like')
+@Entity('fairytale_likes')
 export class FairytaleLike extends CommonEntity {
     @Column({ name: 'user_id' })
     userId: number;
