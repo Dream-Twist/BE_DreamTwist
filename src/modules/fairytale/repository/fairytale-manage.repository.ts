@@ -45,9 +45,9 @@ export class ManageFairytaleRepository extends Repository<Fairytale> {
 
         // 해당 유저가 이미 조회했는지 확인
         const existingView = await viewRepository
-            .createQueryBuilder('views')
-            .where('views.fairytaleId = :fairytaleId', { fairytaleId })
-            .andWhere('views.userId = :userId', { userId })
+            .createQueryBuilder('fairytale_views')
+            .where('fairytale_views.fairytaleId = :fairytaleId', { fairytaleId })
+            .andWhere('fairytale_views.userId = :userId', { userId })
             .getOne();
 
         if (existingView) {

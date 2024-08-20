@@ -90,8 +90,8 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
         }
         const viewCount = await this.dataSource
             .getRepository(Views)
-            .createQueryBuilder('views')
-            .where('views.fairytale_id = :fairytaleId', { fairytaleId })
+            .createQueryBuilder('fairytale_views')
+            .where('fairytale_views.fairytale_id = :fairytaleId', { fairytaleId })
             .getCount();
         return viewCount;
     }
@@ -234,10 +234,10 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
             queryBuilder
                 .addSelect(subQuery => {
                     return subQuery
-                        .select('COUNT(views.id)', 'viewCount')
-                        .from('views', 'views')
-                        .where('views.fairytaleId = fairytale.id')
-                        .groupBy('views.fairytaleId');
+                        .select('COUNT(fairytale_views.id)', 'viewCount')
+                        .from('fairytale_views', 'fairytale_views')
+                        .where('fairytale_views.fairytaleId = fairytale.id')
+                        .groupBy('fairytale_views.fairytaleId');
                 }, 'viewCount')
                 .orderBy('viewCount', 'DESC');
         } else {
@@ -286,11 +286,11 @@ export class ReadFairytaleRepository extends Repository<Fairytale> {
 
         const viewCounts = await this.dataSource
             .getRepository(Views)
-            .createQueryBuilder('views')
-            .select('views.fairytaleId', 'fairytaleId')
-            .addSelect('COUNT(views.id)', 'viewCount')
-            .where('views.fairytaleId IN (:...ids)', { ids: fairytaleIds })
-            .groupBy('views.fairytaleId')
+            .createQueryBuilder('fairytale_views')
+            .select('fairytale_views.fairytaleId', 'fairytaleId')
+            .addSelect('COUNT(fairytale_views.id)', 'viewCount')
+            .where('fairytale_views.fairytaleId IN (:...ids)', { ids: fairytaleIds })
+            .groupBy('fairytale_views.fairytaleId')
             .getRawMany();
 
         const likeCounts = await this.dataSource
